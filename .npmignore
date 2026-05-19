@@ -1,0 +1,14 @@
+tests/
+node_modules/
+.gaiteway/
+.git/
+.github/
+*.log
+.DS_Store
+.env
+.env.*
+coverage/
+.nyc_output/
+.vscode/
+.idea/
+package-lock.json

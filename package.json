@@ -1,0 +1,77 @@
+{
+  "name": "gaiteway",
+  "version": "0.1.0",
+  "description": "One ACP server, many agents, one MCP host. Drive Claude, Codex, and any ACP agent through a single WebSocket / stdio / OpenAI-compatible / MCP REST endpoint.",
+  "type": "module",
+  "main": "server/index.js",
+  "bin": {
+    "gaiteway": "bin/gaiteway.js"
+  },
+  "scripts": {
+    "test": "node --test 'tests/**/*.test.js'",
+    "test:unit": "node --test 'tests/unit/*.test.js'",
+    "test:integration": "node --test 'tests/integration/*.test.js'",
+    "typecheck": "tsc -p ."
+  },
+  "exports": {
+    ".": "./server/index.js",
+    "./server": "./server/index.js",
+    "./adapters/base": "./adapters/base.js",
+    "./core/config": "./core/config.js"
+  },
+  "files": [
+    "bin",
+    "cli",
+    "server",
+    "adapters",
+    "core",
+    "types.d.ts",
+    "tsconfig.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "acp",
+    "agent-client-protocol",
+    "agent",
+    "claude",
+    "codex",
+    "openai",
+    "mcp",
+    "model-context-protocol",
+    "multi-agent",
+    "bridge"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "author": "Alan Leal",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alantriesagain/gaiteway.git"
+  },
+  "homepage": "https://github.com/alantriesagain/gaiteway#readme",
+  "bugs": {
+    "url": "https://github.com/alantriesagain/gaiteway/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.1",
+    "ws": "^8.19.0"
+  },
+  "peerDependencies": {
+    "@anthropic-ai/claude-agent-sdk": ">=0.1.76",
+    "@google/generative-ai": ">=0.21.0",
+    "openai": ">=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@anthropic-ai/claude-agent-sdk": { "optional": true },
+    "openai": { "optional": true },
+    "@google/generative-ai": { "optional": true }
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.0",
+    "@types/ws": "^8.18.1",
+    "typescript": "^6.0.3"
+  }
+}

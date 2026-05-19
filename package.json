@@ -1,6 +1,6 @@
 {
   "name": "gaiteway",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "One ACP server, many agents, one MCP host. Drive Claude, Codex, and any ACP agent through a single WebSocket / stdio / OpenAI-compatible / MCP REST endpoint.",
   "type": "module",
   "main": "server/index.js",

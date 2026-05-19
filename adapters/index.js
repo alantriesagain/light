@@ -5,6 +5,13 @@ const LOADERS = {
   acp: () => import("./acp.js"),
 };
 
+export class AdapterUnavailableError extends Error {
+  constructor(reason) {
+    super(reason);
+    this.name = "AdapterUnavailableError";
+  }
+}
+
 const adapters = new Map();
 
 export const listAdapterIds = () => Object.keys(LOADERS);
@@ -58,7 +65,10 @@ export const loadAdapters = async ({ enabled = [], options = {}, log = () => {} 
       } else
         log(`Adapter "${instance.name}" already registered (skipped duplicate from "${id}")`);
     } catch (e) {
-      log(`Failed to load adapter "${id}": ${e.message}`);
+      if (e?.name === "AdapterUnavailableError")
+        log(`Adapter "${id}" skipped: ${e.message}`);
+      else
+        log(`Failed to load adapter "${id}": ${e.message}`);
     }
   }
   return loaded;

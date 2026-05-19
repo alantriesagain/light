@@ -4,6 +4,7 @@ import {
   STOP_REASONS,
 } from "../core/acp.js";
 import { translateSdkMessage } from "../core/translators/claude.js";
+import { AdapterUnavailableError } from "./index.js";
 
 /**
  * @typedef ClaudeSdkSession
@@ -203,8 +204,8 @@ export default (deps = {}) => {
     async initialize() {
       try {
         sdk = await import("@anthropic-ai/claude-agent-sdk");
-      } catch (e) {
-        process.stderr.write(`[claude-sdk] SDK not available: ${e.message}\n`);
+      } catch {
+        throw new AdapterUnavailableError("install `@anthropic-ai/claude-agent-sdk` to enable");
       }
     },
     createSession: (options) => createSession(adapterDeps, options),

@@ -1,4 +1,5 @@
 import { agentMessageChunk, STOP_REASONS } from "../core/acp.js";
+import { AdapterUnavailableError } from "./index.js";
 
 const DEFAULT_MODELS = [
   { id: "gpt-4o", name: "GPT-4o", modelId: "gpt-4o" },
@@ -136,8 +137,8 @@ export default (deps = {}) => {
       try {
         const { default: OpenAI } = await import("openai");
         client = new OpenAI({ apiKey });
-      } catch (e) {
-        process.stderr.write(`[codex] OpenAI SDK not available: ${e.message}\n`);
+      } catch {
+        throw new AdapterUnavailableError("install `openai` to enable");
       }
     },
     createSession: (options) => createSession(adapterDeps, options),

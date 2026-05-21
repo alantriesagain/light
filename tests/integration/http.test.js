@@ -82,6 +82,7 @@ test("OPTIONS gets CORS headers", async () => {
   const r = await fetch(`${base}/health`, { method: "OPTIONS" });
   assert.equal(r.status, 204);
   assert.equal(r.headers.get("access-control-allow-origin"), "*");
+  assert.equal(r.headers.get("access-control-allow-private-network"), "true");
 });
 
 test("POST /v1/chat/completions non-streaming returns assembled content", async () => {

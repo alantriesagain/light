@@ -1,6 +1,7 @@
 const BASE_CORS = {
   "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Private-Network": "true",
 };
 
 export const buildCorsHeaders = (requestOrigin, allowedOrigin) => {

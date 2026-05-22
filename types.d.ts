@@ -93,6 +93,12 @@ type AdapterFactoryOptions = {
 
 type AdapterFactory = (opts?: AdapterFactoryOptions) => AdapterContract;
 
+type WorkspaceContext = {
+  kind: "workspace" | "normal";
+  root?: string;
+  friendlyRoot?: string;
+};
+
 type CreateSessionOptions = {
   model?: string;
   customPrompt?: string;
@@ -102,6 +108,7 @@ type CreateSessionOptions = {
   };
   mcpServers?: NamedMcpServerConfig[];
   claudeSessionId?: string;
+  workspaceContext?: WorkspaceContext;
 };
 
 /* ─────────── Sessions ─────────── */
@@ -117,6 +124,7 @@ type ClaudeCliSession = {
   isStreaming: boolean;
   mcpConfig?: CreateSessionOptions["mcpConfig"];
   customPrompt?: string;
+  workspaceContext?: WorkspaceContext;
   model?: string;
 };
 
@@ -124,6 +132,7 @@ type ClaudeSdkSession = {
   id: string;
   model: string;
   customPrompt?: string;
+  workspaceContext?: WorkspaceContext;
   mcpConfig?: CreateSessionOptions["mcpConfig"];
   sdkSessionId: string | null;
   queryInstance: {
@@ -154,6 +163,7 @@ type CodexSession = {
   id: string;
   model: string;
   customPrompt?: string;
+  workspaceContext?: WorkspaceContext;
   mcpConfig?: CreateSessionOptions["mcpConfig"];
   messages: Array<{ role: string; content: string }>;
   isStreaming: boolean;

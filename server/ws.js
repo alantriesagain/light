@@ -7,10 +7,11 @@ import { createDispatcher } from "./jsonrpc.js";
  * @param {import("http").Server} httpServer
  * @param {{ cfg: any, log: (msg: string) => void, allowedOrigin?: string|null, mcpHost?: any }} opts
  */
-export const attachWebSockets = (httpServer, { cfg, log, allowedOrigin = null, mcpHost = null }) => {
+export const attachWebSockets = (httpServer, { cfg, log, allowedOrigin = null, mcpHost = null, fsWatcher = null }) => {
   const acpWss = new WebSocketServer({ noServer: true });
   const cliWss = new WebSocketServer({ noServer: true });
   const mcpWss = new WebSocketServer({ noServer: true });
+  const fsWss = new WebSocketServer({ noServer: true });
   const dispatcherFactory = createDispatcher({ cfg, log });
 
   const rejectAndDestroy = (socket, status, reason) => {
@@ -77,6 +78,27 @@ export const attachWebSockets = (httpServer, { cfg, log, allowedOrigin = null, m
       return;
     }
 
+    if (url.pathname === "/fs/events") {
+      if (!originAllowed(req)) {
+        log(`FS-WS upgrade rejected: origin ${req.headers.origin || "(none)"} not in allowlist`);
+        return rejectAndDestroy(socket, 403, "Forbidden");
+      }
+      if (!fsWatcher) return rejectAndDestroy(socket, 503, "FS watcher not initialized");
+
+      fsWss.handleUpgrade(req, socket, head, (ws) => {
+        log("FS-WS  /fs/events [connected]");
+        const unsub = fsWatcher.subscribe((change) => {
+          if (ws.readyState !== 1) return;
+          try { ws.send(JSON.stringify(change)); } catch {}
+        });
+        ws.on("close", () => {
+          unsub();
+          log("FS-WS  /fs/events [closed]");
+        });
+      });
+      return;
+    }
+
     const cliMatch = url.pathname.match(/^\/ws\/cli\/(.+)$/);
     if (cliMatch) {
       const sessionId = cliMatch[1];
@@ -102,6 +124,7 @@ export const attachWebSockets = (httpServer, { cfg, log, allowedOrigin = null, m
       acpWss.close();
       cliWss.close();
       mcpWss.close();
+      fsWss.close();
     },
   };
 };

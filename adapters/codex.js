@@ -1,4 +1,5 @@
 import { agentMessageChunk, STOP_REASONS } from "../core/acp.js";
+import { buildWorkspacePrompt } from "../core/session-context.js";
 import { AdapterUnavailableError } from "./index.js";
 
 const DEFAULT_MODELS = [
@@ -33,12 +34,13 @@ const emit = (u) => u;
  * @returns {Promise<CodexSession>}
  */
 const createSession = async (deps, options = {}) => {
-  const { model, customPrompt, mcpConfig } = options;
+  const { model, customPrompt, mcpConfig, workspaceContext } = options;
   const sessionId = `codex_${Date.now()}_${Math.random().toString(36).slice(2)}`;
   return {
     id: sessionId,
     model: deps.resolveModelId(model),
     customPrompt,
+    workspaceContext,
     mcpConfig,
     messages: [],
     isStreaming: false,
@@ -60,7 +62,10 @@ const makeSendStream = (deps) => async function* (session, prompt) {
   session.isStreaming = true;
   session.abortController = new AbortController();
 
-  const systemPrompt = session.customPrompt || defaultSystemPrompt(deps.projectPath);
+  const cwd = session.workspaceContext?.root || deps.projectPath;
+  const basePrompt = session.customPrompt || defaultSystemPrompt(cwd);
+  const workspaceBlock = buildWorkspacePrompt(session.workspaceContext);
+  const systemPrompt = workspaceBlock ? `${basePrompt}\n\n${workspaceBlock}` : basePrompt;
 
   let full = "";
   try {

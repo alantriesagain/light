@@ -6,6 +6,7 @@ import {
   STOP_REASONS,
 } from "../core/acp.js";
 import { translateStreamJson } from "../core/translators/claude.js";
+import { composeSystemPrompt } from "../core/session-context.js";
 
 const DEFAULT_MODELS = [
   { id: "default", name: "Default (claude default)" },
@@ -129,7 +130,7 @@ const handlePermissionRequest = async (session, msg, context) => {
  * @returns {Promise<ClaudeCliSession>}
  */
 const createSession = async (config, options = {}) => {
-  const { model, customPrompt, mcpConfig, claudeSessionId } = options;
+  const { model, customPrompt, mcpConfig, claudeSessionId, workspaceContext } = options;
   const sessionId = randomUUID();
 
   const url = `ws://${config.bridgeHost}:${config.bridgePort}/ws/cli/${sessionId}`;
@@ -147,7 +148,8 @@ const createSession = async (config, options = {}) => {
   if (Object.keys(mergedMcp).length > 0)
     args.push("--mcp-config", JSON.stringify({ mcpServers: mergedMcp }));
 
-  if (customPrompt) args.push("--system-prompt", customPrompt);
+  const appendPrompt = composeSystemPrompt(customPrompt, workspaceContext);
+  if (appendPrompt) args.push("--append-system-prompt", appendPrompt);
   args.push("-p", "");
 
   const env = stripClaudeEnv(process.env);
@@ -167,6 +169,7 @@ const createSession = async (config, options = {}) => {
     isStreaming: false,
     mcpConfig,
     customPrompt,
+    workspaceContext,
     model,
   };
 };

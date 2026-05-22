@@ -4,6 +4,7 @@ import {
   STOP_REASONS,
 } from "../core/acp.js";
 import { translateSdkMessage } from "../core/translators/claude.js";
+import { composeSystemPrompt } from "../core/session-context.js";
 import { AdapterUnavailableError } from "./index.js";
 
 /**
@@ -11,6 +12,7 @@ import { AdapterUnavailableError } from "./index.js";
  * @property {string} id
  * @property {string} model
  * @property {string} [customPrompt]
+ * @property {WorkspaceContext} [workspaceContext]
  * @property {any} [mcpConfig]
  * @property {string | null} sdkSessionId
  * @property {any} queryInstance
@@ -57,12 +59,13 @@ const emit = (u) => u;
  * @returns {Promise<ClaudeSdkSession>}
  */
 const createSession = async (deps, options = {}) => {
-  const { model, customPrompt, mcpConfig } = options;
+  const { model, customPrompt, mcpConfig, workspaceContext } = options;
   const sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2)}`;
   return {
     id: sessionId,
     model: deps.resolveModelId(model),
     customPrompt,
+    workspaceContext,
     mcpConfig,
     sdkSessionId: null,
     queryInstance: null,
@@ -116,15 +119,17 @@ const makeSendStream = (deps) => async function* (session, prompt, context) {
     return { behavior: "deny", message: "User denied permission" };
   };
 
+  const appendPrompt = composeSystemPrompt(session.customPrompt, session.workspaceContext);
+
   /** @type {any} */
   const queryOptions = {
     model: session.model,
-    systemPrompt: session.customPrompt
-      ? { type: "preset", preset: "claude_code", append: session.customPrompt }
+    systemPrompt: appendPrompt
+      ? { type: "preset", preset: "claude_code", append: appendPrompt }
       : { type: "preset", preset: "claude_code" },
     settingSources: ["project"],
     permissionMode: "default",
-    cwd: deps.projectPath,
+    cwd: session.workspaceContext?.root || deps.projectPath,
     canUseTool,
     mcpServers: deps.mcpServersConfig,
     disallowedTools: disallowedTools.length > 0 ? disallowedTools : undefined,

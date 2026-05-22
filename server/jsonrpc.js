@@ -50,10 +50,10 @@ export const createDispatcher = ({ cfg, log = () => {} } = {}) => {
         }
 
         if (msg.method === "session/new") {
-          const { agent, model, customPrompt, mcpServers } = msg.params || {};
+          const { agent, model, customPrompt, mcpServers, workspaceContext } = msg.params || {};
           const result = await router.createSession(
             agent || null,
-            { model, customPrompt, mcpServers },
+            { model, customPrompt, mcpServers, workspaceContext },
             { cfgDir: cfg?._dir },
           );
           reply(id, { sessionId: result.sessionId, agentId: result.agentId, model: result.model });

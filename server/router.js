@@ -23,6 +23,7 @@ export const createSession = async (agentId, options = {}, { cfgDir } = {}) => {
       adapter: adapter.name,
       model: options.model || session.model,
       customPrompt: options.customPrompt,
+      workspaceContext: options.workspaceContext,
     });
 
   return {

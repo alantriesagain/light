@@ -2,15 +2,18 @@ import http from "http";
 import { handleManagement } from "./routes/management.js";
 import { handleOpenAi } from "./routes/openai.js";
 import { handleMcp } from "./routes/mcp.js";
+import { handleFs } from "./routes/fs.js";
 import { attachWebSockets } from "./ws.js";
 import { buildCorsHeaders, sendJson } from "./sse.js";
 import { loadAdapters, listAdapters } from "../adapters/index.js";
 import { createMcpRegistry } from "../core/mcp-config.js";
 import { createMcpHost } from "../core/mcp-host.js";
+import { createFsWatcher } from "./fs-watcher.js";
 
 const ROUTES = [
   ["WS    /acp", "ACP over WebSocket (primary)"],
   ["WS    /mcp/notifications", "MCP notifications stream"],
+  ["WS    /fs/events", "Filesystem change events"],
   ["GET   /health", "Health"],
   ["GET   /agents", "List agents"],
   ["GET   /models/:agent", "List models"],
@@ -22,6 +25,7 @@ const ROUTES = [
   ["GET   /mcp/prompts", "MCP prompts + render"],
   ["POST  /v1/chat/completions", "OpenAI chat"],
   ["GET   /v1/models", "OpenAI models"],
+  ["GET   /fs/*", "Filesystem (info/file/dir/tree/exists/rename)"],
 ];
 
 /**
@@ -93,6 +97,11 @@ export const createBridgeServer = async ({ port, host, config, allowedOrigin = n
         if (handled !== false) return;
       }
 
+      if (pathname.startsWith("/fs/")) {
+        const handled = await handleFs(ctx);
+        if (handled !== false) return;
+      }
+
       const handled = await handleManagement(ctx);
       if (handled !== false) return;
 
@@ -103,11 +112,13 @@ export const createBridgeServer = async ({ port, host, config, allowedOrigin = n
     }
   });
 
-  const ws = attachWebSockets(httpServer, { cfg: config, log, allowedOrigin, mcpHost });
+  const fsWatcher = await createFsWatcher({ log: (m) => log(`[fs-watch] ${m}`) });
+  const ws = attachWebSockets(httpServer, { cfg: config, log, allowedOrigin, mcpHost, fsWatcher });
 
   return {
     server: httpServer,
     mcpHost,
+    fsWatcher,
     start: () =>
       /** @type {Promise<{port: number, host: string}>} */ (new Promise((resolve) => {
         httpServer.listen(port, host, () => {
@@ -127,6 +138,7 @@ export const createBridgeServer = async ({ port, host, config, allowedOrigin = n
       /** @type {Promise<void>} */ (new Promise(async (resolve) => {
         for (const s of mcpHost.list())
           await mcpHost.disconnect(s.name).catch(() => {});
+        await fsWatcher.close();
         ws.close();
         httpServer.close(() => resolve());
       })),

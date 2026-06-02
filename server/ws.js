@@ -5,7 +5,7 @@ import { createDispatcher } from "./jsonrpc.js";
 
 /**
  * @param {import("http").Server} httpServer
- * @param {{ cfg: any, log: (msg: string) => void, allowedOrigin?: string|null, mcpHost?: any }} opts
+ * @param {{ cfg: any, log: (msg: string) => void, allowedOrigin?: string|null, mcpHost?: any, fsWatcher?: any }} opts
  */
 export const attachWebSockets = (httpServer, { cfg, log, allowedOrigin = null, mcpHost = null, fsWatcher = null }) => {
   const acpWss = new WebSocketServer({ noServer: true });

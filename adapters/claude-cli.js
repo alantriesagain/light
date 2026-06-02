@@ -3,7 +3,6 @@ import { randomUUID } from "crypto";
 import {
   inferToolKind,
   defaultPermissionOptions,
-  STOP_REASONS,
 } from "../core/acp.js";
 import { translateStreamJson } from "../core/translators/claude.js";
 import { composeSystemPrompt } from "../core/session-context.js";

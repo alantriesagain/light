@@ -10,8 +10,10 @@ const DEBOUNCE_MS = 50;
  * fs.promises.watch (recursive: true requires Node >= 20.6 on Linux,
  * always available on macOS / Windows). Falls back to no-op events if
  * the platform / Node version doesn't support recursive.
+ *
+ * @param {{ log?: (msg: string) => void }} [opts]
  */
-export const createFsWatcher = async ({ log = () => {} } = {}) => {
+export const createFsWatcher = async ({ log = (_msg) => {} } = {}) => {
   const root = getFsRoot();
   const subscribers = new Set();
   const pending = new Map();

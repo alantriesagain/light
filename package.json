@@ -14,10 +14,11 @@
     "typecheck": "tsc -p ."
   },
   "exports": {
-    ".": "./server/index.js",
+    ".": { "types": "./server/index.js", "default": "./server/index.js" },
     "./server": "./server/index.js",
     "./adapters/base": "./adapters/base.js",
-    "./core/config": "./core/config.js"
+    "./core/config": "./core/config.js",
+    "./*": "./*"
   },
   "files": [
     "bin",
@@ -62,9 +63,15 @@
     "openai": ">=4.0.0"
   },
   "peerDependenciesMeta": {
-    "@anthropic-ai/claude-agent-sdk": { "optional": true },
-    "openai": { "optional": true },
-    "@google/generative-ai": { "optional": true }
+    "@anthropic-ai/claude-agent-sdk": {
+      "optional": true
+    },
+    "openai": {
+      "optional": true
+    },
+    "@google/generative-ai": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=20"

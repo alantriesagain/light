@@ -9,7 +9,7 @@ export const DEFAULT_HOST = "localhost";
 const DEFAULT_CONFIG = {
   port: DEFAULT_PORT,
   host: DEFAULT_HOST,
-  adapters: ["claude-cli", "codex", "acp"],
+  adapters: ["claude-sdk", "codex", "acp"],
   defaultModel: null,
   mcpServers: [],
 };

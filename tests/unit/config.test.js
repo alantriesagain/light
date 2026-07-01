@@ -17,7 +17,7 @@ test("loadConfig returns defaults when file missing", () => {
   assert.equal(cfg._exists, false);
   assert.equal(cfg.port, DEFAULT_PORT);
   assert.equal(cfg.host, "localhost");
-  assert.deepEqual(cfg.adapters, ["claude-cli", "codex", "acp"]);
+  assert.deepEqual(cfg.adapters, ["claude-sdk", "codex", "acp"]);
 });
 
 test("initConfig creates file and dirs", () => {

@@ -1,5 +1,4 @@
 const LOADERS = {
-  "claude-cli": () => import("./claude-cli.js"),
   "claude-sdk": () => import("./claude-sdk.js"),
   codex: () => import("./codex.js"),
   acp: () => import("./acp.js"),

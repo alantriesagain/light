@@ -29,9 +29,9 @@ import { AdapterUnavailableError } from "./index.js";
 const READ_ONLY_TOOLS = ["Read", "Glob", "Grep", "LS", "WebFetch", "WebSearch", "Task", "TodoRead"];
 
 const DEFAULT_MODELS = [
-  { id: "sonnet", name: "Claude Sonnet", modelId: "claude-sonnet-4-5-20250929" },
-  { id: "opus", name: "Claude Opus", modelId: "claude-opus-4-5-20250514" },
-  { id: "haiku", name: "Claude Haiku", modelId: "claude-haiku-3-5-20241022" },
+  { id: "opus", name: "Claude Opus", modelId: "claude-opus-4-8" },
+  { id: "sonnet", name: "Claude Sonnet", modelId: "claude-sonnet-4-6" },
+  { id: "haiku", name: "Claude Haiku", modelId: "claude-haiku-4-5-20251001" },
 ];
 
 /** @param {ContentBlock[] | string | any} prompt @returns {string} */

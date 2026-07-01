@@ -41,7 +41,7 @@ test("getDefaultAdapter returns first registered", () => {
 
 test("listAdapterIds enumerates known loaders", () => {
   const ids = listAdapterIds();
-  assert.ok(ids.includes("claude-cli"));
+  assert.ok(ids.includes("claude-sdk"));
   assert.ok(ids.includes("codex"));
   assert.ok(ids.includes("acp"));
 });

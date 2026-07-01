@@ -1,0 +1,23 @@
+{
+  "panels": [
+    {
+      "id": "panel_1781131447157_49p2vp0",
+      "openResources": [
+        "home://home"
+      ],
+      "activeResourceUri": "home://home",
+      "tabMetaCache": {
+        "home://home": {
+          "label": "Welcome",
+          "icon": "layout-dashboard",
+          "component": "bsp-home"
+        }
+      }
+    }
+  ],
+  "activePanelId": "panel_1781131447157_49p2vp0",
+  "openFolders": [],
+  "activeActivity": "home",
+  "sidebarVisible": true,
+  "recentResources": []
+}

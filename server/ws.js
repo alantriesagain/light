@@ -1,5 +1,4 @@
 import { WebSocketServer } from "ws";
-import sessionStore from "../core/session.js";
 import { getAdapter } from "../adapters/index.js";
 import { createDispatcher } from "./jsonrpc.js";
 
@@ -9,7 +8,6 @@ import { createDispatcher } from "./jsonrpc.js";
  */
 export const attachWebSockets = (httpServer, { cfg, log, allowedOrigin = null, mcpHost = null, fsWatcher = null }) => {
   const acpWss = new WebSocketServer({ noServer: true });
-  const cliWss = new WebSocketServer({ noServer: true });
   const mcpWss = new WebSocketServer({ noServer: true });
   const fsWss = new WebSocketServer({ noServer: true });
   const dispatcherFactory = createDispatcher({ cfg, log });
@@ -99,30 +97,12 @@ export const attachWebSockets = (httpServer, { cfg, log, allowedOrigin = null, m
       return;
     }
 
-    const cliMatch = url.pathname.match(/^\/ws\/cli\/(.+)$/);
-    if (cliMatch) {
-      const sessionId = cliMatch[1];
-      const data = sessionStore.get(sessionId);
-      if (!data) return rejectAndDestroy(socket, 404, "Not Found");
-
-      const adapter = getAdapter(data.adapterId);
-      if (!adapter?.attachWebSocket) return rejectAndDestroy(socket, 400, "Bad Request");
-
-      cliWss.handleUpgrade(req, socket, head, (ws) => {
-        log(`WS     /ws/cli/${sessionId} [connected]`);
-        adapter.attachWebSocket(data.session, ws);
-        ws.on("close", () => log(`WS     /ws/cli/${sessionId} [closed]`));
-      });
-      return;
-    }
-
     rejectAndDestroy(socket, 404, "Not Found");
   });
 
   return {
     close() {
       acpWss.close();
-      cliWss.close();
       mcpWss.close();
       fsWss.close();
     },

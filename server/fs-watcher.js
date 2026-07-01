@@ -1,5 +1,5 @@
 import path from "path";
-import { promises as fsp } from "fs";
+import fs, { promises as fsp } from "fs";
 import { getFsRoot } from "./routes/fs.js";
 
 const IGNORE_RE = /(^|[/\\])(\.|node_modules([/\\]|$))/;
@@ -17,11 +17,10 @@ export const createFsWatcher = async ({ log = (_msg) => {} } = {}) => {
   const root = getFsRoot();
   const subscribers = new Set();
   const pending = new Map();
-  const ac = new AbortController();
 
   let watcher;
   try {
-    watcher = fsp.watch(root, { recursive: true, signal: ac.signal });
+    watcher = fs.watch(root, { recursive: true });
   } catch (e) {
     log(`[fs-watch] fs.watch unavailable (${e.message}) — change events disabled`);
     return { subscribe: () => () => {}, close: () => {} };
@@ -54,15 +53,11 @@ export const createFsWatcher = async ({ log = (_msg) => {} } = {}) => {
     pending.set(rel, { timer, eventType });
   };
 
-  (async () => {
-    try {
-      for await (const { eventType, filename } of watcher)
-        handle(eventType, filename);
-    } catch (e) {
-      if (e.name !== "AbortError")
-        log(`[fs-watch] watcher loop ended: ${e.message}`);
-    }
-  })();
+  watcher.on("change", (eventType, filename) => handle(eventType, filename));
+  watcher.on("error", (e) => {
+    if (e?.code === "ENOENT") return;
+    log(`[fs-watch] watcher error: ${e.message}`);
+  });
 
   return {
     subscribe(cb) {
@@ -71,7 +66,7 @@ export const createFsWatcher = async ({ log = (_msg) => {} } = {}) => {
     },
     async close() {
       subscribers.clear();
-      try { ac.abort(); } catch {}
+      try { watcher.close(); } catch {}
       for (const { timer } of pending.values()) clearTimeout(timer);
       pending.clear();
     },

@@ -2,7 +2,7 @@ import { parseArgs } from "../args.js";
 import { loadConfig, DEFAULT_PORT, DEFAULT_HOST } from "../../core/config.js";
 
 const ADAPTER_FLAGS = {
-  claude: "claude-cli",
+  claude: "claude-sdk",
   "claude-sdk": "claude-sdk",
   codex: "codex",
   acp: "acp",

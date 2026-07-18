@@ -46,7 +46,11 @@ export default async (argv) => {
   const adapterOverrides = adaptersFromFlags(opts);
   if (adapterOverrides.length > 0) cfg.adapters = adapterOverrides;
 
-  const allowedOrigin = normalizeOrigin(opts.url);
+  const allowedOrigin = String(opts.url || "")
+    .split(",")
+    .map(normalizeOrigin)
+    .filter(Boolean)
+    .join(",") || null;
 
   if (opts.stdio) {
     const { startStdioServer } = await import("../../server/stdio.js");

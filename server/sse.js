@@ -4,12 +4,20 @@ const BASE_CORS = {
   "Access-Control-Allow-Private-Network": "true",
 };
 
+export const allowedOriginList = (allowedOrigin) => {
+  if (!allowedOrigin) return [];
+  return (Array.isArray(allowedOrigin) ? allowedOrigin : String(allowedOrigin).split(","))
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+};
+
 export const buildCorsHeaders = (requestOrigin, allowedOrigin) => {
   const headers = { ...BASE_CORS };
-  if (!allowedOrigin)
+  const list = allowedOriginList(allowedOrigin);
+  if (!list.length)
     headers["Access-Control-Allow-Origin"] = "*";
-   else if (requestOrigin && requestOrigin === allowedOrigin) {
-    headers["Access-Control-Allow-Origin"] = allowedOrigin;
+   else if (requestOrigin && list.includes(requestOrigin)) {
+    headers["Access-Control-Allow-Origin"] = requestOrigin;
     headers["Vary"] = "Origin";
   }
   return headers;

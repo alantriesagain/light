@@ -1,6 +1,7 @@
 import { WebSocketServer } from "ws";
 import { getAdapter } from "../adapters/index.js";
 import { createDispatcher } from "./jsonrpc.js";
+import { allowedOriginList } from "./sse.js";
 
 /**
  * @param {import("http").Server} httpServer
@@ -18,10 +19,11 @@ export const attachWebSockets = (httpServer, { cfg, log, allowedOrigin = null, m
   };
 
   const originAllowed = (req) => {
-    if (!allowedOrigin) return true;
+    const list = allowedOriginList(allowedOrigin);
+    if (!list.length) return true;
     const origin = req.headers.origin;
     if (!origin) return false;
-    return origin === allowedOrigin;
+    return list.includes(origin);
   };
 
   httpServer.on("upgrade", (req, socket, head) => {

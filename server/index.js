@@ -4,7 +4,7 @@ import { handleOpenAi } from "./routes/openai.js";
 import { handleMcp } from "./routes/mcp.js";
 import { handleFs } from "./routes/fs.js";
 import { attachWebSockets } from "./ws.js";
-import { buildCorsHeaders, sendJson } from "./sse.js";
+import { allowedOriginList, buildCorsHeaders, sendJson } from "./sse.js";
 import { loadAdapters, listAdapters } from "../adapters/index.js";
 import { createMcpRegistry } from "../core/mcp-config.js";
 import { createMcpHost } from "../core/mcp-host.js";
@@ -73,7 +73,8 @@ export const createBridgeServer = async ({ port, host, config, allowedOrigin = n
       log(`${method.padEnd(7)} ${p} ${res.statusCode} (${Date.now() - startedAt}ms)`);
     };
 
-    if (allowedOrigin && reqOrigin && reqOrigin !== allowedOrigin) {
+    const originList = allowedOriginList(allowedOrigin);
+    if (originList.length && reqOrigin && !originList.includes(reqOrigin)) {
       sendJson(res, 403, { error: "Origin not allowed" }, cors);
       return;
     }

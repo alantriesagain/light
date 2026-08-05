@@ -54,7 +54,7 @@ export const createFsWatcher = async ({ log = (_msg) => {} } = {}) => {
   };
 
   watcher.on("change", (eventType, filename) => handle(eventType, filename));
-  watcher.on("error", (e) => {
+  watcher.on("error", (/** @type {NodeJS.ErrnoException} */ e) => {
     if (e?.code === "ENOENT") return;
     log(`[fs-watch] watcher error: ${e.message}`);
   });

@@ -312,6 +312,10 @@ type McpHost = {
   listAllResources: () => McpResourceEntry[];
   listAllPrompts: () => McpPromptEntry[];
   connect: (name: string, config: McpServerConfig) => Promise<McpServerEntry>;
+  registerNative: (
+    name: string,
+    def: { tools: unknown[]; invoke: (toolName: string, args: unknown) => unknown },
+  ) => void;
   disconnect: (name: string) => Promise<void>;
   remove: (name: string) => Promise<void>;
   refresh: (name: string) => Promise<void>;

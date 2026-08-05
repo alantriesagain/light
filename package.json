@@ -14,7 +14,10 @@
     "typecheck": "tsc -p ."
   },
   "exports": {
-    ".": { "types": "./server/index.js", "default": "./server/index.js" },
+    ".": {
+      "types": "./server/index.js",
+      "default": "./server/index.js"
+    },
     "./server": "./server/index.js",
     "./adapters/base": "./adapters/base.js",
     "./core/config": "./core/config.js",
@@ -79,6 +82,7 @@
   "devDependencies": {
     "@types/node": "^25.9.0",
     "@types/ws": "^8.18.1",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "zod": "^3.25.0"
   }
 }

@@ -64,13 +64,21 @@ test("GET /sessions returns empty list initially", async () => {
   assert.deepEqual(body.sessions, []);
 });
 
-test("GET /mcp/servers, /mcp/tools, /mcp/resources return empty arrays", async () => {
-  for (const path of ["/mcp/servers", "/mcp/tools", "/mcp/resources"]) {
-    const r = await fetch(`${base}${path}`);
-    const body = await r.json();
-    const key = Object.keys(body)[0];
-    assert.deepEqual(body[key], []);
-  }
+test("with no configured servers only the built-in app server is present", async () => {
+  const servers = await fetch(`${base}/mcp/servers`).then((r) => r.json());
+  assert.deepEqual(servers.servers.map((s) => s.name), ["app"]);
+
+  const tools = await fetch(`${base}/mcp/tools`).then((r) => r.json());
+  assert.ok(tools.tools.every((t) => t.server === "app"));
+  assert.ok(tools.tools.some((t) => t.fullName === "mcp__app__app_generate_media"));
+
+  const resources = await fetch(`${base}/mcp/resources`).then((r) => r.json());
+  assert.deepEqual(resources.resources, []);
+});
+
+test("GET /app/status reports no app connected", async () => {
+  const r = await fetch(`${base}/app/status`);
+  assert.deepEqual(await r.json(), { connected: false });
 });
 
 test("GET unknown route 404s", async () => {

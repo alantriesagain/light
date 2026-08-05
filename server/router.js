@@ -8,7 +8,6 @@ import { STOP_REASONS } from "../core/acp.js";
  * @param {any} [options]
  * @param {{ cfgDir?: string }} [opts]
  */
-/** @param {object} _agentId @param {object} _options @param {{cfgDir?: unknown}} [args] */
 export const createSession = async (agentId, options = {}, { cfgDir } = {}) => {
   const adapter = agentId ? getAdapter(agentId) : getDefaultAdapter();
   if (!adapter)

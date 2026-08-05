@@ -46,6 +46,7 @@ export const createMcpRegistry = () => {
           servers.set(server.name, {
             name: server.name,
             serverPath,
+            env: server.env || {},
             tools: server.tools || [],
             resources: server.resources || [],
           });

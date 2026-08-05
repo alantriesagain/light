@@ -143,6 +143,7 @@ export const createMcpHost = ({ log = () => {} } = {}) => {
   const disconnect = async (name) => {
     const entry = servers.get(name);
     if (!entry) return;
+    if (/** @type {any} */ (entry).native) return;
     if (entry.client)
       try { await entry.client.close(); } catch {}
     entry.client = null;
@@ -160,12 +161,40 @@ export const createMcpHost = ({ log = () => {} } = {}) => {
     notify({ type: "server:removed", name });
   };
 
+  /**
+   * Register a built-in (in-process) server: no subprocess, no transport. Tools
+   * declare a plain JSON-Schema `inputSchema`; `invoke(toolName, args)` runs a
+   * JS handler and returns MCP content. Used for gaiteway-native capabilities.
+   *
+   * @param {string} name
+   * @param {{ tools: any[], invoke: (toolName: string, args: any) => any }} def
+   */
+  const registerNative = (name, { tools, invoke }) => {
+    servers.set(name, /** @type {any} */ ({
+      name,
+      config: { native: true },
+      client: null,
+      native: true,
+      invoke,
+      status: "connected",
+      lastError: null,
+      capabilities: { tools: {} },
+      tools: tools || [],
+      resources: [],
+      prompts: [],
+    }));
+    notify({ type: "server:connected", name });
+  };
+
   /** @param {string} full @param {any} args */
   const invokeTool = async (full, args) => {
     const parts = parseFullToolName(full);
     if (!parts) throw new Error(`Invalid tool name: ${full}`);
     const entry = servers.get(parts.server);
-    if (!entry?.client) throw new Error(`Server '${parts.server}' not connected`);
+    if (!entry) throw new Error(`Server '${parts.server}' not connected`);
+    if (/** @type {any} */ (entry).native)
+      return /** @type {any} */ (entry).invoke(parts.name, args || {});
+    if (!entry.client) throw new Error(`Server '${parts.server}' not connected`);
     return entry.client.callTool({ name: parts.name, arguments: args || {} });
   };
 
@@ -251,6 +280,7 @@ export const createMcpHost = ({ log = () => {} } = {}) => {
       return out;
     },
     connect,
+    registerNative,
     disconnect,
     remove,
     refresh: refreshFromServer,

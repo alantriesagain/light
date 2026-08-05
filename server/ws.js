@@ -5,12 +5,13 @@ import { allowedOriginList } from "./sse.js";
 
 /**
  * @param {import("http").Server} httpServer
- * @param {{ cfg: any, log: (msg: string) => void, allowedOrigin?: string|null, mcpHost?: any, fsWatcher?: any }} opts
+ * @param {{ cfg: any, log: (msg: string) => void, allowedOrigin?: string|null, mcpHost?: any, fsWatcher?: any, appHub?: any }} opts
  */
-export const attachWebSockets = (httpServer, { cfg, log, allowedOrigin = null, mcpHost = null, fsWatcher = null }) => {
+export const attachWebSockets = (httpServer, { cfg, log, allowedOrigin = null, mcpHost = null, fsWatcher = null, appHub = null }) => {
   const acpWss = new WebSocketServer({ noServer: true });
   const mcpWss = new WebSocketServer({ noServer: true });
   const fsWss = new WebSocketServer({ noServer: true });
+  const appWss = new WebSocketServer({ noServer: true });
   const dispatcherFactory = createDispatcher({ cfg, log });
 
   const rejectAndDestroy = (socket, status, reason) => {
@@ -99,6 +100,25 @@ export const attachWebSockets = (httpServer, { cfg, log, allowedOrigin = null, m
       return;
     }
 
+    if (url.pathname === "/app") {
+      if (!originAllowed(req)) {
+        log(`APP-WS upgrade rejected: origin ${req.headers.origin || "(none)"} not in allowlist`);
+        return rejectAndDestroy(socket, 403, "Forbidden");
+      }
+      if (!appHub) return rejectAndDestroy(socket, 503, "App hub not initialized");
+
+      appWss.handleUpgrade(req, socket, head, (ws) => {
+        appHub.attach(ws);
+        ws.on("message", (raw) => {
+          let msg;
+          try { msg = JSON.parse(raw.toString()); } catch { return; }
+          appHub.handleMessage(msg);
+        });
+        ws.on("close", () => appHub.detach(ws));
+      });
+      return;
+    }
+
     rejectAndDestroy(socket, 404, "Not Found");
   });
 
@@ -107,6 +127,7 @@ export const attachWebSockets = (httpServer, { cfg, log, allowedOrigin = null, m
       acpWss.close();
       mcpWss.close();
       fsWss.close();
+      appWss.close();
     },
   };
 };

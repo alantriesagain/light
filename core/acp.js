@@ -53,7 +53,7 @@ export const toolCallUpdate = ({ toolCallId, status, content, rawOutput }) => {
   return out;
 };
 
-/** @param {object} _text @param {{isError = false?: boolean}} [args] */
+/** @param {string} text @param {{ isError?: boolean }} [args] */
 export const toolCallContentBlock = (text, { isError = false } = {}) =>
   ({ type: "content", content: textBlock(text), ...(isError ? { isError: true } : {}) });
 

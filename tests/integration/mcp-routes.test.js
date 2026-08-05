@@ -27,10 +27,10 @@ after(async () => {
   await bridge.stop();
 });
 
-test("GET /mcp/servers initially empty", async () => {
+test("GET /mcp/servers starts with only the built-in app server", async () => {
   const r = await fetch(`${base}/mcp/servers`);
   const body = await r.json();
-  assert.deepEqual(body.servers, []);
+  assert.deepEqual(body.servers.map((s) => s.name), ["app"]);
 });
 
 test("POST /mcp/servers connects a server", async () => {
@@ -48,8 +48,7 @@ test("POST /mcp/servers connects a server", async () => {
 test("GET /mcp/servers shows the connected server", async () => {
   const r = await fetch(`${base}/mcp/servers`);
   const body = await r.json();
-  assert.equal(body.servers.length, 1);
-  assert.equal(body.servers[0].name, "fake");
+  assert.ok(body.servers.some((s) => s.name === "fake"));
 });
 
 test("GET /mcp/servers/:name/status returns status", async () => {
@@ -140,5 +139,5 @@ test("DELETE /mcp/servers/:name removes server", async () => {
   await fetch(`${base}/mcp/servers/fake`, { method: "DELETE" });
   const r = await fetch(`${base}/mcp/servers`);
   const body = await r.json();
-  assert.equal(body.servers.length, 0);
+  assert.ok(!body.servers.some((s) => s.name === "fake"));
 });

@@ -3,17 +3,23 @@ import { handleManagement } from "./routes/management.js";
 import { handleOpenAi } from "./routes/openai.js";
 import { handleMcp } from "./routes/mcp.js";
 import { handleFs } from "./routes/fs.js";
+import { handleApp } from "./routes/app.js";
 import { attachWebSockets } from "./ws.js";
+import { createAppHub } from "./app-hub.js";
 import { allowedOriginList, buildCorsHeaders, sendJson } from "./sse.js";
 import { loadAdapters, listAdapters } from "../adapters/index.js";
 import { createMcpRegistry } from "../core/mcp-config.js";
 import { createMcpHost } from "../core/mcp-host.js";
+import { createAppTools } from "../core/app-tools.js";
 import { createFsWatcher } from "./fs-watcher.js";
 
 const ROUTES = [
   ["WS    /acp", "ACP over WebSocket (primary)"],
+  ["WS    /app", "Live app control channel"],
   ["WS    /mcp/notifications", "MCP notifications stream"],
   ["WS    /fs/events", "Filesystem change events"],
+  ["GET   /app/status", "App control: connection status"],
+  ["POST  /app/command", "App control: run a command in the live app"],
   ["GET   /health", "Health"],
   ["GET   /agents", "List agents"],
   ["GET   /models/:agent", "List models"],
@@ -38,7 +44,10 @@ export const createBridgeServer = async ({ port, host, config, allowedOrigin = n
   const mcp = createMcpRegistry();
   await mcp.discover(config.mcpServers || []);
 
+  const appHub = createAppHub({ log: (m) => log(`[app] ${m}`) });
+
   const mcpHost = createMcpHost({ log: (m) => log(`[mcp] ${m}`) });
+  mcpHost.registerNative("app", createAppTools({ appHub }));
   for (const [name, server] of mcp.getServers())
     try {
       await mcpHost.connect(name, server);
@@ -86,7 +95,7 @@ export const createBridgeServer = async ({ port, host, config, allowedOrigin = n
     }
 
     try {
-      const ctx = { req, res, url, method, pathname, mcp, mcpHost, cfg: config, log, defaultModel: config.defaultModel, cors };
+      const ctx = { req, res, url, method, pathname, mcp, mcpHost, appHub, cfg: config, log, defaultModel: config.defaultModel, cors };
 
       if (pathname.startsWith("/v1/")) {
         const handled = await handleOpenAi(ctx);
@@ -103,6 +112,11 @@ export const createBridgeServer = async ({ port, host, config, allowedOrigin = n
         if (handled !== false) return;
       }
 
+      if (pathname.startsWith("/app")) {
+        const handled = await handleApp(ctx);
+        if (handled !== false) return;
+      }
+
       const handled = await handleManagement(ctx);
       if (handled !== false) return;
 
@@ -114,7 +128,7 @@ export const createBridgeServer = async ({ port, host, config, allowedOrigin = n
   });
 
   const fsWatcher = await createFsWatcher({ log: (m) => log(`[fs-watch] ${m}`) });
-  const ws = attachWebSockets(httpServer, { cfg: config, log, allowedOrigin, mcpHost, fsWatcher });
+  const ws = attachWebSockets(httpServer, { cfg: config, log, allowedOrigin, mcpHost, fsWatcher, appHub });
 
   return {
     server: httpServer,

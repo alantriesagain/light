@@ -163,6 +163,10 @@ A component library needs a few things from the page it runs on. Light holds the
 - **`configureView({ track, wrap, settle, translate, dev })`**: `track(label)` is called when an update is scheduled and answers a function to call once it ran; `wrap(promise, label)` receives every async hook, plugin init and tracked work; `settle()` resolves when served content the client cannot adopt may be rendered over; `dev` turns on diagnostics. All optional; a page that uses none of them needs no call.
 - **Theme** (`@bootstrapp/light/theme`): `applyTheme(theme)` writes the tokens a stylesheet reads, `presets.js` lists the themes light ships, `color-scheme.js` keeps the `dark` class and the reader's choice, and `icons.js` says where an icon comes from (`configureIcons({ load: iconify("lucide") })`; nothing is fetched until a page says so).
 
+## The repository
+
+This repository is the package: `pnpm install` once, `pnpm test` runs the node tests and then `light test` over the browser ones. `components/` is the component library, `locales/` the words it draws, `examples/` whole pages built on light alone, and `website/` the catalogue site (a Bootstrapp app, left out of the published package). The Bootstrapp monorepo consumes this repository in place: its `light/` is a symlink to a checkout beside it, and its `projects/light` one to `website/`.
+
 ## Testing
 
 Tests are written against `node:test` and `node:assert/strict`. One that needs no DOM runs under `node --test`; one that does runs in a real browser with `npx light test <files...>`, where the same two specifiers resolve to light's browser implementation of them ([test/README.md](test/README.md)).

@@ -1,0 +1,11 @@
+:where(docs-theming) {
+  display: block;
+
+  .theming-generator {
+    display: block;
+    min-height: 70vh;
+    border: var(--border-width, 1px) solid var(--border-color);
+    border-radius: var(--radius-box);
+    overflow: hidden;
+  }
+}

@@ -36,9 +36,7 @@ const apply = () => {
 };
 
 export const colorScheme = {
-  /** Whether the dark side shows. */
   dark: signal(false),
-  /** Whether the scheme follows the OS: a `"system"` page whose reader has not chosen. */
   followsSystem: false,
   /**
    * Start from the mode the page declares.

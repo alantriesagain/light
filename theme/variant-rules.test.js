@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { generateThemeVariables, generateVariantRules } from "./index.js";
 
-const varsFor = (color, uix) => generateThemeVariables({ color, ...(uix ? { uix } : {}) });
+const varsFor = (color, lc) => generateThemeVariables({ color, ...(lc ? { lc } : {}) });
 
 test("a palette colour carries the colour that can be read on it", () => {
   const vars = varsFor({ primary: "#fabd2f", ink: "#131711" });
@@ -30,9 +30,9 @@ test("a translucent or referenced colour gets no derived pair", () => {
 
 test("every palette colour is a button variant", () => {
   const css = generateVariantRules(varsFor({ primary: "#fabd2f", peach: "#f0a98e" }));
-  assert.match(css, /uix-button\[variant="peach"\]/);
-  assert.match(css, /--uix-button-background: var\(--color-peach\)/);
-  assert.match(css, /--uix-button-color: var\(--color-on-peach\)/);
+  assert.match(css, /lc-button\[variant="peach"\]/);
+  assert.match(css, /--lc-button-background: var\(--color-peach\)/);
+  assert.match(css, /--lc-button-color: var\(--color-on-peach\)/);
 });
 
 test("a shade is not a variant of its own", () => {
@@ -44,13 +44,13 @@ test("a variant the theme spells out is bound to its own tokens", () => {
   const css = generateVariantRules(
     varsFor({ layer: "rgba(19,23,17,0.06)" }, { button: { "quiet-background": "var(--color-layer)", "quiet-color": "var(--text-color)" } }),
   );
-  assert.match(css, /uix-button\[variant="quiet"\] \{\n {2}--uix-button-background: var\(--uix-button-quiet-background\);\n {2}--uix-button-color: var\(--uix-button-quiet-color\);/);
+  assert.match(css, /lc-button\[variant="quiet"\] \{\n {2}--lc-button-background: var\(--lc-button-quiet-background\);\n {2}--lc-button-color: var\(--lc-button-quiet-color\);/);
 });
 
 test("only what the theme declared is bound, so the rest of a variant survives", () => {
   const css = generateVariantRules(varsFor({}, { button: { "quiet-background": "var(--color-layer)" } }));
-  assert.match(css, /--uix-button-background: var\(--uix-button-quiet-background\)/);
-  assert.doesNotMatch(css, /--uix-button-border-color: var\(--uix-button-quiet-border-color\)/);
+  assert.match(css, /--lc-button-background: var\(--lc-button-quiet-background\)/);
+  assert.doesNotMatch(css, /--lc-button-border-color: var\(--lc-button-quiet-border-color\)/);
 });
 
 test("a spelled-out variant comes after the palette one, so it wins", () => {
@@ -58,7 +58,7 @@ test("a spelled-out variant comes after the palette one, so it wins", () => {
     varsFor({ secondary: "#fe8019" }, { button: { "secondary-background": "#131711" } }),
   );
   const palette = css.indexOf("var(--color-secondary)");
-  const declared = css.indexOf("var(--uix-button-secondary-background)");
+  const declared = css.indexOf("var(--lc-button-secondary-background)");
   assert.ok(palette !== -1 && declared !== -1, css);
   assert.ok(palette < declared, "the theme's own variant must come last");
 });

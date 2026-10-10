@@ -22,14 +22,15 @@
     "resolveJsonModule": true
   },
   "include": [
+    ".bootstrapp/*.d.ts",
     "**/*.js",
     "**/*.ts"
   ],
   "exclude": [
-    ".bootstrapp",
     "benchmarks",
     "node_modules",
     "dist",
+    "website",
     "**/*.test.js",
     "**/*.browser.test.js"
   ]

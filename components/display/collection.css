@@ -1,0 +1,52 @@
+:where(.lc-collection, lc-collection) {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+
+  .lc-collection-switcher {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.6rem;
+      border: 1px solid transparent;
+      border-radius: 0.35rem;
+      background: transparent;
+      color: inherit;
+      font-size: 0.8rem;
+      text-transform: capitalize;
+      cursor: pointer;
+      opacity: 0.65;
+    }
+
+    button:hover {
+      opacity: 1;
+      background: color-mix(in srgb, currentColor 6%, transparent);
+    }
+
+    button.active {
+      opacity: 1;
+      border-color: color-mix(in srgb, currentColor 15%, transparent);
+      background: color-mix(in srgb, currentColor 8%, transparent);
+    }
+  }
+
+  .lc-collection-body {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .lc-collection-body > * {
+    flex: 1;
+    min-height: 0;
+  }
+}

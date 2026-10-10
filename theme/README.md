@@ -1,7 +1,7 @@
 # @bootstrapp/light/theme
 
 A theme is a plain object of tokens; this module turns it into the CSS custom
-properties every uix component reads.
+properties every component reads.
 
 ```javascript
 import { applyTheme } from "@bootstrapp/light/theme";
@@ -31,7 +31,7 @@ selection, scrollbars); link it once. `presets.js` lists the themes in
 | `configureTheme({ requestFont })` | How a font a theme names is fetched; Google Fonts by default |
 
 A colour a theme names gets four shades and a readable `--color-on-<name>` for
-free, and every palette colour becomes a `uix-button[variant="<name>"]` rule.
+free, and every palette colour becomes a `lc-button[variant="<name>"]` rule.
 
 ## Theme Structure
 
@@ -47,15 +47,15 @@ export default {
   shadow: { sm: "0 1px 3px rgb(0 0 0 / 0.1)", md: "0 4px 6px rgb(0 0 0 / 0.1)" },
   border: { width: "1px", color: "#e5e7eb" },
   dark: { canvas: { background: "#151813" }, color: { surface: "#1e221c" } },
-  uix: { button: { "border-radius": "0.75rem" } },
+  lc: { button: { "border-radius": "0.75rem" } },
 };
 ```
 
 Every group flattens to `--group-key` (`color.primary` becomes `--color-primary`,
-`uix.button["border-radius"]` becomes `--uix-button-border-radius`). A `dark`
+`lc.button["border-radius"]` becomes `--lc-button-border-radius`). A `dark`
 block lands on `:root.dark`; what it leaves out is derived from the light side.
 
-Every preset here covers the tokens uix reads without a fallback, which
+Every preset here covers the tokens the components read without a fallback, which
 `packages/theme/themes.test.js` enforces in the Bootstrapp repo.
 
 ## One name per concept
@@ -69,7 +69,7 @@ is right for a palette colour and wrong for a role.
 | Group | Keys | Variables |
 |---|---|---|
 | `text` | `color`, `secondary`, `muted`, `disabled` | `--text-color`, `--text-secondary`, `--text-muted`, `--text-disabled` |
-| `font` | `family`, `heading`, `google`, `icon`, and the weight steps `thin` to `black` | `--font-family-base`, `--font-heading`, `--font-<step>`: the body reads `--font-normal`, the uix stylesheets and the `font-<step>` utilities read each step |
+| `font` | `family`, `heading`, `google`, `icon`, and the weight steps `thin` to `black` | `--font-family-base`, `--font-heading`, `--font-<step>`: the body reads `--font-normal`, the component stylesheets and the `font-<step>` utilities read each step |
 | `border` | `color`, `width` | `--border-color`, `--border-width` |
 | `canvas` | `background`, `font-size`, `line-height`, `selection`, `selection-text`, `backdrop`, `scrollbar-width`, `scrollbar-thumb`, `scrollbar-track` | `--canvas-*` |
 
@@ -81,7 +81,7 @@ primary colour; a `rgba(0,0,0,.8)` dialog backdrop; a thin grey scrollbar).
 ## Shape tokens
 
 Nine optional roles decide how the whole library is shaped, so a look that is
-not the default is a page of theme rather than a `uix.*` block per component.
+not the default is a page of theme rather than a `lc.*` block per component.
 None has a default: a component reads the role between its own variable and its
 own fallback, so nothing changes until a theme names one.
 

@@ -506,10 +506,10 @@ const VARIANT_PROPS = [
 const VARIANT_STATES = ["hover", "active", "focus", "disabled"];
 
 /**
- * A variant exists because the theme names it. `uix.button["quiet-background"]`
+ * A variant exists because the theme names it. `lc.button["quiet-background"]`
  * declares a `quiet` button, and this is the rule that binds it:
- * `uix-button[variant="quiet"]` pointing `--uix-button-background` at
- * `--uix-button-quiet-background`.
+ * `lc-button[variant="quiet"]` pointing `--lc-button-background` at
+ * `--lc-button-quiet-background`.
  *
  * Only the properties the theme actually declared are bound, so a variant the
  * component already styles keeps whatever it does not mention.
@@ -522,7 +522,7 @@ const generateVariantRules = (variables, components = ["button"]) => {
   const found = new Map();
   for (const component of components)
     for (const key of Object.keys(variables)) {
-      const variant = new RegExp(`^--uix-${component}-(.+)-background$`).exec(key)?.[1];
+      const variant = new RegExp(`^--lc-${component}-(.+)-background$`).exec(key)?.[1];
       if (!variant) continue;
       if (VARIANT_STATES.some((state) => variant.endsWith(`-${state}`))) continue;
       found.set(`${component}|${variant}`, { component, variant });
@@ -536,26 +536,26 @@ const generateVariantRules = (variables, components = ["button"]) => {
     if (variables[`--color-on-${name}`] === undefined) continue;
     for (const component of components)
       rules.push(
-        `uix-${component}[variant="${name}"] {\n` +
-        `  --uix-${component}-background: var(--color-${name});\n` +
-        `  --uix-${component}-color: var(--color-on-${name});\n` +
-        `  --uix-${component}-hover-background: var(--color-${name}-dark, var(--color-${name}));\n` +
+        `lc-${component}[variant="${name}"] {\n` +
+        `  --lc-${component}-background: var(--color-${name});\n` +
+        `  --lc-${component}-color: var(--color-on-${name});\n` +
+        `  --lc-${component}-hover-background: var(--color-${name}-dark, var(--color-${name}));\n` +
         `}`,
       );
   }
 
   for (const { component, variant } of found.values()) {
     const declarations = VARIANT_PROPS
-      .filter((prop) => variables[`--uix-${component}-${variant}-${prop}`] !== undefined)
-      .map((prop) => `  --uix-${component}-${prop}: var(--uix-${component}-${variant}-${prop});`);
+      .filter((prop) => variables[`--lc-${component}-${variant}-${prop}`] !== undefined)
+      .map((prop) => `  --lc-${component}-${prop}: var(--lc-${component}-${variant}-${prop});`);
     if (declarations.length)
-      rules.push(`uix-${component}[variant="${variant}"] {\n${declarations.join("\n")}\n}`);
+      rules.push(`lc-${component}[variant="${variant}"] {\n${declarations.join("\n")}\n}`);
   }
   return rules.join("\n");
 };
 
 /** @param {string} css @param {string} [styleId] */
-const injectVariantRules = (css, styleId = "uix-variant-rules") => {
+const injectVariantRules = (css, styleId = "lc-variant-rules") => {
   if (!css) return;
   let styleTag = document.getElementById(styleId);
   if (!styleTag) {

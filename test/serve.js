@@ -40,7 +40,7 @@ export const importmapFor = (root) => {
       const entry = typeof target === "string" ? target : /** @type {{ default?: string }} */ (target)?.default;
       if (typeof entry !== "string") continue;
       if (key === ".") imports[pkg.name] = urlOf(dir, entry);
-      else if (key === "./*") imports[`${pkg.name}/`] = `${urlOf(dir, "")}/`;
+      else if (key === "./*") imports[`${pkg.name}/`] = dir === root ? "/" : `${urlOf(dir, "")}/`;
       else if (key.startsWith("./") && !key.includes("*")) imports[`${pkg.name}/${key.slice(2)}`] = urlOf(dir, entry);
     }
   };

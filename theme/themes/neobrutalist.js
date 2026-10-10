@@ -113,7 +113,7 @@ export default {
 
   control: { weight: "900", transform: "uppercase", tracking: "0.05em" },
 
-  uix: {
+  lc: {
     button: {
       "border-color": edge,
       "hover-shadow": hard(2),
@@ -158,7 +158,7 @@ export default {
       "card-hover": "6px 6px 0px 0px #f5f0eb",
       nav: "4px 4px 0px 0px #f5f0eb",
     },
-    uix: {
+    lc: {
       button: { "border-color": "#f5f0eb", "hover-shadow": "2px 2px 0px 0px #f5f0eb" },
       checkbox: { "border-color": "#f5f0eb", "checked-border-color": "#f5f0eb" },
       input: { "border-color": "#f5f0eb", "focus-border-color": "#f5f0eb" },

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>IndexedDB explorer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script type="importmap">
+  {
+    "imports": {
+      "@bootstrapp/light": "../../view/index.js",
+      "@bootstrapp/light/html": "../../html/index.js",
+      "@bootstrapp/light/signals": "../../signals/index.js",
+      "@bootstrapp/light/types": "../../types/index.js",
+      "@bootstrapp/light/env": "../../env/index.js",
+      "@bootstrapp/light/navigation": "../../navigation/index.js",
+      "@bootstrapp/light/theme": "../../theme/index.js",
+      "@bootstrapp/light/": "../../"
+    }
+  }
+  </script>
+  <link rel="stylesheet" href="../../theme/theme.css" />
+  <link rel="stylesheet" href="./index.css" />
+</head>
+<body>
+  <example-indexeddb-explorer></example-indexeddb-explorer>
+
+  <script type="module">
+    import View from "@bootstrapp/light";
+    import { applyTheme } from "@bootstrapp/light/theme";
+    import { loadPreset } from "@bootstrapp/light/theme/presets.js";
+    import { configureIcons, iconify } from "@bootstrapp/light/theme/icons.js";
+    import explorer from "./explorer.js";
+
+    configureIcons({ load: iconify("lucide") });
+    applyTheme(await loadPreset("default"));
+
+    const components = [
+      "display/badge", "display/button", "display/data-table", "display/icon", "display/link", "display/list",
+      "display/list-item", "display/table", "display/text", "feedback/toast", "form/checkbox", "form/input",
+      "form/select", "layout/card", "layout/flex", "layout/split-pane", "navigation/accordion", "navigation/menu",
+      "navigation/nav-item", "navigation/tabs", "overlay/alert-dialog", "overlay/modal",
+    ];
+    for (const path of components) View.define((await import(`@bootstrapp/light/components/${path}.js`)).default);
+    View.define(explorer);
+  </script>
+</body>
+</html>

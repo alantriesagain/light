@@ -131,7 +131,7 @@ export default {
     color: "#d2d5d0",
   },
 
-  uix: {
+  lc: {
     button: {
       background: "#ffffff",
       "border-color": "#c9cdc8",
@@ -177,7 +177,7 @@ export default {
 
     border: { color: "#2c302c" },
 
-    uix: {
+    lc: {
       button: {
         background: "#1d201d",
         "border-color": "#363a36",

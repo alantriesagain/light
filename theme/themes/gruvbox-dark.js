@@ -134,7 +134,7 @@ export default {
     color: "var(--color-surface, #504945)",
   },
 
-  uix: {
+  lc: {
     input: {
       background: "#504945",
       "border-color": "#665c54",

@@ -122,7 +122,7 @@ export default {
 
   control: { weight: "600", transform: "none", tracking: "normal" },
 
-  uix: {
+  lc: {
     input: { shadow: "none" },
     checkbox: {
       "border-color": "rgba(31, 41, 55, 0.2)",
@@ -152,7 +152,7 @@ export default {
       "on-primary": "#12182b",
     },
     border: { color: "rgba(232, 234, 237, 0.2)" },
-    uix: {
+    lc: {
       checkbox: { "border-color": "rgba(232, 234, 237, 0.2)" },
       card: { "border-color": "rgba(232, 234, 237, 0.12)" },
     },

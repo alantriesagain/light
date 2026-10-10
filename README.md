@@ -1,6 +1,6 @@
 # light
 
-Web components for the light DOM, written as plain objects. A component is a definition object with reactive properties and a `render()` that returns a tagged template; the engine turns it into a custom element. Four modules, no dependencies:
+Web components for the light DOM, written as plain objects. A component is a definition object with reactive properties and a `render()` that returns a tagged template; the engine turns it into a custom element. One package, no dependencies:
 
 | Import | What it is |
 |---|---|
@@ -11,6 +11,7 @@ Web components for the light DOM, written as plain objects. A component is a def
 | `@bootstrapp/light/env` | The page's environment: viewport, breakpoint, OS, color scheme, `subscribe` |
 | `@bootstrapp/light/navigation` | The host's router as components see it; plain anchors until one is configured |
 | `@bootstrapp/light/theme` | Design tokens from a theme object, presets, `theme.css`, the color scheme, icons ([README](theme/README.md)) |
+| `@bootstrapp/light/components/<category>/<name>.js` | The component library: `lc-*` tags in nine categories, their stylesheets, mixins, libs and stores ([README](components/README.md)) |
 
 ## A component
 
@@ -174,6 +175,8 @@ Tests are written against `node:test` and `node:assert/strict`. One that needs n
 | `view/definition.js` | Definition composition: mixins, hook chaining, the define-time key guard |
 | `env/`, `navigation/` | The page's environment and the host's router, as components read them |
 | `theme/` | Tokens, presets, `theme.css`, the color scheme, icons |
+| `components/` | The component library, one directory per category, a `.css` and a `.demo.js` beside each component |
+| `locales/` | The words the components draw, keyed by tag, one file per language |
 | `test/` | `node:test` and `node:assert` for the browser, the runner page, the loop and `light test` |
 | `html/` | The renderer |
 | `signals/index.js` | The signals |
@@ -182,4 +185,4 @@ Tests are written against `node:test` and `node:assert/strict`. One that needs n
 
 ## License
 
-AGPL-3.0
+MIT

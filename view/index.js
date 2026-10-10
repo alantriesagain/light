@@ -965,7 +965,7 @@ export const defineComponent = (def) => def;
  *
  *   export default defineComponent({
  *     mixins: [withFormControl],
- *     tag: "uix-input",
+ *     tag: "lc-input",
  *     properties: { type: T.string({ defaultValue: "text" }) },
  *     render() { ... },
  *   });

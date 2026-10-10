@@ -1,0 +1,28 @@
+@import "../../components/display/badge.css";
+@import "../../components/display/button.css";
+@import "../../components/display/data-table.css";
+@import "../../components/display/icon.css";
+@import "../../components/display/link.css";
+@import "../../components/display/list.css";
+@import "../../components/display/table.css";
+@import "../../components/display/text.css";
+@import "../../components/feedback/toast.css";
+@import "../../components/form/checkbox.css";
+@import "../../components/form/input.css";
+@import "../../components/form/select.css";
+@import "../../components/layout/card.css";
+@import "../../components/layout/flex.css";
+@import "../../components/layout/split-pane.css";
+@import "../../components/navigation/accordion.css";
+@import "../../components/navigation/menu.css";
+@import "../../components/navigation/nav-item.css";
+@import "../../components/navigation/tabs.css";
+@import "../../components/overlay/alert-dialog.css";
+@import "../../components/overlay/modal.css";
+@import "./explorer.css";
+
+body {
+  margin: 0;
+  padding: var(--spacing-lg, 1.5rem);
+  background: var(--canvas-background);
+}

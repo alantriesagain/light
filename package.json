@@ -1,0 +1,55 @@
+{
+  "name": "@bootstrapp/light",
+  "version": "0.1.0",
+  "description": "Light-DOM web components from object definitions, with reactive properties, a tagged-template renderer, signals and property types.",
+  "type": "module",
+  "license": "AGPL-3.0",
+  "bin": {
+    "light": "./bin/light.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./view/types.ts",
+      "default": "./view/index.js"
+    },
+    "./html": {
+      "types": "./html/types.ts",
+      "default": "./html/index.js"
+    },
+    "./signals": {
+      "types": "./signals/types.ts",
+      "default": "./signals/index.js"
+    },
+    "./types": {
+      "types": "./types/types.ts",
+      "default": "./types/index.js"
+    },
+    "./env": {
+      "types": "./env/types.ts",
+      "default": "./env/index.js"
+    },
+    "./navigation": {
+      "types": "./navigation/types.ts",
+      "default": "./navigation/index.js"
+    },
+    "./theme": {
+      "types": "./theme/types.ts",
+      "default": "./theme/index.js"
+    },
+    "./*": "./*"
+  },
+  "scripts": {
+    "pack": "node scripts/pack.js",
+    "bench": "node benchmarks/run.js",
+    "test": "node --test navigation/*.test.js signals/*.test.js theme/variant-rules.test.js types/*.test.js test/*.test.js && node bin/light.js test env/*.browser.test.js html/*.browser.test.js theme/*.browser.test.js view/*.browser.test.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.58.2",
+    "typescript": "^5.7.0"
+  },
+  "bootstrapp": {
+    "test": {
+      "browser": true
+    }
+  }
+}

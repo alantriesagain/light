@@ -1,0 +1,185 @@
+# light
+
+Web components for the light DOM, written as plain objects. A component is a definition object with reactive properties and a `render()` that returns a tagged template; the engine turns it into a custom element. Four modules, no dependencies:
+
+| Import | What it is |
+|---|---|
+| `@bootstrapp/light` | The view engine: `View`, `defineComponent`, `defineMixin`, `configureView` |
+| `@bootstrapp/light/html` | The tagged-template renderer: `html`, `svg`, `render`, `key`, `element`, `nothing`, `unsafeHTML` ([README](html/README.md)) |
+| `@bootstrapp/light/signals` | `signal`, `computed`, `effect`, `batch`, `untracked`, `selector` ([README](signals/README.md)) |
+| `@bootstrapp/light/types` | `T`, the property descriptors |
+| `@bootstrapp/light/env` | The page's environment: viewport, breakpoint, OS, color scheme, `subscribe` |
+| `@bootstrapp/light/navigation` | The host's router as components see it; plain anchors until one is configured |
+| `@bootstrapp/light/theme` | Design tokens from a theme object, presets, `theme.css`, the color scheme, icons ([README](theme/README.md)) |
+
+## A component
+
+```js
+import View, { defineComponent } from "@bootstrapp/light";
+import { html } from "@bootstrapp/light/html";
+import T from "@bootstrapp/light/types";
+
+const counter = defineComponent({
+  tag: "my-counter",
+  properties: {
+    count: T.number({ defaultValue: 0 }),
+    label: T.string({ defaultValue: "Count" }),
+  },
+  increment() {
+    this.count++;
+  },
+  render() {
+    return html`<button @click=${() => this.increment()}>${this.label}: ${this.count}</button>`;
+  },
+});
+
+View.define(counter);
+```
+
+`<my-counter label="Clicks"></my-counter>` now renders and updates on every click.
+
+`defineComponent` returns the same object; it exists for the type of `this`: the declared properties, the sibling methods, the engine's members and a typed `$emit` from the `events` block. Reading a name the component does not declare is a type error, except on a component that `extends` a tag: its base is known only by that tag, so other members read as `unknown`.
+
+`View.define(definition)` builds the class and registers the tag the definition names; `View.define(tag, definition)` names it instead. `View.createClass(tag, definition)` builds without registering. A definition is an object; a function in its place is refused with an error naming the tag. A component that `extends` another is defined after its base.
+
+## Properties
+
+`T` builds a property descriptor. Each factory takes an options object or a bare default (`T.string("hi")` is `T.string({ defaultValue: "hi" })`).
+
+| Factory | Value | Reads its attribute |
+|---|---|---|
+| `T.string()` | string | yes |
+| `T.number()` | number | yes |
+| `T.boolean()` | boolean (an empty attribute is `true`) | yes |
+| `T.any()` | anything | yes |
+| `T.array()` | array, parsed from JSON | no |
+| `T.object()` | object, parsed from JSON | no |
+| `T.function()` | function | no |
+
+| Option | Meaning |
+|---|---|
+| `defaultValue` | The starting value. An object or array default is shared by every instance. |
+| `attribute` | Whether the property reads and reflects its attribute. |
+| `reactive: false` | A plain instance field: no store signal, no attribute, no update when it changes. |
+| `getter()`, `setter(value)` | Computed or intercepted access. |
+| `hasChanged(next, previous)` | Custom change detection. |
+
+Any other option rides along on the descriptor for a plugin to read. A multi-word property reads its kebab-cased attribute: `useSystemPreference` is set by `<x use-system-preference>`.
+
+## Updates
+
+A property change calls `$requestUpdate()`, which queues the element. The queue drains once per animation frame, parents before children; an element a render dirties during the pass (a child whose props its parent just set, one the render just inserted) updates in the same pass, so a tree finishes in the frame that started it. Each update runs `willUpdate`, `render()`, then `firstUpdated` and `updated`. A property set in `willUpdate` belongs to the update in progress; one set later is recorded for the next frame. A render that throws is reported through `reportError` and the element keeps updating. An element that left the document skips its update until it connects again. `$requestUpdate()` answers a promise that settles once the update has run.
+
+| Hook | When |
+|---|---|
+| `connected()` | The element entered the document |
+| `disconnected()` | The element left it |
+| `willUpdate({ changedProps })` | Before each render |
+| `firstUpdated({ changedProps })` | After the first render |
+| `updated({ changedProps })` | After every render |
+
+Hooks are definition keys: the engine calls them with `this` bound to the element, and they never land on the instance.
+
+## The element's members
+
+Everything the engine installs on the element starts with `$`: `$state` (the reactive store), `$emit`, `$on`, `$off`, `$own`, `$requestUpdate`, `$hasUpdated`, `$` and `$$`. A definition may not declare a `$`-prefixed property or member, redefine a base member, or name a method after a DOM method (`remove`, `click`, `focus`, ...); `View.define` throws. Every plain name is free.
+
+```js
+this.$on("click", handler);              // listen
+this.$on("button#click", handler);       // delegated: selector#event
+this.$off("click", handler);
+this.$emit("change", { value });         // a CustomEvent with detail
+this.$own(unsubscribe);                  // runs at disconnect
+this.$("input");                         // querySelector
+this.$$("li");                           // querySelectorAll
+```
+
+## Mixins
+
+Shared behaviour is a definition fragment, declared with `defineMixin` and listed under `mixins`:
+
+```js
+const withEscapeKey = defineMixin({
+  properties: { closeOnEscape: T.boolean(true) },
+  connected() {
+    const onKey = (event) => event.key === "Escape" && this.closeOnEscape && this.close();
+    document.addEventListener("keydown", onKey);
+    this.$own(() => document.removeEventListener("keydown", onKey));
+  },
+});
+
+defineComponent({
+  tag: "my-menu",
+  mixins: [withEscapeKey],
+  close() { this.open = false; },
+  render() { ... },
+});
+```
+
+Fragments merge in order, then the component's own keys: properties, events and members union, the component wins a collision, lifecycle hooks chain mixin-first. A fragment may list `mixins` of its own, and a whole component definition may be listed as one. A fragment that takes options is a function returning a `defineMixin`.
+
+## Slots
+
+Components render into the light DOM. A `<slot>` or `<slot name="x">` in the template projects the host's children; the slot stays in the tree as their container (`display: contents`), carries `data-assigned` while anything is assigned and shows its fallback otherwise. `slot.children` is the assigned list, and the slot dispatches a non-bubbling `slotchange` when it changes. A parent's bindings inside slotted content keep updating after projection. Content naming a slot the current render lacks waits in a hidden `<unslotted>` element and moves in when that slot renders. A part is named by its tag (`part="my-card-body"`) and styled as `[part~=my-card-body]`; there is no shadow DOM, so `::part()`, `::slotted()` and `:host` match nothing.
+
+## Prerendered pages
+
+A page served with the components' markup sets `window.__PRERENDERED__ = true`. While it is set, a component whose first update finds children adopts that markup instead of rendering over it: its bindings anchor to the served DOM and the first real state change commits through them. A region the first render cannot adopt keeps the served content until `settle()` (see below) resolves. A host that projected its children is adopted through its slots, in any slot order; one whose dynamic children landed in two different slots renders fresh. The two-stage adoption is described in [html/README.md](html/README.md).
+
+## Plugins
+
+`View.use(plugin)` reaches every class built after it; registering a name again replaces the earlier plugin.
+
+```js
+View.use({
+  name: "my-plugin",
+  keys: ["flavor"],
+  hooks: ["ripened"],
+  properties: (properties, definition) => properties,
+  test: ({ component, definition }) => true,
+  init: ({ View, component, definition, tag }) => {},
+  events: { connected(detail) {}, updated(detail) {} },
+});
+```
+
+| Field | Meaning |
+|---|---|
+| `keys` | Definition keys the plugin reads. They never land on the element. |
+| `hooks` | Lifecycle hooks the plugin adds. They chain across mixins and `extends` and run through `$runHook(name, detail)`. |
+| `properties` | Rewrites a class's merged property declarations when the class is built. |
+| `test` | Keeps the plugin's `events` and `init` off classes it answers false for. |
+| `init` | Runs once per class, when it is defined. |
+| `events` | Called on each instance's lifecycle, before the definition's own hooks. |
+
+## The host
+
+A component library needs a few things from the page it runs on. Light holds them as small modules with working defaults, and a host that has more (a router, translations, a settle tracker) hands its own in once.
+
+- **`env`** (`@bootstrapp/light/env`): `width`, `height`, `breakpoint`, `isMobile`, `os`, `isTouch`, `prefersDark`, `dark` and `subscribe(fn)`, one debounced listener for the page.
+- **`navigation`** (`@bootstrapp/light/navigation`): `href(path)`, `go(path)`, `click(event)`, `path()`, `subscribe(fn)`. Without a router a link is a plain anchor; `configureNavigation({ href, go, click, path, subscribe })` plugs one in.
+- **`translate(key, params)`**: the host's text for a key, or `undefined`, so a component falls back to its own words. Set through `configureView({ translate })`.
+- **`trackWork(promise, label)`**: hands async work a component waits on to the host's `wrap`, so a host that waits for a quiet page counts it.
+- **`configureView({ track, wrap, settle, translate, dev })`**: `track(label)` is called when an update is scheduled and answers a function to call once it ran; `wrap(promise, label)` receives every async hook, plugin init and tracked work; `settle()` resolves when served content the client cannot adopt may be rendered over; `dev` turns on diagnostics. All optional; a page that uses none of them needs no call.
+- **Theme** (`@bootstrapp/light/theme`): `applyTheme(theme)` writes the tokens a stylesheet reads, `presets.js` lists the themes light ships, `color-scheme.js` keeps the `dark` class and the reader's choice, and `icons.js` says where an icon comes from (`configureIcons({ load: iconify("lucide") })`; nothing is fetched until a page says so).
+
+## Testing
+
+Tests are written against `node:test` and `node:assert/strict`. One that needs no DOM runs under `node --test`; one that does runs in a real browser with `npx light test <files...>`, where the same two specifiers resolve to light's browser implementation of them ([test/README.md](test/README.md)).
+
+## Files
+
+| File | What it owns |
+|---|---|
+| `view/index.js` | `View`, the property system, the update queue, plugins, `defineComponent`, `defineMixin`, `configureView` |
+| `view/definition.js` | Definition composition: mixins, hook chaining, the define-time key guard |
+| `env/`, `navigation/` | The page's environment and the host's router, as components read them |
+| `theme/` | Tokens, presets, `theme.css`, the color scheme, icons |
+| `test/` | `node:test` and `node:assert` for the browser, the runner page, the loop and `light test` |
+| `html/` | The renderer |
+| `signals/index.js` | The signals |
+| `signals/store.js` | The keyed reactive store behind `$state` |
+| `types/index.js` | `T` and attribute parsing |
+
+## License
+
+AGPL-3.0

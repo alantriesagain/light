@@ -1,0 +1,11 @@
+export const nothing = Symbol.for("light.nothing");
+export const TPL = Symbol.for("light.html.template");
+export const WRAP = Symbol.for("light.html.wrap");
+export const HTML_KIND = 1;
+export const SVG_KIND = 2;
+export const MARKER_START = "$";
+export const MARKER_END = "/";
+export const ROOT_MARKER_START = "$r";
+export const ROOT_MARKER_END = "/r";
+export const ASSIGNED_ATTR = "data-assigned";
+export const UNSLOTTED_TAG = "unslotted";

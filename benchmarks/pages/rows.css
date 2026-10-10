@@ -1,0 +1,4 @@
+table { border-collapse: collapse; width: 100%; font: 13px system-ui, sans-serif; }
+td { padding: 2px 6px; border-bottom: 1px solid #ddd; }
+bench-row { display: table-row; }
+.danger, bench-row[selected] { background: #b5d5ff; }

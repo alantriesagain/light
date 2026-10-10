@@ -190,7 +190,10 @@
       }
     },
     "test": {
-      "browser": true
+      "browser": true,
+      "ignore": [
+        "website/**"
+      ]
     },
     "check": {
       "from": [

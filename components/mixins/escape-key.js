@@ -14,7 +14,7 @@
  *   export default defineComponent({
  *     mixins: [withEscapeKey],
  *     tag: "lc-drawer",
- *     properties: { open: T.boolean(false), persistent: T.boolean(false) },
+ *     properties: { open: false, persistent: false },
  *     onEscape() {
  *       if (this.open && !this.persistent) this.closeDrawer();
  *     },

@@ -17,7 +17,7 @@ export default defineComponent({
     min: /** @type {Prop<string | number | null>} */ (T.any({ defaultValue: null })),
     max: /** @type {Prop<string | number | null>} */ (T.any({ defaultValue: null })),
     step: /** @type {Prop<string | number | null>} */ (T.any({ defaultValue: null })),
-    prefix: T.string({ defaultValue: "" }),
+    prefix: "",
   },
   style: true,
 

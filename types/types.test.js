@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import T, { cloneDefault, isReactive, parse, parsers } from "./index.js";
+import T, { cloneDefault, isDescriptor, isReactive, normalizeProperties, normalizeProperty, parse, parsers } from "./index.js";
 
 describe("light/types: descriptors", () => {
   it("reads attributes for scalars, not for arrays, objects and functions", () => {
@@ -9,8 +9,8 @@ describe("light/types: descriptors", () => {
   });
 
   it("takes an options object or a bare default", () => {
-    assert.deepEqual(T.string("hi"), { type: "string", attribute: true, defaultValue: "hi" });
-    assert.deepEqual(T.array([1]), { type: "array", attribute: false, defaultValue: [1] });
+    assert.deepEqual(T.string("hi"), { $type: "string", attribute: true, defaultValue: "hi" });
+    assert.deepEqual(T.array([1]), { $type: "array", attribute: false, defaultValue: [1] });
     assert.equal(T.number({ defaultValue: 3, sync: "local" }).sync, "local");
   });
 
@@ -30,6 +30,43 @@ describe("light/types: descriptors", () => {
   });
 });
 
+describe("light/types: the shorthand", () => {
+  it("tells a descriptor by $type, so a plain object is a default", () => {
+    assert.equal(isDescriptor(T.string()), true);
+    assert.equal(isDescriptor({ $type: "color" }), true);
+    assert.equal(isDescriptor({ type: "x", defaultValue: 1 }), false);
+    assert.equal(isDescriptor(null), false);
+    assert.equal(isDescriptor(3), false);
+  });
+
+  it("reads the type off a bare default", () => {
+    assert.deepEqual(normalizeProperty(0), T.number(0));
+    assert.deepEqual(normalizeProperty("Clicks"), T.string("Clicks"));
+    assert.deepEqual(normalizeProperty(false), T.boolean(false));
+    assert.deepEqual(normalizeProperty([1, 2]), T.array({ defaultValue: [1, 2] }));
+    assert.deepEqual(normalizeProperty({ a: 1 }), T.object({ defaultValue: { a: 1 } }));
+    assert.deepEqual(normalizeProperty(null), T.any({ defaultValue: null }));
+    assert.deepEqual(normalizeProperty(undefined), T.any({ defaultValue: undefined }));
+    const fn = () => 1;
+    assert.deepEqual(normalizeProperty(fn), T.function({ defaultValue: fn }));
+  });
+
+  it("keeps a descriptor as it is, nested blocks normalised", () => {
+    const plain = T.number({ defaultValue: 1, sync: "local" });
+    assert.equal(normalizeProperty(plain), plain);
+    const nested = normalizeProperty(T.object({ properties: { count: 0, inner: T.string("x") } }));
+    assert.deepEqual(nested.properties, { count: T.number(0), inner: T.string("x") });
+    const items = normalizeProperty(T.array({ itemType: { id: 0, label: "" } }));
+    assert.deepEqual(items.itemType, { id: T.number(0), label: T.string("") });
+    const single = normalizeProperty(T.array({ itemType: T.number() }));
+    assert.deepEqual(single.itemType, T.number());
+  });
+
+  it("normalises a whole block", () => {
+    assert.deepEqual(normalizeProperties({ count: 0, open: T.boolean() }), { count: T.number(0), open: T.boolean() });
+  });
+});
+
 describe("light/types: parse", () => {
   it("coerces attribute strings to the declared type", () => {
     assert.equal(parse("", T.boolean()), true);
@@ -39,6 +76,11 @@ describe("light/types: parse", () => {
     assert.deepEqual(parse("[1,2]", T.array()), [1, 2]);
     assert.deepEqual(parse("nope", T.array()), []);
     assert.deepEqual(parse('{"a":1}', T.object({ properties: { b: T.number(2) } })), { a: 1, b: 2 });
+  });
+
+  it("coerces an array's object items by their declared keys", () => {
+    const prop = normalizeProperty(T.array({ itemType: { n: T.number(), s: T.string() } }));
+    assert.deepEqual(parse('[{"n":"4","s":"x"}]', prop), [{ n: 4, s: "x" }]);
   });
 
   it("passes a type without a parser through, and takes a host's parsers", () => {

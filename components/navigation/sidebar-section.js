@@ -6,12 +6,12 @@ export default defineComponent({
   tag: "lc-sidebar-section",
   style: true,
   properties: {
-    label: T.string({ defaultValue: "" }),
+    label: "",
     count: T.number({ defaultValue: null }),
-    collapsed: T.boolean(false),
-    fill: T.boolean(false),
+    collapsed: false,
+    fill: false,
     static: T.boolean(),
-    icon: T.string({ defaultValue: "" }),
+    icon: "",
     size: T.string({ defaultValue: "sm", enum: ["sm", "md"] }),
   },
 

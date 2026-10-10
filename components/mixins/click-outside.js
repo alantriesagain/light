@@ -18,7 +18,7 @@ import { defineMixin } from "@bootstrapp/light";
  *   export default defineComponent({
  *     mixins: [withClickOutside()],
  *     tag: "lc-select",
- *     properties: { open: T.boolean(false) },
+ *     properties: { open: false },
  *     onClickOutside() {
  *       if (this.open) this.open = false;
  *     },

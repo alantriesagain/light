@@ -62,7 +62,7 @@ export default defineComponent({
   properties: {
     fields: /** @type {Prop<FormField[]>} */ (T.array({ defaultValue: [] })),
     data: /** @type {Prop<Record<string, unknown>>} */ (T.object({ defaultValue: {} })),
-    loading: T.boolean({ defaultValue: false }),
+    loading: false,
     typeHandlers: /** @type {Prop<FormTypeHandlers>} */ (
       T.object({ attribute: false, defaultValue: {} })
     ),

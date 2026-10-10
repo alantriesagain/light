@@ -9,14 +9,14 @@ export default defineComponent({
   properties: {
     _tabsBaseId: T.string({ reactive: false, defaultValue: "" }),
     _raf: T.number({ reactive: false, defaultValue: 0 }),
-    activeTab: T.number(0),
+    activeTab: 0,
     variant: T.string({
       defaultValue: "default",
       enum: ["default", "pills", "underline"],
     }),
     vertical: T.boolean(),
     responsive: T.boolean(),
-    fullWidth: T.boolean(false),
+    fullWidth: false,
   },
   style: true,
 

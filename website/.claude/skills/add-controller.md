@@ -30,7 +30,7 @@ export default defineController({
   adapter: true,
   properties: {
     filter: T.string({ defaultValue: "all", sync: "local" }),
-    rows: T.array({ defaultValue: [] }),
+    rows: [],
     _rows: T.object({ reactive: false, defaultValue: null }),
   },
   connected() {

@@ -28,7 +28,7 @@ const defineHost = (options) => {
     mixins: [withPointerDrag(options)],
     tag,
     properties: {
-      resizable: T.boolean(false),
+      resizable: false,
       log: /** @type {import("../types.ts").Prop<string[]>} */ (T.object({ reactive: false, defaultValue: null })),
     },
     connected() {

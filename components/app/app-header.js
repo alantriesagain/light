@@ -6,12 +6,12 @@ import { lcText } from "../utils/text.js";
 export default defineComponent({
   tag: "lc-app-header",
   properties: {
-    title: T.string(""),
+    title: "",
     fixed: T.boolean(),
-    transparent: T.boolean(false),
-    showBackButton: T.boolean(false),
-    showShadow: T.boolean(true),
-    elevation: T.number(1),
+    transparent: false,
+    showBackButton: false,
+    showShadow: true,
+    elevation: 1,
   },
   style: true,
 

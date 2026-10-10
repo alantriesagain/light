@@ -6,7 +6,7 @@ export default defineComponent({
   style: true,
   properties: {
     pattern: T.string(),
-    random: T.boolean(false),
+    random: false,
   },
   connected() {
     const patterns = ["pattern-1", "pattern-2", "pattern-3", "pattern-4"];

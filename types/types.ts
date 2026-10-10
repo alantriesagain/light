@@ -1,19 +1,21 @@
 /**
- * @bootstrapp/light/types: the property descriptor `T` builds.
+ * @bootstrapp/light/types: the property descriptor `T` builds, and the
+ * shorthand a `properties` block may use in its place.
  */
 
 /** The fields the view engine reads from a descriptor. A host adds its own (`sync`, `required`, ...) through the index signature. */
 export interface TypeDefinitionFields {
-  type: string;
+  /** The declared type, and what marks an object as a descriptor rather than an object default. */
+  $type: string;
   /** Whether the property reads its attribute (and reflects to it). Off for arrays, objects and functions. */
   attribute: boolean;
   /** `false` marks a plain per-instance field: no store signal, no attribute. Default reactive. */
   reactive?: boolean;
   defaultValue?: unknown;
   /** Descriptors of an object's keys; their defaults fill missing keys when an attribute is parsed. */
-  properties?: Record<string, TypeDefinition>;
+  properties?: Record<string, PropertyDeclaration>;
   /** An array's items: one descriptor for every item, or descriptors of an object item's keys (parsed from an attribute). */
-  itemType?: TypeDefinition | Record<string, TypeDefinition>;
+  itemType?: TypeDefinition | Record<string, PropertyDeclaration>;
   getter?: () => unknown;
   setter?: (value: unknown) => void;
   hasChanged?: (newValue: unknown, oldValue: unknown) => boolean;
@@ -28,7 +30,26 @@ export type TypeDefinition<T = unknown> = TypeDefinitionFields & Record<string, 
   readonly __tsType?: T;
 };
 
-export type TypeOptions = Partial<Omit<TypeDefinitionFields, "type">> & Record<string, unknown>;
+/**
+ * A default standing in for a descriptor: `count: 0` is `T.number(0)`,
+ * `label: "x"` is `T.string("x")`, `open: false` is `T.boolean(false)`,
+ * `items: []` is `T.array({ defaultValue: [] })`, an object is
+ * `T.object({ defaultValue })`, `null` is `T.any({ defaultValue: null })`.
+ */
+export type PropertyShorthand =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | readonly unknown[]
+  | Record<string, unknown>
+  | ((...args: unknown[]) => unknown);
+
+/** What a `properties` entry may be: a descriptor, or a default the engine reads one off. */
+export type PropertyDeclaration = TypeDefinition | PropertyShorthand;
+
+export type TypeOptions = Partial<Omit<TypeDefinitionFields, "$type">> & Record<string, unknown>;
 
 /** An options object, or a bare default: `T.string("hi")` is `T.string({ defaultValue: "hi" })`, `T.array([])` a default too. */
 export type TypeOptionsOrDefault = TypeOptions | readonly unknown[] | string | number | boolean | null | undefined;

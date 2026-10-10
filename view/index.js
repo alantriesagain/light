@@ -1,4 +1,4 @@
-import { cloneDefault, isReactive, parse } from "../types/index.js";
+import { cloneDefault, isReactive, normalizeProperties, parse } from "../types/index.js";
 import { createStore } from "../signals/store.js";
 import { assertDefinitionKeys, composeDefinition, LIFECYCLE_HOOKS } from "./definition.js";
 import { UNSLOTTED_TAG, configure, hasRootPart, isMoving, projectSlots, render, topLevelPair, unprojectUnits } from "../html/index.js";
@@ -292,7 +292,8 @@ class View extends BaseElement {
 
     assertDefinitionKeys(def, `[view] <${tag}>`, consumed);
 
-    const { properties = {}, icons, formAssociated = false, style = false, class: klass, role } = def;
+    const { icons, formAssociated = false, style = false, class: klass, role } = def;
+    const properties = normalizeProperties(def.properties ?? {});
 
     /** @type {Record<string, unknown>} */
     const prototypeMethods = {};
@@ -364,7 +365,7 @@ class View extends BaseElement {
 
           const config = properties[key];
           const inherited = merged[key];
-          const nested = config.type === "object" && config.properties && inherited?.properties
+          const nested = config.$type === "object" && config.properties && inherited?.properties
             ? { properties: { ...inherited.properties, ...config.properties } }
             : null;
           merged[key] = /** @type {TypeDefinition} */ ({ ...inherited, ...config, ...nested });
@@ -455,38 +456,54 @@ class View extends BaseElement {
 
   /**
    * Build the class and register the tag: `View.define(definition)` takes the
-   * tag from `definition.tag`, `View.define(tag, definition)` names it.
-   * @param {string | ComponentDefinition} tagOrDefinition
-   * @param {ComponentDefinition} [definitionWithTag]
-   * @returns {ViewConstructor}
+   * tag from `definition.tag`, `View.define(tag, definition)` names it. A
+   * definition that `extends` a tag not yet defined is registered once that
+   * tag is, so a page may define its components in any order. Defining a tag
+   * again with the same definition is a no-op; with another one it throws.
+   * Types `this` inside the definition the way `defineComponent` does.
+   *
+   * @template {Record<string, unknown>} D
+   * @template {readonly Record<string, unknown>[]} [M=[]]
+   * @template {Record<string, import("../types/types.ts").PropertyDeclaration>} [P={}]
+   * @template {Record<string, import("../types/types.ts").TypeDefinition<unknown>>} [E={}]
+   * @param {string | import("./types.ts").Definition<D, M, P, E>} tagOrDefinition
+   * @param {import("./types.ts").Definition<D, M, P, E>} [definitionWithTag]
+   * @returns {void}
    */
   static define(tagOrDefinition, definitionWithTag) {
     const raw = /** @type {ComponentDefinition} */ (typeof tagOrDefinition === "string" ? definitionWithTag : tagOrDefinition);
     const tag = typeof tagOrDefinition === "string" ? tagOrDefinition : raw.tag;
     if (!tag) throw new Error("[View.define] the definition has no tag; pass one or add tag to the definition");
+    View._define(tag, raw);
+  }
+
+  /**
+   * @param {string} tag
+   * @param {ComponentDefinition} raw
+   */
+  static _define(tag, raw) {
+    const registered = View.components.get(tag);
+    const existing = /** @type {ViewConstructor | undefined} */ (/** @type {unknown} */ (customElements.get(tag)));
+    if (existing) {
+      if (registered?.definition && registered.definition !== raw)
+        throw new Error(`[View.define] <${tag}> is already defined with another definition`);
+      if (!registered?.definition) View.components.set(tag, { ...registered, _constructor: existing, definition: raw });
+      return;
+    }
     const definition = composeDefinition(raw, hooksOf(View.plugins));
-    /** @type {ViewConstructor | undefined} */
-    let BaseClass;
-    const extendsTag =
-      typeof definition?.extends === "string" ? definition.extends : null;
-    if (extendsTag) {
-      const fromCustom = customElements.get(extendsTag);
-      BaseClass = /** @type {ViewConstructor | undefined} */ (
-        /** @type {unknown} */ (fromCustom) ?? View.components.get(extendsTag)?._constructor
-      );
-      if (!BaseClass)
-        console.warn(
-          `[View.define] unresolved extends: ${extendsTag} for ${tag}`,
-        );
+    const extendsTag = typeof definition?.extends === "string" ? definition.extends : null;
+    const BaseClass = extendsTag
+      ? /** @type {ViewConstructor | undefined} */ (/** @type {unknown} */ (customElements.get(extendsTag)) ?? View.components.get(extendsTag)?._constructor)
+      : undefined;
+    if (extendsTag && !BaseClass) {
+      View.components.set(tag, { ...registered, definition: raw });
+      config.wrap(customElements.whenDefined(extendsTag).then(() => View._define(tag, raw)), `view:${tag}:extends`);
+      return;
     }
     const component = View.createClass(tag, definition, BaseClass);
     config.wrap(View.initPlugins(component, definition, tag), `view:${tag}:init`);
-    if (!customElements.get(tag)) customElements.define(tag, component);
-    const entry = View.components.get(tag) || {};
-    entry._constructor = component;
-    entry.definition = raw;
-    View.components.set(tag, entry);
-    return component;
+    customElements.define(tag, component);
+    View.components.set(tag, { ...registered, _constructor: component, definition: raw });
   }
 
   /**
@@ -602,7 +619,7 @@ class View extends BaseElement {
     this.$unobserve = this.$state.observe((key, value, oldValue) => {
       const prop = this.$ctor.properties[key];
       if (prop?.attribute && !this.$attrOriginated && !this.$ignoreAttributeChange)
-        this.$updateAttribute({ key, value, skipPropUpdate: true, type: prop.type });
+        this.$updateAttribute({ key, value, skipPropUpdate: true, type: prop.$type });
       this.$requestUpdate(key, oldValue);
     });
     if (this.$ctor._klass) this.classList.add(...this.$ctor._klass.split(" "));
@@ -662,7 +679,7 @@ class View extends BaseElement {
       const key = this.$ctor._attrs[attr.name];
       if (!key) continue;
       const prop = this.$ctor.properties[key];
-      if (prop && prop.type !== "boolean" && attr.value === "") {
+      if (prop && prop.$type !== "boolean" && attr.value === "") {
         this.removeAttribute(attr.name);
         continue;
       }
@@ -671,7 +688,7 @@ class View extends BaseElement {
 
     for (const [key, prop] of Object.entries(this.$ctor.properties)) {
       if (!isReactive(prop)) continue;
-      const { type, attribute } = /** @type {TypeDefinition} */ (prop);
+      const { $type: type, attribute } = /** @type {TypeDefinition} */ (prop);
       const self = /** @type {any} */ (this);
       if (Object.hasOwn(this, key)) {
         const adopted = self[key];
@@ -921,30 +938,25 @@ class View extends BaseElement {
 export default View;
 
 /**
- * Typed identity wrapper for component definitions. Runtime: returns the
- * same object verbatim; `View.define` (or a loader) registers it. Type-level: infers `this.<prop>` inside `render()`
- * and lifecycle hooks from the `properties: { x: T.string() }` block and
- * from every fragment in `mixins: [...]`, and narrows
- * `this.$emit("name", payload)` from the `events` blocks.
+ * Typed identity wrapper for a component definition a module exports for a
+ * loader to register (`export default defineComponent({...})`). Runtime: the
+ * same object verbatim. Type-level: `this` inside `render()` and the hooks
+ * is `ComponentThis` (`view/types.ts`): the properties, own and from mixins
+ * (`this.count: number`, from a descriptor or a shorthand default), the
+ * sibling members, the engine's instance members, the narrowed `$emit`,
+ * `_`-prefixed members as `any`, and with `extends` any other member as
+ * `unknown`. A page that registers its own components needs no wrapper:
+ * `View.define` types the definition the same way.
  *
- * `this` inside methods is `PropsToThis<P & MixinProps<M>> & Omit<D, keyof P | DefinitionKey> & MixinMembers<M> & Omit<View,'$emit'> & {$emit: TypedEmit<E & MixinEvents<M>>}`:
- *   - the reactive properties, own and from mixins (`this.count: number`)
- *   - the sibling methods declared on the same literal and on the mixins; the definition keys the engine consumes (`tag`, `mixins`, `properties`, the lifecycle hooks) never reach `this`, so a property may share a hook's name
- *   - the framework instance members (`this.$requestUpdate()`)
- *   - the narrowed emit signature (declared events typed; undeclared fall back to the loose `(key, data?)` overload)
- *   - `_`-prefixed members as `any`, the private scratch space
- *   - with `extends: "<tag>"`, any other member as `unknown`: the base class is only known by its tag
- *
- * The one way to declare a component: a bare `export default { tag, ... }`
- * types `this` as the literal itself, so every declared property reads as
- * missing. This call is also where cross-cutting features attach (mixins,
- * HMR, plugin hooks, source attribution) without crawling every file.
+ * A bare `export default { tag, ... }` types `this` as the literal itself, so
+ * every declared property reads as missing; this call is the one way to
+ * declare an exported component.
  *
  * @template {Record<string, unknown>} D
  * @template {readonly Record<string, unknown>[]} [M=[]]
- * @template {Record<string, import("../types/types.ts").TypeDefinition<unknown>>} [P={}]
+ * @template {Record<string, import("../types/types.ts").PropertyDeclaration>} [P={}]
  * @template {Record<string, import("../types/types.ts").TypeDefinition<unknown>>} [E={}]
- * @param {D & { properties?: P, events?: E, mixins?: M } & ThisType<import("./types.ts").PropsToThis<P & import("./types.ts").MixinProps<M>> & Omit<D, keyof P | import("./types.ts").DefinitionKey> & import("./types.ts").MixinMembers<M> & Omit<View, "$emit"> & { $emit: import("./types.ts").TypedEmit<E & import("./types.ts").MixinEvents<M>> } & { [k: `_${string}`]: any } & (D extends { extends: string } ? Record<string, unknown> : unknown)>} def
+ * @param {import("./types.ts").Definition<D, M, P, E>} def
  * @returns {D & { properties?: P, events?: E, mixins?: M }}
  */
 export const defineComponent = (def) => def;
@@ -958,7 +970,7 @@ export const defineComponent = (def) => def;
  * function returning one of these.
  *
  *   export const withFormControl = defineMixin({
- *     properties: { value: T.any(""), disabled: T.boolean(false) },
+ *     properties: { value: T.any(""), disabled: false },
  *     events: { change: T.object({ value: T.any() }) },
  *     syncFormValue() { ... },
  *   });
@@ -970,7 +982,7 @@ export const defineComponent = (def) => def;
  *     render() { ... },
  *   });
  *
- * @template {Record<string, import("../types/types.ts").TypeDefinition<unknown>>} P
+ * @template {Record<string, import("../types/types.ts").PropertyDeclaration>} P
  * @template {Record<string, import("../types/types.ts").TypeDefinition<unknown>>} E
  * @template {Record<string, unknown>} D
  * @param {D & { properties?: P, events?: E } & ThisType<import("./types.ts").PropsToThis<P> & Omit<D, keyof P | import("./types.ts").DefinitionKey> & Omit<View, "$emit"> & { $emit: import("./types.ts").TypedEmit<E> } & { [k: `_${string}`]: any } & Record<string, any>>} def

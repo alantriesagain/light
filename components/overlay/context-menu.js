@@ -25,8 +25,8 @@ export default defineComponent({
   properties: {
     items: /** @type {Prop<ContextMenuItem[]>} */ (T.array({ defaultValue: [] })),
     target: T.any(null),
-    offset: T.number(0),
-    position: T.string("bottom-left"),
+    offset: 0,
+    position: "bottom-left",
     _openSubmenu: /** @type {Prop<string | null>} */ (T.object({ reactive: false, defaultValue: null })),
     _closeTimer: /** @type {Prop<ReturnType<typeof setTimeout> | null>} */ (T.object({ reactive: false, defaultValue: null })),
   },

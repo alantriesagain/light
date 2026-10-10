@@ -7,9 +7,9 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-stat",
   properties: {
-    title: T.string(""),
+    title: "",
     value: /** @type {Prop<Renderable>} */ (T.any("")),
-    desc: T.string(""),
+    desc: "",
     size: T.string({
       defaultValue: "md",
       enum: ["sm", "md", "lg"],
@@ -26,7 +26,7 @@ export default defineComponent({
         "info",
       ],
     }),
-    centered: T.boolean(false),
+    centered: false,
     delta: T.string(),
     trend: T.string({ enum: ["up", "down", "flat"], defaultValue: "flat" }),
   },

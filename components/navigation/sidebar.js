@@ -10,8 +10,8 @@ export default defineComponent({
       defaultValue: "left",
       enum: ["left", "right"],
     }),
-    collapsed: T.boolean(false),
-    collapsible: T.boolean(true),
+    collapsed: false,
+    collapsible: true,
   },
 
   toggle() {

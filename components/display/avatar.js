@@ -26,7 +26,7 @@ export default defineComponent({
       defaultValue: "",
       enum: ["", "muted", "primary", "secondary", "highlight", "bar"],
     }),
-    icon: T.string({ defaultValue: "user" }),
+    icon: "user",
     _failed: T.boolean({ attribute: false, defaultValue: false }),
   },
   style: true,

@@ -33,9 +33,9 @@ export const withPopover = defineMixin({
   mixins: [withClickOutside(), withOverlay()],
 
   properties: {
-    position: T.string("bottom-left"),
-    open: T.boolean(false),
-    offset: T.number(4),
+    position: "bottom-left",
+    open: false,
+    offset: 4,
     _triggerElement: /** @type {Prop<Element | null>} */ (T.object({ reactive: false, defaultValue: null })),
     _reposition: /** @type {Prop<(() => void) | null>} */ (T.object({ reactive: false, defaultValue: null })),
   },

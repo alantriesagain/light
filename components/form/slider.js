@@ -9,16 +9,16 @@ export default defineComponent({
   tag: "lc-slider",
   properties: {
     _dragging: T.boolean({ reactive: false, defaultValue: false }),
-    value: T.number({ defaultValue: 50 }),
-    min: T.number({ defaultValue: 0 }),
-    max: T.number({ defaultValue: 100 }),
-    step: T.number({ defaultValue: 1 }),
+    value: 50,
+    min: 0,
+    max: 100,
+    step: 1,
     variant: T.string({
       defaultValue: "primary",
       enum: ["primary", "secondary", "success", "warning", "error"],
     }),
-    nofill: T.boolean({ defaultValue: false }),
-    steppers: T.boolean({ defaultValue: false }),
+    nofill: false,
+    steppers: false,
   },
   style: true,
 

@@ -18,9 +18,9 @@ export default defineComponent({
       defaultValue: "light",
       enum: ["light", "dark"],
     }),
-    eyebrow: T.string({ defaultValue: "" }),
-    headline: T.string({ defaultValue: "" }),
-    subheadline: T.string({ defaultValue: "" }),
+    eyebrow: "",
+    headline: "",
+    subheadline: "",
     stats: /** @type {Prop<StatItem[]>} */ (
       T.array({
         attribute: false,
@@ -33,7 +33,7 @@ export default defineComponent({
         },
       })
     ),
-    sectionId: T.string({ defaultValue: "" }),
+    sectionId: "",
   },
   render() {
     const stats = this.stats;

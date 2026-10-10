@@ -8,8 +8,8 @@ export default defineComponent({
   properties: {
     src: T.string(),
     alt: T.string(),
-    aspect: T.string({ defaultValue: "4/5" }),
-    scrim: T.boolean({ defaultValue: true }),
+    aspect: "4/5",
+    scrim: true,
     _hasBody: T.boolean({ attribute: false }),
   },
   /** @param {Event} e */

@@ -8,7 +8,7 @@ export default defineComponent({
   style: true,
   properties: {
     "dragged-id": T.string(),
-    handle: T.string({ defaultValue: "" }),
+    handle: "",
     target: T.string(),
     onDragged: T.function(),
     _lastDownTarget: /** @type {Prop<EventTarget | null>} */ (T.object({ reactive: false, defaultValue: null })),

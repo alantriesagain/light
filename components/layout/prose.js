@@ -14,6 +14,6 @@ export default defineComponent({
     size: T.string({
       enum: ["base", "lg", "xl"],
     }),
-    wide: T.boolean(false),
+    wide: false,
   },
 });

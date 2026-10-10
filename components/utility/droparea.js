@@ -10,8 +10,8 @@ export default defineComponent({
     _dropIndex: T.number({ reactive: false, defaultValue: -1 }),
     onDropped: /** @type {Prop<((info: DropInfo) => void) | null>} */ (T.function()),
     "droparea-id": T.string(),
-    orderable: T.boolean(false),
-    direction: T.string({ defaultValue: "vertical" }),
+    orderable: false,
+    direction: "vertical",
   },
   connected() {
     this._dropIndex = -1;

@@ -34,9 +34,9 @@ export default defineComponent({
   style: true,
   properties: {
     steps: /** @type {Prop<StepperStep[]>} */ (T.array({ defaultValue: [] })),
-    current: T.string({ defaultValue: "" }),
+    current: "",
     state: T.string({ defaultValue: "idle", enum: ["idle", "running", "done", "failed"] }),
-    error: T.string({ defaultValue: "" }),
+    error: "",
     size: T.string({ defaultValue: "md", enum: ["sm", "md"] }),
     vertical: T.boolean(),
   },

@@ -11,19 +11,19 @@ export default defineComponent({
   tag: "lc-alert-dialog",
   icons: ["circle-check", "circle-x", "triangle-alert", "info"],
   properties: {
-    open: T.boolean(false),
-    title: T.string(""),
-    message: T.string(""),
+    open: false,
+    title: "",
+    message: "",
     variant: /** @type {Prop<AlertVariant>} */ (
       T.string({
         defaultValue: "default",
         enum: ["default", "success", "warning", "error", "info"],
       })
     ),
-    confirmText: T.string({ defaultValue: "" }),
-    cancelText: T.string({ defaultValue: "" }),
-    showCancel: T.boolean(false),
-    closeOnBackdropClick: T.boolean(false),
+    confirmText: "",
+    cancelText: "",
+    showCancel: false,
+    closeOnBackdropClick: false,
   },
 
   events: {

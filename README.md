@@ -16,15 +16,14 @@ Web components for the light DOM, written as plain objects. A component is a def
 ## A component
 
 ```js
-import View, { defineComponent } from "@bootstrapp/light";
+import View from "@bootstrapp/light";
 import { html } from "@bootstrapp/light/html";
-import T from "@bootstrapp/light/types";
 
-const counter = defineComponent({
+View.define({
   tag: "my-counter",
   properties: {
-    count: T.number({ defaultValue: 0 }),
-    label: T.string({ defaultValue: "Count" }),
+    count: 0,
+    label: "Count",
   },
   increment() {
     this.count++;
@@ -33,19 +32,19 @@ const counter = defineComponent({
     return html`<button @click=${() => this.increment()}>${this.label}: ${this.count}</button>`;
   },
 });
-
-View.define(counter);
 ```
 
 `<my-counter label="Clicks"></my-counter>` now renders and updates on every click.
 
-`defineComponent` returns the same object; it exists for the type of `this`: the declared properties, the sibling methods, the engine's members and a typed `$emit` from the `events` block. Reading a name the component does not declare is a type error, except on a component that `extends` a tag: its base is known only by that tag, so other members read as `unknown`.
+`View.define(definition)` builds the class and registers the tag the definition names; `View.define(tag, definition)` names it instead. It types `this` inside the definition: the declared properties, the sibling methods, the engine's members and a typed `$emit` from the `events` block. Reading a name the component does not declare is a type error, except on a component that `extends` a tag: its base is known only by that tag, so other members read as `unknown`. A component that `extends` a tag not yet defined is registered once that tag is, so a page may define its components in any order. Defining a tag again with the same definition is a no-op; with another definition it throws.
 
-`View.define(definition)` builds the class and registers the tag the definition names; `View.define(tag, definition)` names it instead. `View.createClass(tag, definition)` builds without registering. A definition is an object; a function in its place is refused with an error naming the tag. A component that `extends` another is defined after its base.
+A module that exports a component for a loader to register (a Bootstrapp app autoloads `views/*.js`) wraps it in `defineComponent`, which returns the same object and types `this` the same way: a bare `export default { ... }` types `this` as the literal itself. `View.createClass(tag, definition)` builds without registering. A definition is an object; a function in its place is refused with an error naming the tag.
 
 ## Properties
 
-`T` builds a property descriptor. Each factory takes an options object or a bare default (`T.string("hi")` is `T.string({ defaultValue: "hi" })`).
+A `properties` entry is a default, and its type is read off the value: `count: 0` is a number, `label: "Count"` a string, `open: false` a boolean, `items: []` an array, an object an object, a function a function, `null` anything. Strings, numbers and booleans read and reflect their attribute; arrays, objects and functions do not.
+
+An entry that needs an option is a descriptor built by `T` (`import T from "@bootstrapp/light/types"`). Each factory takes an options object or a bare default (`T.string("hi")` is `T.string({ defaultValue: "hi" })`). A descriptor is any object with `$type`, which is what `T.*` returns, so an object default is the one value that cannot carry that key.
 
 | Factory | Value | Reads its attribute |
 |---|---|---|
@@ -101,7 +100,7 @@ Shared behaviour is a definition fragment, declared with `defineMixin` and liste
 
 ```js
 const withEscapeKey = defineMixin({
-  properties: { closeOnEscape: T.boolean(true) },
+  properties: { closeOnEscape: true },
   connected() {
     const onKey = (event) => event.key === "Escape" && this.closeOnEscape && this.close();
     document.addEventListener("keydown", onKey);

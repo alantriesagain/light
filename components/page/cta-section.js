@@ -19,8 +19,8 @@ export default defineComponent({
       defaultValue: "dark",
       enum: ["light", "dark"],
     }),
-    headline: T.string({ defaultValue: "" }),
-    subheadline: T.string({ defaultValue: "" }),
+    headline: "",
+    subheadline: "",
     ctas: /** @type {Prop<CtaSectionAction[]>} */ (T.array({
       attribute: false,
       defaultValue: [],

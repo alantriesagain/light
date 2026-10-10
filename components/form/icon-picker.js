@@ -1,5 +1,4 @@
 import { html } from "@bootstrapp/light/html";
-import T from "@bootstrapp/light/types";
 import { defineComponent } from "@bootstrapp/light";
 import { withPopover } from "@bootstrapp/light/components/mixins/popover.js";
 import { lcText } from "../utils/text.js";
@@ -392,10 +391,10 @@ export default defineComponent({
   ],
   style: true,
   properties: {
-    value: T.string({ defaultValue: "" }),
-    tab: T.string({ defaultValue: "icon" }),
-    search: T.string({ defaultValue: "" }),
-    category: T.string({ defaultValue: "common" }),
+    value: "",
+    tab: "icon",
+    search: "",
+    category: "common",
   },
 
   render() {

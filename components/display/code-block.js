@@ -41,15 +41,15 @@ export default defineComponent({
   tag: "lc-code-block",
   style: true,
   properties: {
-    code: T.string(""),
-    language: T.string("html"),
-    title: T.string(""),
+    code: "",
+    language: "html",
+    title: "",
     lineNumbers: T.boolean(),
-    copy: T.boolean({ defaultValue: true }),
-    foldAt: T.number(0),
+    copy: true,
+    foldAt: 0,
     expanded: T.boolean(),
     wrap: T.boolean(),
-    highlight: T.string(""),
+    highlight: "",
   },
   render() {
     const lines = highlightLines(this.code, this.language);

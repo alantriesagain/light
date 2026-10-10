@@ -15,9 +15,9 @@ export default defineComponent({
     radius: ["full"],
   },
   properties: {
-    eyebrow: T.string({ defaultValue: "" }),
-    headline: T.string({ defaultValue: "" }),
-    subheadline: T.string({ defaultValue: "" }),
+    eyebrow: "",
+    headline: "",
+    subheadline: "",
     plans: /** @type {Prop<PricingPlan[]>} */ (T.array({
       attribute: false,
       defaultValue: [],
@@ -36,7 +36,7 @@ export default defineComponent({
         highlighted: T.boolean(),
       },
     })),
-    sectionId: T.string({ defaultValue: "" }),
+    sectionId: "",
   },
   render() {
     const plans = this.plans;

@@ -23,14 +23,12 @@ export default defineComponent({
       defaultValue: "none",
       enum: ["none", "sm", "md", "lg"],
     }),
-    hover: T.boolean({
-      defaultValue: false,
-    }),
+    hover: false,
     gap: T.string({
       defaultValue: "md",
       enum: ["none", "xs", "sm", "md", "lg", "xl"],
     }),
-    href: T.string({ defaultValue: "" }),
+    href: "",
     icon: T.string(),
     heading: T.string(),
     ariaLabel: T.string(),

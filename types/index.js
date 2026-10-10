@@ -1,10 +1,11 @@
 /**
  * @file @bootstrapp/light/types
- * `T`: property descriptors for components, and the coercion of an attribute
- * string into the declared type.
+ * `T`: property descriptors for components, the shorthand that reads a
+ * descriptor off a plain default, and the coercion of an attribute string
+ * into the declared type.
  */
 
-/** @import { Parser, TypeDefinition, TypeOptions } from "./types.ts" */
+/** @import { Parser, PropertyDeclaration, TypeDefinition, TypeOptions, TypesAPI } from "./types.ts" */
 
 const NON_ATTRIBUTE_TYPES = new Set(["array", "object", "function"]);
 
@@ -19,6 +20,14 @@ const parseJSON = (value) => {
     return undefined;
   }
 };
+
+/**
+ * Whether a value in a `properties` block is a descriptor (what `T.*()`
+ * returns, or any object carrying `$type`) rather than a default.
+ * @param {unknown} value
+ * @returns {value is TypeDefinition}
+ */
+export const isDescriptor = (value) => value !== null && typeof value === "object" && "$type" in value;
 
 /**
  * Coercion per type, from what an attribute or an input holds to the declared
@@ -40,13 +49,13 @@ export const parsers = {
     const parsed = typeof value === "string" ? parseJSON(value) : value;
     if (!value || !Array.isArray(parsed)) return [];
     const itemType = /** @type {Record<string, TypeDefinition> | undefined} */ (prop?.itemType);
-    if (!itemType || typeof itemType.type === "string") return parsed;
+    if (!itemType || isDescriptor(itemType)) return parsed;
     return parsed.map((item) =>
       typeof item !== "object" || item === null
         ? item
         : Object.fromEntries(
             Object.entries(item).map(([key, val]) => {
-              const parser = itemType[key] && parsers[itemType[key].type];
+              const parser = itemType[key] && parsers[itemType[key].$type];
               return [key, parser ? parser(val, prop) : val];
             }),
           ),
@@ -57,21 +66,23 @@ export const parsers = {
     const value = typeof input === "string" ? parseJSON(input) : input;
     if (prop?.properties && value && typeof value === "object") {
       const target = /** @type {Record<string, unknown>} */ (value);
-      for (const [key, def] of Object.entries(prop.properties))
-        if (def.defaultValue !== undefined && target[key] === undefined) target[key] = def.defaultValue;
+      for (const [key, def] of Object.entries(prop.properties)) {
+        const { defaultValue } = normalizeProperty(def);
+        if (defaultValue !== undefined && target[key] === undefined) target[key] = defaultValue;
+      }
     }
     return value;
   },
 };
 
 /**
- * `value` coerced to `prop.type`; a type without a parser passes through.
+ * `value` coerced to `prop.$type`; a type without a parser passes through.
  * @param {unknown} value
  * @param {TypeDefinition} [prop]
  * @returns {unknown}
  */
 export const parse = (value, prop) => {
-  const parser = prop && parsers[prop.type];
+  const parser = prop && parsers[prop.$type];
   return parser ? parser(value, prop) : value;
 };
 
@@ -86,7 +97,7 @@ export const parse = (value, prop) => {
 export const createType = (type, options) => {
   /** @type {TypeDefinition} */
   const typeDef = {
-    type,
+    $type: type,
     attribute: !NON_ATTRIBUTE_TYPES.has(type),
     ...(typeof options === "object" && !Array.isArray(options) && options !== null ? options : { defaultValue: options }),
   };
@@ -97,6 +108,44 @@ export const createType = (type, options) => {
   }
   return typeDef;
 };
+
+/**
+ * The descriptor a `properties` entry declares: a descriptor as it is, with
+ * its nested `properties` and `itemType` normalised the same way; any other
+ * value as a default whose type is read off the value (a number, a string, a
+ * boolean, an array, a function, an object, or `null` as `any`).
+ * @param {PropertyDeclaration} value
+ * @returns {TypeDefinition}
+ */
+export const normalizeProperty = (value) => {
+  if (isDescriptor(value)) {
+    const nested = value.properties ? { properties: normalizeProperties(value.properties) } : null;
+    const items = value.itemType
+      ? { itemType: isDescriptor(value.itemType) ? normalizeProperty(value.itemType) : normalizeProperties(value.itemType) }
+      : null;
+    return nested || items ? { ...value, ...nested, ...items } : value;
+  }
+  if (value === null || value === undefined) return createType("any", { defaultValue: value });
+  if (Array.isArray(value)) return createType("array", { defaultValue: value });
+  switch (typeof value) {
+    case "number":
+    case "string":
+    case "boolean":
+      return createType(typeof value, value);
+    case "function":
+      return createType("function", { defaultValue: value });
+    default:
+      return createType("object", { defaultValue: value });
+  }
+};
+
+/**
+ * A whole `properties` block as descriptors.
+ * @param {Record<string, PropertyDeclaration>} block
+ * @returns {Record<string, TypeDefinition>}
+ */
+export const normalizeProperties = (block) =>
+  Object.fromEntries(Object.entries(block).map(([key, value]) => [key, normalizeProperty(value)]));
 
 /**
  * Whether a descriptor is a reactive store field (the default) or a plain
@@ -118,7 +167,7 @@ export const cloneDefault = (prop) => {
 /** @param {string} type */
 const factory = (type) => (/** @type {unknown} */ options) => createType(type, options);
 
-const T = {
+const T = /** @type {TypesAPI} */ ({
   any: factory("any"),
   string: factory("string"),
   number: factory("number"),
@@ -128,6 +177,6 @@ const T = {
   function: factory("function"),
   createType,
   parse,
-};
+});
 
 export default T;

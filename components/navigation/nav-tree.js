@@ -31,11 +31,11 @@ export default defineComponent({
   properties: {
     groups: /** @type {Prop<NavTreeGroup[]>} */ (T.array({ attribute: false, defaultValue: [] })),
     open: /** @type {Prop<string[]>} */ (T.array({ defaultValue: [] })),
-    collapseAt: T.number(0),
+    collapseAt: 0,
     expanded: /** @type {Prop<string[]>} */ (T.array({ defaultValue: [] })),
-    active: T.string(""),
+    active: "",
     size: T.string({ defaultValue: "sm", enum: ["sm", "md"] }),
-    _path: T.string(""),
+    _path: "",
   },
   events: {
     "nav-tree-toggle": T.object(),

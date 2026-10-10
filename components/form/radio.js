@@ -9,7 +9,7 @@ export default defineComponent({
   mixins: [withFormControl],
   tag: "lc-radio",
   properties: {
-    checked: T.boolean(false),
+    checked: false,
     variant: T.string({
       defaultValue: "primary",
       enum: ["primary", "secondary", "success", "warning", "error"],

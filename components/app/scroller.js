@@ -9,8 +9,8 @@ export default defineComponent({
   tag: "lc-scroller",
   style: true,
   properties: {
-    gap: T.string({ defaultValue: "0.75rem" }),
-    pad: T.string({ defaultValue: "0" }),
+    gap: "0.75rem",
+    pad: "0",
     chevrons: T.string({ defaultValue: "auto", enum: ["auto", "always", "never"] }),
     _track: /** @type {Prop<HTMLElement | null>} */ (T.object({ reactive: false, defaultValue: null })),
     _prev: /** @type {Prop<HTMLElement | null>} */ (T.object({ reactive: false, defaultValue: null })),

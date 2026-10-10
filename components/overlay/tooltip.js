@@ -34,7 +34,7 @@ export default defineComponent({
       defaultValue: "md",
       enum: ["sm", "md", "lg"],
     }),
-    delay: T.number({ defaultValue: 100 }),
+    delay: 100,
   },
 
   /** @param {DOMRect} rect */

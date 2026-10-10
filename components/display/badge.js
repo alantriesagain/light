@@ -84,8 +84,8 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-badge",
   properties: {
-    variant: T.string("default"),
-    size: T.string("md"),
+    variant: "default",
+    size: "md",
     outline: T.boolean(),
     soft: T.boolean(),
     dot: T.boolean(),

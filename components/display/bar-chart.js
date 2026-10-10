@@ -11,16 +11,16 @@ export default defineComponent({
 
   properties: {
     data: /** @type {Prop<BarChartDatum[]>} */ (T.array({ defaultValue: [] })),
-    height: T.number({ defaultValue: 200 }),
+    height: 200,
     variant: T.string({
       defaultValue: "primary",
       enum: ["primary", "secondary", "success", "warning", "error", "info"],
     }),
-    showLabels: T.boolean({ defaultValue: true }),
-    showValues: T.boolean({ defaultValue: false }),
-    horizontal: T.boolean({ defaultValue: false }),
-    gap: T.number({ defaultValue: 4 }),
-    currentIndex: T.number({ defaultValue: -1 }),
+    showLabels: true,
+    showValues: false,
+    horizontal: false,
+    gap: 4,
+    currentIndex: -1,
     showAxis: T.boolean(),
     formatValue: /** @type {Prop<((value: number) => string) | null>} */ (T.object({ attribute: false, defaultValue: null })),
     callout: T.string(),

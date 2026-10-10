@@ -36,7 +36,7 @@ export default {
   tag: "docs-task-list",
   properties: {
     rows: T.array({ defaultValue: [], sync: "tasks" }),
-    draft: T.string({ defaultValue: "" }),
+    draft: "",
   },
   render() {
     return html`
@@ -51,9 +51,9 @@ export default {
 ## Rules
 
 - Plain object literal; `defineComponent` from `@bootstrapp/light` only when typed `this` is wanted.
-- `T.*` properties are reactive render state: mutate them, never `_vars` plus manual updates. Small persisted state is `T.*({ sync: "local" })` on a controller, not localStorage.
+- `properties` entries are reactive render state: a bare default (`draft: ""`, `open: false`, `rows: []`) or `T.*(options)` when an option is needed; mutate them, never `_vars` plus manual updates. Small persisted state is `T.*({ sync: "local" })` on a controller, not localStorage.
 - A listener or subscription made in `connected()` is wrapped in `this.$own(...)`.
-- Multi-word attributes are kebab-case (`use-system-preference`); a `T.boolean` prop binds as `?kebab-attr=${v}`, never `.prop=`.
+- Multi-word attributes are kebab-case (`use-system-preference`); a boolean prop (`open: false` or `T.boolean(...)`) binds as `?kebab-attr=${v}`, never `.prop=`.
 - Framework members are `$`-prefixed (`$state`, `$emit`, `$own`, `$on`, `$off`, `$requestUpdate`, `$hasUpdated`, `$`, `$$`); a `$`-prefixed property or member is refused at define time, and so is a method named after a DOM method (`remove`, `append`, `click`, `focus`, `blur`, `closest`, `matches`): the view's methods land on the element's prototype. Every plain name is free, `state`, `connected`, `updated`, `ready` and `config` included; a property may share a lifecycle hook's name.
 - Component events: `lc-switch` emits `change` with `e.detail.checked`; `lc-input`, `lc-select`, `lc-number-input`, `lc-segmented` emit `change` (and `input`) with `e.detail.value`.
 - Internal links go through `<lc-link>`, `lc-button href`, `lc-list-row href`, or `$APP.Router.href(path)` on a bare anchor.

@@ -26,12 +26,12 @@ export default defineComponent({
   tag: "lc-comment",
   style: true,
   properties: {
-    author: T.string({ defaultValue: "" }),
-    avatar: T.string({ defaultValue: "" }),
-    at: T.string({ defaultValue: "" }),
-    body: T.string({ defaultValue: "" }),
-    concealed: T.boolean({ defaultValue: false }),
-    href: T.string({ defaultValue: "" }),
+    author: "",
+    avatar: "",
+    at: "",
+    body: "",
+    concealed: false,
+    href: "",
     actions: /** @type {Prop<CommentActions | null>} */ (T.function({ defaultValue: null })),
   },
   render() {

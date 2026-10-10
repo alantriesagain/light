@@ -11,14 +11,14 @@ export default defineComponent({
 
 	properties: {
 		data: /** @type {Prop<SparklineDatum[]>} */ (T.array({ defaultValue: [] })),
-		width: T.number({ defaultValue: 80 }),
-		height: T.number({ defaultValue: 24 }),
+		width: 80,
+		height: 24,
 		variant: T.string({
 			defaultValue: "primary",
 			enum: ["primary", "secondary", "success", "warning", "error"],
 		}),
-		showArea: T.boolean({ defaultValue: false }),
-		smooth: T.boolean({ defaultValue: true }),
+		showArea: false,
+		smooth: true,
 		_gradientId: T.string({ reactive: false, defaultValue: "" }),
 	},
 

@@ -12,15 +12,15 @@ export default defineComponent({
   tag: "lc-drawer",
   style: true,
   properties: {
-    open: T.boolean(false),
+    open: false,
     position: T.string({
       defaultValue: "right",
       enum: ["left", "right", "top", "bottom"],
     }),
-    width: T.string({ defaultValue: "280px" }),
-    height: T.string({ defaultValue: "50vh" }),
-    backdrop: T.boolean(true),
-    persistent: T.boolean(false),
+    width: "280px",
+    height: "50vh",
+    backdrop: true,
+    persistent: false,
   },
 
   /** @param {number} direction */
@@ -176,7 +176,7 @@ export default defineComponent({
  * export default {
  *   tag: 'my-app',
  *   properties: {
- *     drawerOpen: T.boolean(false),
+ *     drawerOpen: false,
  *   },
  *
  *   render() {

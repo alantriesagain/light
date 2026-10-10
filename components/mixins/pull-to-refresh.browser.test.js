@@ -16,7 +16,7 @@ const defineHost = (options) => {
     mixins: [withPullToRefresh({ mouse: true, ...options })],
     tag,
     properties: {
-      armed: T.boolean(true),
+      armed: true,
       calls: T.number({ reactive: false, defaultValue: 0 }),
       _release: /** @type {import("../types.ts").Prop<((v?: unknown) => void) | null>} */ (T.object({ reactive: false, defaultValue: null })),
     },

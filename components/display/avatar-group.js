@@ -7,7 +7,7 @@ export default defineComponent({
   tag: "lc-avatar-group",
   style: true,
   properties: {
-    max: T.number({ defaultValue: 4 }),
+    max: 4,
     size: T.string({ defaultValue: "sm", enum: ["xs", "sm", "md", "lg", "xl"] }),
     _overflow: T.number({ attribute: false, defaultValue: 0 }),
   },

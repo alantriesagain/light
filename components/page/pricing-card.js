@@ -17,10 +17,10 @@ export default defineComponent({
     shadow: ["card", "card-hover", "lg", "xl"],
   },
   properties: {
-    name: T.string({ defaultValue: "" }),
-    price: T.string({ defaultValue: "" }),
-    period: T.string({ defaultValue: "" }),
-    description: T.string({ defaultValue: "" }),
+    name: "",
+    price: "",
+    period: "",
+    description: "",
     features: /** @type {Prop<string[]>} */ (T.array({
       attribute: false,
       defaultValue: [],
@@ -34,7 +34,7 @@ export default defineComponent({
         href: T.string(),
       },
     })),
-    highlighted: T.boolean({ defaultValue: false }),
+    highlighted: false,
   },
   render() {
     const cta = this.cta;

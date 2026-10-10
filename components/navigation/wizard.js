@@ -8,20 +8,20 @@ export default defineComponent({
   style: true,
   properties: {
 
-    currentStep: T.number(1),
-    totalSteps: T.number(1),
+    currentStep: 1,
+    totalSteps: 1,
 
-    showProgress: T.boolean(true),
-    showStepCounter: T.boolean(true),
-    showHeader: T.boolean(true),
-    showNavigation: T.boolean(true),
-    modal: T.boolean(false),
+    showProgress: true,
+    showStepCounter: true,
+    showHeader: true,
+    showNavigation: true,
+    modal: false,
 
-    backLabel: T.string("← Back"),
-    nextLabel: T.string(""),
-    cancelLabel: T.string(""),
-    finishLabel: T.string(""),
-    stepLabel: T.string(""),
+    backLabel: "← Back",
+    nextLabel: "",
+    cancelLabel: "",
+    finishLabel: "",
+    stepLabel: "",
 
     canProceed: T.function(),
   },

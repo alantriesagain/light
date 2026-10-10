@@ -23,7 +23,7 @@ export default defineComponent({
         href: T.string(),
       },
     })),
-    tagline: T.string({ defaultValue: "" }),
+    tagline: "",
     columns: /** @type {Prop<FooterColumn[]>} */ (T.array({
       attribute: false,
       defaultValue: [],
@@ -37,7 +37,7 @@ export default defineComponent({
         }),
       },
     })),
-    copyright: T.string({ defaultValue: "" }),
+    copyright: "",
     socials: /** @type {Prop<FooterSocial[]>} */ (T.array({
       attribute: false,
       defaultValue: [],

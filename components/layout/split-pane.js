@@ -9,15 +9,15 @@ export default defineComponent({
   mixins: [withPointerDrag({ handle: "[part~=lc-split-pane-divider]", enabled: "resizable" })],
   tag: "lc-split-pane",
   properties: {
-    direction: T.string("horizontal"),
-    initialSize: T.string("50%"),
+    direction: "horizontal",
+    initialSize: "50%",
     minSize: T.string(),
     maxSize: T.string(),
-    minSecondary: T.string("50px"),
+    minSecondary: "50px",
     primarySize: T.string({ sync: "local", scope: "storageKey" }),
-    dividerSize: T.number(2),
+    dividerSize: 2,
     storageKey: T.string(),
-    resizable: T.boolean(false),
+    resizable: false,
 
     _primaryPanel: /** @type {Prop<HTMLElement | null>} */ (
       T.object({ reactive: false, defaultValue: null })

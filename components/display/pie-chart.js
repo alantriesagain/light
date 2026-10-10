@@ -10,11 +10,11 @@ export default defineComponent({
 
 	properties: {
 		data: /** @type {Prop<PieChartDatum[]>} */ (T.array({ defaultValue: [] })),
-		size: T.number({ defaultValue: 200 }),
-		donut: T.boolean({ defaultValue: false }),
-		donutWidth: T.number({ defaultValue: 40 }),
-		showLabels: T.boolean({ defaultValue: false }),
-		showLegend: T.boolean({ defaultValue: true }),
+		size: 200,
+		donut: false,
+		donutWidth: 40,
+		showLabels: false,
+		showLegend: true,
 		centerLabel: T.string(),
 		centerSub: T.string(),
 	},

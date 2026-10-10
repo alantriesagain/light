@@ -2,20 +2,55 @@
  * @bootstrapp/light: the view engine's public type declarations.
  */
 
-import type { TypeDefinition } from "../types/types.ts";
+import type { PropertyDeclaration, TypeDefinition } from "../types/types.ts";
 import type View from "./index.js";
 
+/** A class's merged property descriptors, every entry normalised. */
 export type PropertiesSchema = Record<string, TypeDefinition>;
 
+/** A definition's `properties` block as the author writes it: descriptors, or defaults standing in for them. */
+export type PropertyDeclarations = Record<string, PropertyDeclaration>;
+
 /**
- * Map a `properties: { x: T.string() }` block into the TS shape that ends
- * up on `this` inside `render()` / lifecycle hooks (`this.x: string`).
- * Each `T.*()` factory returns a `TypeDefinition<T>` whose phantom `T`
- * carries the underlying JS type. Unknown factories collapse to `unknown`.
+ * Map a `properties: { x: T.string(), count: 0 }` block into the TS shape
+ * that ends up on `this` inside `render()` / lifecycle hooks (`this.x: string`,
+ * `this.count: number`); see `PropertyValue`.
  */
 export type PropsToThis<P> = {
-  [K in keyof P]: P[K] extends TypeDefinition<infer V> ? V : unknown;
+  [K in keyof P]: PropertyValue<P[K]>;
 };
+
+/**
+ * The value type a `properties` entry declares: a descriptor's phantom type;
+ * for a default, its widened type (`false` is `boolean`, `0` is `number`,
+ * `""` is `string`), an empty array literal as `unknown[]`, `null` as `any`.
+ */
+export type PropertyValue<V> = V extends TypeDefinition<infer T> ? T
+  : V extends boolean ? boolean
+  : V extends number ? number
+  : V extends string ? string
+  : V extends readonly never[] ? unknown[]
+  : V extends null | undefined ? any
+  : V;
+
+/**
+ * What `this` is inside a definition's methods: the reactive properties, own
+ * and from mixins; the sibling members declared on the same literal and on
+ * the mixins (the definition keys the engine consumes never reach `this`, so
+ * a property may share a hook's name); the engine's instance members; the
+ * narrowed `$emit`; `_`-prefixed members as `any`; and, with `extends`, any
+ * other member as `unknown`, since the base is known only by its tag.
+ */
+export type ComponentThis<D, M, P, E> = PropsToThis<P & Omit<MixinProps<M>, keyof P>> &
+  Omit<D, keyof P | DefinitionKey> &
+  MixinMembers<M> &
+  Omit<View, "$emit"> &
+  { $emit: TypedEmit<E & MixinEvents<M>> } &
+  { [k: `_${string}`]: any } &
+  (D extends { extends: string } ? Record<string, unknown> : unknown);
+
+/** A component definition as `defineComponent` and `View.define` accept it, `this` typed inside its methods. */
+export type Definition<D, M, P, E> = D & { properties?: P; events?: E; mixins?: M } & ThisType<ComponentThis<D, M, P, E>>;
 
 /**
  * Map an `events: { change: T.object(...) }` block into the typed `this.emit`
@@ -127,7 +162,7 @@ export interface ComponentDefinition {
    * hooks chain mixin-first. A fragment may carry `mixins` of its own.
    */
   mixins?: readonly MixinDefinition[];
-  properties?: PropertiesSchema;
+  properties?: PropertyDeclarations;
   /**
    * Optional declaration of events this component emits. Each entry maps
    * an event name to a `T.*()` factory describing the payload shape. Used
@@ -173,6 +208,8 @@ export type DefinitionKey = keyof ComponentDefinition;
 
 /** A definition fragment: any subset of a component definition plus members. */
 export type MixinDefinition = Partial<ComponentDefinition> & Record<string, unknown>;
+
+import type { MixinEvents, MixinProps } from "./primitives.ts";
 
 export type { MixinProps, MixinEvents, UnionToIntersection } from "./primitives.ts";
 

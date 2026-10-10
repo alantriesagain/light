@@ -18,9 +18,9 @@ export default defineComponent({
       defaultValue: "dark",
       enum: ["light", "dark"],
     }),
-    eyebrow: T.string({ defaultValue: "" }),
-    headline: T.string({ defaultValue: "" }),
-    subheadline: T.string({ defaultValue: "" }),
+    eyebrow: "",
+    headline: "",
+    subheadline: "",
     features: /** @type {Prop<FeatureGridItem[]>} */ (T.array({
       attribute: false,
       defaultValue: [],
@@ -30,7 +30,7 @@ export default defineComponent({
         description: T.string(),
       },
     })),
-    sectionId: T.string({ defaultValue: "" }),
+    sectionId: "",
   },
   render() {
     const features = this.features;

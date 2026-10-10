@@ -171,7 +171,7 @@ nothing in it writes to `:root` or persists a theme.
 
 ## Props
 
-`T.boolean` binds as `?kebab-attr=${v}`, never `.prop=`. Exceptions: `attribute: false`, `sync:`,
+A boolean prop (`open: false` or `T.boolean(...)`) binds as `?kebab-attr=${v}`, never `.prop=`. Exceptions: `attribute: false`, `sync:`,
 and `defaultValue: true`, because a removed attribute cannot push false over a true default.
 
 ## Tests

@@ -12,11 +12,11 @@ export default defineComponent({
   tag: "lc-color-picker",
   style: true,
   properties: {
-    value: T.string(""),
-    alpha: T.boolean(false),
+    value: "",
+    alpha: false,
     swatches: /** @type {Prop<string[]>} */ (T.array({ defaultValue: [] })),
-    allowClear: T.boolean(false),
-    _draft: T.string(""),
+    allowClear: false,
+    _draft: "",
   },
   connected() {
     this.syncFormValue(this.value);

@@ -8,13 +8,13 @@ export default defineComponent({
   tag: "lc-segmented",
   properties: {
     options: /** @type {Prop<(string | SegmentedOption)[]>} */ (T.array({ defaultValue: [] })),
-    value: T.string({ defaultValue: "" }),
+    value: "",
     values: /** @type {Prop<string[]>} */ (T.array({ defaultValue: [] })),
-    multiple: T.boolean(false),
-    disabled: T.boolean({ defaultValue: false }),
+    multiple: false,
+    disabled: false,
     size: T.string({ defaultValue: "md", enum: ["sm", "md", "lg"] }),
-    block: T.boolean({ defaultValue: false }),
-    name: T.string({ defaultValue: "" }),
+    block: false,
+    name: "",
   },
   style: true,
   events: {

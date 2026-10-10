@@ -15,7 +15,7 @@ const defineHost = (options) => {
     mixins: [withSwipeThreshold(options)],
     tag,
     properties: {
-      open: T.boolean(true),
+      open: true,
       log: /** @type {import("../types.ts").Prop<number[]>} */ (T.object({ reactive: false, defaultValue: null })),
     },
     connected() {

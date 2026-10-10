@@ -17,11 +17,11 @@ export default defineComponent({
       defaultValue: "prose",
       enum: ["prose", "split"],
     }),
-    eyebrow: T.string({ defaultValue: "" }),
-    headline: T.string({ defaultValue: "" }),
-    subheadline: T.string({ defaultValue: "" }),
-    body: T.string({ defaultValue: "" }),
-    sectionId: T.string({ defaultValue: "" }),
+    eyebrow: "",
+    headline: "",
+    subheadline: "",
+    body: "",
+    sectionId: "",
   },
   render() {
     const variantClass =

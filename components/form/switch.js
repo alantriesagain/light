@@ -8,11 +8,11 @@ export default defineComponent({
   tag: "lc-switch",
   properties: {
     _internals: /** @type {Prop<ElementInternals | null>} */ (T.object({ reactive: false, defaultValue: null })),
-    checked: T.boolean({ defaultValue: false }),
-    disabled: T.boolean({ defaultValue: false }),
-    name: T.string(""),
-    value: T.string({ defaultValue: "on" }),
-    label: T.string(""),
+    checked: false,
+    disabled: false,
+    name: "",
+    value: "on",
+    label: "",
     size: T.string({
       defaultValue: "md",
       enum: ["xs", "sm", "md", "lg", "xl"],

@@ -13,14 +13,14 @@ export default defineComponent({
       enum: ["auto", "mobile", "desktop"],
     }),
 
-    useSafeArea: T.boolean(true),
+    useSafeArea: true,
 
-    multiPane: T.boolean(false),
+    multiPane: false,
 
-    currentRoute: T.string("/"),
+    currentRoute: "/",
     routes: T.object({}),
 
-    height: T.string({ defaultValue: "100vh" }),
+    height: "100vh",
 
     currentBreakpoint: T.string({ reactive: false, defaultValue: "xs" }),
     isMobile: T.boolean({ reactive: false, defaultValue: false }),

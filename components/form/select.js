@@ -17,7 +17,7 @@ export default defineComponent({
     options: /** @type {Prop<SelectOption[]>} */ (T.array({ defaultValue: [] })),
     multiple: T.boolean(),
     searchable: T.boolean(),
-    max: T.number({ defaultValue: 0 }),
+    max: 0,
     open: T.boolean({ attribute: false }),
     search: T.string({ attribute: false, defaultValue: "" }),
     highlightIndex: T.number({ attribute: false, defaultValue: -1 }),

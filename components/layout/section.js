@@ -13,7 +13,7 @@ export default defineComponent({
       defaultValue: "lg",
       enum: ["sm", "md", "lg", "xl", "2xl", "full"],
     }),
-    centered: T.boolean(false),
+    centered: false,
   },
   style: true,
 

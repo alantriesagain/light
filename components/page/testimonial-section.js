@@ -16,9 +16,9 @@ export default defineComponent({
     shadow: ["card", "card-hover"],
   },
   properties: {
-    eyebrow: T.string({ defaultValue: "" }),
-    headline: T.string({ defaultValue: "" }),
-    subheadline: T.string({ defaultValue: "" }),
+    eyebrow: "",
+    headline: "",
+    subheadline: "",
     testimonials: /** @type {Prop<Testimonial[]>} */ (T.array({
       attribute: false,
       defaultValue: [],
@@ -30,7 +30,7 @@ export default defineComponent({
         role: T.string(),
       },
     })),
-    sectionId: T.string({ defaultValue: "" }),
+    sectionId: "",
   },
   render() {
     const testimonials = this.testimonials;

@@ -47,10 +47,10 @@ export default defineComponent({
     rows: /** @type {Prop<TableRow[]>} */ (T.array({ defaultValue: [] })),
     selectRow: /** @type {Prop<TableRowSelect | null>} */ (T.function()),
     isSelected: /** @type {Prop<TableRowSelected | null>} */ (T.function()),
-    sortable: T.boolean({ defaultValue: false }),
+    sortable: false,
     sortBy: T.string(),
-    sortDir: T.string({ defaultValue: "asc" }),
-    emptyMessage: T.string({ defaultValue: "" }),
+    sortDir: "asc",
+    emptyMessage: "",
   },
   /** @param {string} name */
   handleSort(name) {

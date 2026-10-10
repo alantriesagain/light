@@ -26,7 +26,7 @@ export default defineController({
   adapter: true,
   properties: {
     skin: T.string({ defaultValue: HOST_THEME, sync: "local", key: "lc:skin" }),
-    search: T.string({ defaultValue: "" }),
+    search: "",
     toc: /** @type {Prop<TocItem[]>} */ (T.array({ defaultValue: [] })),
     skins: /** @type {Prop<SkinOption[]>} */ (T.array({ defaultValue: [] })),
   },

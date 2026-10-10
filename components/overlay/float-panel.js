@@ -13,11 +13,11 @@ export default defineComponent({
   tag: "lc-float-panel",
   style: true,
   properties: {
-    storageKey: T.string({ defaultValue: "" }),
-    panelWidth: T.number({ defaultValue: 380 }),
-    panelHeight: T.number({ defaultValue: 500 }),
-    minWidth: T.number({ defaultValue: 280 }),
-    minHeight: T.number({ defaultValue: 320 }),
+    storageKey: "",
+    panelWidth: 380,
+    panelHeight: 500,
+    minWidth: 280,
+    minHeight: 320,
     _rect: /** @type {Prop<{ x: number, y: number, w: number, h: number }>} */ (
       T.object({ reactive: false, defaultValue: null })
     ),

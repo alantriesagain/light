@@ -35,13 +35,13 @@ export default defineComponent({
         "inverse",
       ],
     }),
-    muted: T.boolean(false),
-    mono: T.boolean(false),
+    muted: false,
+    mono: false,
     align: T.string({ enum: ["left", "center", "right"] }),
     transform: T.string({
       enum: ["capitalize", "uppercase", "lowercase", "none"],
     }),
-    eyebrow: T.boolean(false),
+    eyebrow: false,
     level: T.number({ min: 1, max: 6 }),
   },
   updated() {

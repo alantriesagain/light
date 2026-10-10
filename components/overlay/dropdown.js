@@ -11,7 +11,7 @@ export default defineComponent({
   style: true,
   tag: "lc-dropdown",
   properties: {
-    autoClose: T.boolean(true),
+    autoClose: true,
     items: /** @type {Prop<DropdownItem[]>} */ (T.array()),
     content: /** @type {Prop<(() => TemplateValue) | null>} */ (T.object({ attribute: false, defaultValue: null, hasChanged: () => false })),
     _slotContent: /** @type {Prop<ChildNode[] | null>} */ (T.object({ reactive: false, defaultValue: null })),

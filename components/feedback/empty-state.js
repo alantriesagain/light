@@ -35,9 +35,9 @@ export default defineComponent({
   style: true,
 
   properties: {
-    icon: T.string(""),
-    title: T.string(""),
-    description: T.string(""),
+    icon: "",
+    title: "",
+    description: "",
     size: T.string({ defaultValue: "md", enum: ["sm", "md", "lg"] }),
   },
 

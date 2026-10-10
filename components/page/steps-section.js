@@ -20,10 +20,10 @@ export default defineComponent({
     shadow: ["sm", "lg"],
   },
   properties: {
-    eyebrow: T.string({ defaultValue: "" }),
-    eyebrowIcon: T.string({ defaultValue: "" }),
-    headline: T.string({ defaultValue: "" }),
-    subheadline: T.string({ defaultValue: "" }),
+    eyebrow: "",
+    eyebrowIcon: "",
+    headline: "",
+    subheadline: "",
     steps: /** @type {Prop<StepItem[]>} */ (T.array({
       attribute: false,
       defaultValue: [],
@@ -56,7 +56,7 @@ export default defineComponent({
         icon: T.string(),
       },
     })),
-    sectionId: T.string({ defaultValue: "" }),
+    sectionId: "",
   },
   render() {
     const steps = this.steps;

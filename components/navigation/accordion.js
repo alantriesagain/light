@@ -11,9 +11,9 @@ export default defineComponent({
       defaultValue: "default",
       enum: ["default", "bordered", "filled", "flush", "separated"],
     }),
-    single: T.boolean(false),
-    rounded: T.boolean(true),
-    openItems: T.array({ defaultValue: [] }),
+    single: false,
+    rounded: true,
+    openItems: [],
   },
 
   connected() {

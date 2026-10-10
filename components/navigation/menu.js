@@ -12,8 +12,8 @@ export default defineComponent({
       defaultValue: "default",
       enum: ["default", "bordered", "compact", "flush", "sidebar"],
     }),
-    rounded: T.boolean(true),
-    bordered: T.boolean(true),
+    rounded: true,
+    bordered: true,
   },
   style: true,
 });

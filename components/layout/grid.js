@@ -7,8 +7,8 @@ import { env } from "@bootstrapp/light/env";
 export default defineComponent({
   tag: "lc-grid",
   properties: {
-    columns: T.string({ defaultValue: "auto-fit" }),
-    minColumnWidth: T.string({ defaultValue: "250px" }),
+    columns: "auto-fit",
+    minColumnWidth: "250px",
     cols: T.string(),
     rows: T.string(),
     gap: T.string({

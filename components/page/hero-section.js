@@ -32,8 +32,8 @@ export default defineComponent({
         },
       })
     ),
-    headline: T.string({ defaultValue: "" }),
-    subheadline: T.string({ defaultValue: "" }),
+    headline: "",
+    subheadline: "",
     ctas: /** @type {Prop<HeroCta[]>} */ (
       T.array({
         attribute: false,

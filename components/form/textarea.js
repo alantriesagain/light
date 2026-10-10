@@ -7,8 +7,8 @@ export default defineComponent({
   mixins: [withFormControl],
   tag: "lc-textarea",
   properties: {
-    rows: T.number({ defaultValue: 4 }),
-    cols: T.number({ defaultValue: 50 }),
+    rows: 4,
+    cols: 50,
     maxlength: T.number({ defaultValue: null }),
     minlength: T.number({ defaultValue: null }),
     resize: T.string({

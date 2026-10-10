@@ -1,4 +1,3 @@
-import T from "@bootstrapp/light/types";
 import { defineComponent } from "@bootstrapp/light";
 import { withPopover } from "@bootstrapp/light/components/mixins/popover.js";
 
@@ -7,7 +6,7 @@ export default defineComponent({
   tag: "lc-popover",
   style: true,
   properties: {
-    arrow: T.boolean(true),
+    arrow: true,
   },
 });
 

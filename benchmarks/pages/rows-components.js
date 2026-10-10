@@ -8,7 +8,7 @@ let renderedAt = 0;
 View.define("bench-row", {
   properties: {
     row: T.object({ defaultValue: null, attribute: false }),
-    selected: T.boolean({ defaultValue: false }),
+    selected: false,
   },
   updated() {
     renderedAt = performance.now();

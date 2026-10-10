@@ -9,10 +9,10 @@ export default defineComponent({
   style: true,
   properties: {
     colors: /** @type {Prop<string[]>} */ (T.array({ defaultValue: [] })),
-    label: T.string(""),
-    meta: T.string(""),
-    selected: T.boolean(false),
-    interactive: T.boolean(false),
+    label: "",
+    meta: "",
+    selected: false,
+    interactive: false,
     size: T.string({ defaultValue: "md", enum: ["sm", "md"] }),
   },
   events: {

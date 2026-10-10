@@ -15,9 +15,9 @@ export default defineComponent({
     shadow: ["card"],
   },
   properties: {
-    eyebrow: T.string({ defaultValue: "" }),
-    headline: T.string({ defaultValue: "" }),
-    subheadline: T.string({ defaultValue: "" }),
+    eyebrow: "",
+    headline: "",
+    subheadline: "",
     items: /** @type {Prop<FaqItem[]>} */ (T.array({
       attribute: false,
       defaultValue: [],
@@ -27,7 +27,7 @@ export default defineComponent({
       },
     })),
     openItems: /** @type {Prop<number[]>} */ (T.array({ attribute: false, defaultValue: [] })),
-    sectionId: T.string({ defaultValue: "" }),
+    sectionId: "",
   },
   /** @param {number} index */
   _toggle(index) {

@@ -28,7 +28,7 @@ export default defineComponent({
     related: T.string(),
     ref: T.string(),
     icon: T.string(),
-    iconSize: T.string({ defaultValue: "md" }),
+    iconSize: "md",
     tooltip: T.string(),
     tooltipPosition: T.string({ defaultValue: "top", enum: ["top", "bottom", "left", "right"] }),
     active: T.boolean(),

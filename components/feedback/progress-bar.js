@@ -5,8 +5,8 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-progress-bar",
   properties: {
-    value: T.number(0),
-    max: T.number(100),
+    value: 0,
+    max: 100,
     variant: T.string({
       defaultValue: "default",
       enum: ["default", "success", "danger", "warning", "info"],
@@ -15,9 +15,9 @@ export default defineComponent({
       defaultValue: "md",
       enum: ["sm", "md", "lg"],
     }),
-    showLabel: T.boolean(false),
-    striped: T.boolean(false),
-    animated: T.boolean(false),
+    showLabel: false,
+    striped: false,
+    animated: false,
   },
   style: true,
 

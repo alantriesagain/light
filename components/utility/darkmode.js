@@ -9,11 +9,11 @@ export default defineComponent({
   icons: ["moon", "sun"],
   style: true,
   properties: {
-    width: T.string({ defaultValue: "fit" }),
+    width: "fit",
     compact: T.boolean(),
     inverted: T.boolean(),
     navItem: T.boolean(),
-    label: T.string({ defaultValue: "" }),
+    label: "",
     size: T.string(),
     dark: T.boolean(),
   },

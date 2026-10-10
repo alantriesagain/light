@@ -1,5 +1,4 @@
 import { html } from "@bootstrapp/light/html";
-import T from "@bootstrapp/light/types";
 import { defineComponent } from "@bootstrapp/light";
 import { lcText } from "../utils/text.js";
 
@@ -17,9 +16,9 @@ export default defineComponent({
   tag: "lc-pull-indicator",
   style: true,
   properties: {
-    pull: T.number({ defaultValue: 0 }),
-    threshold: T.number({ defaultValue: 64 }),
-    refreshing: T.boolean({ defaultValue: false }),
+    pull: 0,
+    threshold: 64,
+    refreshing: false,
   },
 
   willUpdate() {

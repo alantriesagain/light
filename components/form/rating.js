@@ -8,8 +8,8 @@ export default defineComponent({
   tag: "lc-rating",
   style: true,
   properties: {
-    value: T.number({ defaultValue: 0 }),
-    max: T.number({ defaultValue: 5 }),
+    value: 0,
+    max: 5,
     change: T.function(),
   },
   render() {

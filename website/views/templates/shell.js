@@ -37,7 +37,7 @@ export default defineComponent({
     skin: T.string({ sync: "catalogue", defaultValue: "" }),
     skins: /** @type {Prop<SkinOption[]>} */ (T.array({ sync: "catalogue", defaultValue: [] })),
     toc: /** @type {Prop<TocItem[]>} */ (T.array({ sync: "catalogue", defaultValue: [] })),
-    phone: T.boolean({ defaultValue: false }),
+    phone: false,
     openGroups: /** @type {Prop<string[]>} */ (T.array({ defaultValue: [] })),
   },
 

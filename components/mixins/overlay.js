@@ -22,7 +22,7 @@ import { overlays } from "../overlay/stack.js";
  *   export default defineComponent({
  *     mixins: [withOverlay({ lockScroll: true })],
  *     tag: "lc-drawer",
- *     properties: { open: T.boolean(false) },
+ *     properties: { open: false },
  *     onEscape() { this.close(); },
  *   });
  *

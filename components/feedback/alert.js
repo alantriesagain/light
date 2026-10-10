@@ -62,8 +62,8 @@ export default defineComponent({
 			defaultValue: "default",
 			enum: ["default", "success", "warning", "error", "info", "note", "tip"],
 		}),
-		icon: T.string(""),
-		title: T.string(""),
+		icon: "",
+		title: "",
 	},
 
 	/** @param {string} variant */

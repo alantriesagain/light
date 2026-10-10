@@ -7,8 +7,8 @@ export default defineComponent({
   mixins: [withFormControl],
   tag: "lc-checkbox",
   properties: {
-    checked: T.boolean(false),
-    indeterminate: T.boolean(false),
+    checked: false,
+    indeterminate: false,
     variant: T.string({
       defaultValue: "primary",
       enum: ["primary", "secondary", "success", "warning", "error"],

@@ -25,8 +25,8 @@ describe("light - View.createClass()", () => {
       const tag = getUniqueTag("merge-props");
       const component = View.createClass(tag, {
         properties: {
-          count: { type: "number", defaultValue: 0 },
-          name: { type: "string", defaultValue: "" },
+          count: { $type: "number", defaultValue: 0 },
+          name: { $type: "string", defaultValue: "" },
         },
         render() {
           return null;
@@ -34,8 +34,8 @@ describe("light - View.createClass()", () => {
       });
       assert.ok(component.properties.count);
       assert.ok(component.properties.name);
-      assert.equal(component.properties.count.type, "number");
-      assert.equal(component.properties.name.type, "string");
+      assert.equal(component.properties.count.$type, "number");
+      assert.equal(component.properties.name.$type, "string");
     });
 
     it("should extract prototype methods from definition", () => {
@@ -59,9 +59,9 @@ describe("light - View.createClass()", () => {
       const tag = getUniqueTag("observed-attrs");
       const component = View.createClass(tag, {
         properties: {
-          visible: { type: "boolean", defaultValue: true },
-          label: { type: "string", defaultValue: "" },
-          data: { type: "object", attribute: false },
+          visible: { $type: "boolean", defaultValue: true },
+          label: { $type: "string", defaultValue: "" },
+          data: { $type: "object", attribute: false },
         },
         render() {
           return null;
@@ -79,7 +79,7 @@ describe("light - View.createClass()", () => {
       const baseTag = getUniqueTag("base-inherit");
       const BaseComponent = View.createClass(baseTag, {
         properties: {
-          baseValue: { type: "string", defaultValue: "base" },
+          baseValue: { $type: "string", defaultValue: "base" },
         },
         render() {
           return null;
@@ -91,7 +91,7 @@ describe("light - View.createClass()", () => {
         childTag,
         {
           properties: {
-            childValue: { type: "number", defaultValue: 0 },
+            childValue: { $type: "number", defaultValue: 0 },
           },
           render() {
             return null;
@@ -126,7 +126,7 @@ describe("light - framework member names", () => {
   it("leaves the whole _ namespace to the component, since the engine takes only $", () => {
     const tag = getUniqueTag("underscore-names");
     View.define(tag, {
-      properties: { _teardowns: T.string({ defaultValue: "mine" }) },
+      properties: { _teardowns: "mine" },
       _update() { return "mine"; },
       _ctor() { return "mine"; },
       _runHook() { return "mine"; },
@@ -151,14 +151,14 @@ describe("light - framework member names", () => {
     const tag = getUniqueTag("freed-names");
     View.define(tag, {
       properties: {
-        state: T.string({ defaultValue: "idle" }),
-        emit: T.boolean({ defaultValue: false }),
-        own: T.number({ defaultValue: 1 }),
-        ready: T.boolean({ defaultValue: false }),
+        state: "idle",
+        emit: false,
+        own: 1,
+        ready: false,
         config: T.object({ defaultValue: null }),
-        update: T.string({ defaultValue: "" }),
-        get: T.string({ defaultValue: "" }),
-        keys: T.array({ defaultValue: [] }),
+        update: "",
+        get: "",
+        keys: [],
       },
       connected() {
         this.state = "booted";
@@ -189,9 +189,9 @@ describe("light - framework member names", () => {
     const seen = [];
     View.define(tag, {
       properties: {
-        connected: T.boolean({ defaultValue: false }),
-        updated: T.number({ defaultValue: 0 }),
-        disconnected: T.boolean({ defaultValue: false }),
+        connected: false,
+        updated: 0,
+        disconnected: false,
       },
       connected() {
         this.connected = true;
@@ -267,8 +267,8 @@ describe("light - framework member names", () => {
     });
     View.define(tag, {
       properties: {
-        showChild: T.boolean({ defaultValue: true }),
-        label: T.string({ defaultValue: "here" }),
+        showChild: true,
+        label: "here",
       },
       render() { return html`<span>${this.label}</span>${this.showChild ? element(childTag, {}) : ""}`; },
     });
@@ -305,49 +305,44 @@ describe("light - View.define()", () => {
   describe("element registration", () => {
     it("should define and register custom element", () => {
       const tag = getUniqueTag("define-reg");
-      const component = View.define(tag, {
+      View.define(tag, {
         render() {
           return null;
         },
       });
-      assert.ok(customElements.get(tag));
+      const component = customElements.get(tag);
+      assert.ok(component);
       assert.equal(component.tag, tag);
     });
 
     it("takes the tag from the definition when given only the definition", () => {
       const tag = getUniqueTag("define-own-tag");
-      const component = View.define({ tag, render() { return null; } });
-      assert.equal(customElements.get(tag), component);
-      assert.equal(component.tag, tag);
+      View.define({ tag, render() { return null; } });
+      assert.equal(customElements.get(tag)?.tag, tag);
     });
 
     it("refuses a definition without a tag", () => {
       assert.throws(() => View.define({ render() { return null; } }), /no tag/);
     });
 
-    it("should return the component class", () => {
+    it("registers the class the registry keeps", () => {
       const tag = getUniqueTag("define-return");
-      const component = View.define(tag, {
+      View.define(tag, {
         render() {
           return null;
         },
       });
+      const component = View.components.get(tag)?._constructor;
       assert.equal(typeof component, "function");
       assert.equal(component.tag, tag);
     });
 
-    it("should not re-register existing elements", () => {
+    it("defines a tag once: the same definition again is a no-op, another one is refused", () => {
       const tag = getUniqueTag("define-norereg");
-      View.define(tag, {
-        render() {
-          return "first";
-        },
-      });
-      View.define(tag, {
-        render() {
-          return "second";
-        },
-      });
+      const first = { render() { return "first"; } };
+      View.define(tag, first);
+      View.define(tag, first);
+      assert.throws(() => View.define(tag, { render() { return "second"; } }), /already defined/);
       assert.ok(customElements.get(tag));
     });
   });
@@ -361,12 +356,12 @@ describe("light - Property System", () => {
     tag = getUniqueTag("prop-sys");
     View.define(tag, {
       properties: {
-        count: { type: "number", defaultValue: 0 },
-        name: { type: "string", defaultValue: "" },
-        active: { type: "boolean", defaultValue: false },
-        items: { type: "array", defaultValue: [] },
-        config: { type: "object", defaultValue: {} },
-        internal: { type: "string", attribute: false, defaultValue: "internal" },
+        count: { $type: "number", defaultValue: 0 },
+        name: { $type: "string", defaultValue: "" },
+        active: { $type: "boolean", defaultValue: false },
+        items: { $type: "array", defaultValue: [] },
+        config: { $type: "object", defaultValue: {} },
+        internal: { $type: "string", attribute: false, defaultValue: "internal" },
       },
       render() {
         return null;
@@ -397,7 +392,7 @@ describe("light - Property System", () => {
       const numTag = getUniqueTag("num-attr");
       View.define(numTag, {
         properties: {
-          value: { type: "number", defaultValue: 0 },
+          value: { $type: "number", defaultValue: 0 },
         },
         render() {
           return null;
@@ -414,7 +409,7 @@ describe("light - Property System", () => {
       const boolTag = getUniqueTag("bool-attr");
       View.define(boolTag, {
         properties: {
-          enabled: { type: "boolean", defaultValue: false },
+          enabled: { $type: "boolean", defaultValue: false },
         },
         render() {
           return null;
@@ -431,7 +426,7 @@ describe("light - Property System", () => {
       const arrTag = getUniqueTag("arr-attr");
       View.define(arrTag, {
         properties: {
-          data: { type: "array", defaultValue: [] },
+          data: { $type: "array", defaultValue: [] },
         },
         render() {
           return null;
@@ -448,7 +443,7 @@ describe("light - Property System", () => {
       const objTag = getUniqueTag("obj-attr");
       View.define(objTag, {
         properties: {
-          options: { type: "object", defaultValue: {} },
+          options: { $type: "object", defaultValue: {} },
         },
         render() {
           return null;
@@ -502,8 +497,8 @@ describe("light - Property System", () => {
       kebabTag = getUniqueTag("kebab-attrs");
       View.define(kebabTag, {
         properties: {
-          useSystemPreference: { type: "boolean", defaultValue: false, attribute: true },
-          maxCount: { type: "number", defaultValue: 0, attribute: true },
+          useSystemPreference: { $type: "boolean", defaultValue: false, attribute: true },
+          maxCount: { $type: "number", defaultValue: 0, attribute: true },
         },
         render() {
           return null;
@@ -730,7 +725,7 @@ describe("light - Lifecycle Hooks", () => {
       const tag = getUniqueTag("lifecycle-first");
       View.define(tag, {
         properties: {
-          value: { type: "number", defaultValue: 0 },
+          value: { $type: "number", defaultValue: 0 },
         },
         firstUpdated() {
           firstUpdatedCount++;
@@ -757,7 +752,7 @@ describe("light - Lifecycle Hooks", () => {
       const tag = getUniqueTag("lifecycle-upd");
       View.define(tag, {
         properties: {
-          value: { type: "number", defaultValue: 0 },
+          value: { $type: "number", defaultValue: 0 },
         },
         updated() {
           updatedCount++;
@@ -1037,7 +1032,7 @@ describe("light - Getters and Setters", () => {
       const tag = getUniqueTag("custom-getter");
       View.define(tag, {
         properties: {
-          value: { type: "number", defaultValue: 10 },
+          value: { $type: "number", defaultValue: 10 },
         },
         get doubled() {
           return this.value * 2;
@@ -1070,7 +1065,7 @@ describe("light - Adoption", () => {
   const defineLabeled = (tag, hooks = {}) => {
     View.define(tag, {
       properties: {
-        label: { type: "string", defaultValue: "baked" },
+        label: { $type: "string", defaultValue: "baked" },
       },
       ...hooks,
       render() {
@@ -1096,7 +1091,7 @@ describe("light - Adoption", () => {
       const parentTag = getUniqueTag("adopt-slot-parent");
       View.define(childTag, { render() { return html`<a><slot></slot></a>`; } });
       View.define(parentTag, {
-        properties: { label: { type: "string", defaultValue: "baked" } },
+        properties: { label: { $type: "string", defaultValue: "baked" } },
         render() { return element(childTag, {}, this.label); },
       });
       window.__PRERENDERED__ = false;
@@ -1252,21 +1247,21 @@ describe("light - Adoption", () => {
 describe("light - defineComponent", () => {
   describe("identity + field preservation", () => {
     it("returns the same object verbatim (runtime identity)", () => {
-      const def = { tag: "x", properties: { y: { type: "number" } } };
+      const def = { tag: "x", properties: { y: { $type: "number" } } };
       assert.equal(defineComponent(def), def);
     });
 
     it("preserves all definition fields", () => {
       const def = defineComponent({
-        tag: "x", properties: { count: { type: "number" } },
-        events: { change: { type: "object" } },
+        tag: "x", properties: { count: { $type: "number" } },
+        events: { change: { $type: "object" } },
         style: true,
         render() { return null; },
         connected() {},
       });
       assert.equal(def.tag, "x");
-      assert.equal(def.properties.count.type, "number");
-      assert.equal(def.events.change.type, "object");
+      assert.equal(def.properties.count.$type, "number");
+      assert.equal(def.events.change.$type, "object");
       assert.equal(def.style, true);
       assert.equal(typeof def.render, "function");
       assert.equal(typeof def.connected, "function");
@@ -1407,9 +1402,9 @@ describe("light - mixins", () => {
     it("a defined element composes its mixins", async () => {
       const tag = `mx-composed-${Date.now()}`;
       View.define(tag, defineComponent({
-        mixins: [defineMixin({ properties: { fromMixin: T.string("m") }, mixinMethod() { return `hello ${this.fromMixin}`; } })],
+        mixins: [defineMixin({ properties: { fromMixin: "m" }, mixinMethod() { return `hello ${this.fromMixin}`; } })],
         tag,
-        properties: { own: T.string("o") },
+        properties: { own: "o" },
         render() { return html`${this.mixinMethod()} ${this.own}`; },
       }));
       const el = document.createElement(tag);
@@ -1429,7 +1424,7 @@ describe("light - reactive: false properties", () => {
     tag = getUniqueTag("reactive-false");
     View.define(tag, {
       properties: {
-        count: T.number({ defaultValue: 0 }),
+        count: 0,
         handle: T.object({ reactive: false, defaultValue: () => new Map() }),
       },
       render() { return null; },
@@ -1665,7 +1660,7 @@ describe("light - light-DOM slots", () => {
     const childTag = defineHost(() => html`<b><slot name="a"></slot></b>`);
     const parentTag = getUniqueTag("slot-parent");
     View.define(parentTag, {
-      properties: { n: T.number({ defaultValue: 1 }) },
+      properties: { n: 1 },
       render() {
         return element(childTag, {}, html`<span slot="a">${this.n}</span>`);
       },
@@ -1686,7 +1681,7 @@ describe("light - light-DOM slots", () => {
     const childTag = defineHost(() => html`<ul><slot name="a"></slot></ul>`);
     const parentTag = getUniqueTag("slot-parent");
     View.define(parentTag, {
-      properties: { items: T.array({ defaultValue: ["x", "y", "z"] }) },
+      properties: { items: ["x", "y", "z"] },
       render() {
         return element(childTag, {}, this.items.map((item) => key(item, html`<li slot="a">${item}</li>`)));
       },
@@ -1710,7 +1705,7 @@ describe("light - light-DOM slots", () => {
       function () {
         return this.link ? html`<a><slot></slot></a>` : html`<button><slot></slot></button>`;
       },
-      { properties: { link: T.boolean({ defaultValue: false }) } },
+      { properties: { link: false } },
     );
     const el = await mount(tag, "<i>x</i>");
     const i = el.querySelector("i");
@@ -1791,7 +1786,7 @@ describe("light - light-DOM slots", () => {
       function () {
         return this.extra ? html`<slot name="a"></slot><slot name="nope"></slot>` : html`<slot name="a"></slot>`;
       },
-      { properties: { extra: T.boolean({ defaultValue: false }) } },
+      { properties: { extra: false } },
     );
     const el = await mount(tag, '<i slot="nope">x</i>');
     const i = el.querySelector("i");
@@ -1836,7 +1831,7 @@ describe("light - light-DOM slots", () => {
       let renders = 0;
       const childTag = getUniqueTag("slot-host");
       View.define(childTag, {
-        properties: { label: T.string({ defaultValue: "a" }) },
+        properties: { label: "a" },
         connected() { connected++; },
         disconnected() { disconnected++; },
         render() {
@@ -1902,7 +1897,7 @@ describe("light - light-DOM slots", () => {
       function () {
         return html`<slot name=${this.which}></slot>`;
       },
-      { properties: { which: T.string({ defaultValue: "a" }) } },
+      { properties: { which: "a" } },
     );
     const el = await mount(tag, '<i slot="a">x</i>');
     const i = el.querySelector("i");
@@ -1938,7 +1933,7 @@ describe("light - update scheduling", () => {
   const defineChain = () => {
     const tag = getUniqueTag("chain");
     View.define(tag, {
-      properties: { depth: T.number({ defaultValue: 0 }), value: T.string({ defaultValue: "" }) },
+      properties: { depth: 0, value: "" },
       render() {
         if (this.depth > 0) return element(tag, { ".depth": this.depth - 1, ".value": this.value });
         return html`<span>${this.value}</span>`;
@@ -1965,14 +1960,14 @@ describe("light - update scheduling", () => {
     const parentTag = getUniqueTag("order-parent");
     let childRenders = 0;
     View.define(childTag, {
-      properties: { label: T.string({ defaultValue: "" }) },
+      properties: { label: "" },
       render() {
         childRenders++;
         return html`<i>${this.label}</i>`;
       },
     });
     View.define(parentTag, {
-      properties: { label: T.string({ defaultValue: "x" }) },
+      properties: { label: "x" },
       render() { return element(childTag, { ".label": this.label }); },
     });
     const parent = document.createElement(parentTag);
@@ -1993,7 +1988,7 @@ describe("light - update scheduling", () => {
   it("skips the update of an element removed before its turn, and updates it when it returns", async () => {
     const tag = getUniqueTag("detached");
     let renders = 0;
-    View.define(tag, { properties: { n: T.number({ defaultValue: 0 }) }, render() { renders++; return html`${this.n}`; } });
+    View.define(tag, { properties: { n: 0 }, render() { renders++; return html`${this.n}`; } });
     const el = document.createElement(tag);
     document.body.appendChild(el);
     el.remove();
@@ -2008,7 +2003,7 @@ describe("light - update scheduling", () => {
   it("keeps updating after a render throws, and reports the error", async () => {
     const tag = getUniqueTag("throws-once");
     View.define(tag, {
-      properties: { n: T.number({ defaultValue: 0 }), fail: T.boolean({ defaultValue: false }) },
+      properties: { n: 0, fail: false },
       render() {
         if (this.fail) throw new Error("render failed");
         return html`<span>${this.n}</span>`;
@@ -2038,7 +2033,7 @@ describe("light - update scheduling", () => {
     const tag = getUniqueTag("throws-in-will-update");
     let attempts = 0;
     View.define(tag, {
-      properties: { n: T.number({ defaultValue: 0 }), fail: T.boolean({ defaultValue: false }) },
+      properties: { n: 0, fail: false },
       willUpdate() {
         if (!this.fail) return;
         attempts++;
@@ -2072,7 +2067,7 @@ describe("light - update scheduling", () => {
     let renders = 0;
     const seen = [];
     View.define(tag, {
-      properties: { items: T.array({ defaultValue: [] }), filtered: T.array({ defaultValue: [] }) },
+      properties: { items: [], filtered: [] },
       willUpdate() { this.filtered = this.items.filter((x) => x > 1); },
       updated({ changedProps }) { seen.push([...changedProps.keys()].sort().join(",")); },
       render() {
@@ -2098,7 +2093,7 @@ describe("light - update scheduling", () => {
   it("drops a reflected attribute when its string property is emptied or unset", async () => {
     const tag = getUniqueTag("reflect-empty");
     View.define(tag, {
-      properties: { variant: T.string({ defaultValue: "primary" }) },
+      properties: { variant: "primary" },
       render() { return null; },
     });
     const el = document.createElement(tag);

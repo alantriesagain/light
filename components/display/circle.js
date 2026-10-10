@@ -1,4 +1,3 @@
-import T from "@bootstrapp/light/types";
 import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
@@ -7,8 +6,6 @@ export default defineComponent({
   class:
     "inline-block align-middle box-border w-4 h-4 rounded-full border-1 border-solid border-dim",
   properties: {
-    solid: T.boolean({
-      defaultValue: false,
-    }),
+    solid: false,
   },
 });

@@ -3,7 +3,6 @@
  * a preset sets can be compared at a glance.
  */
 import { html } from "@bootstrapp/light/html";
-import T from "bootstrapp/types";
 import { defineComponent } from "@bootstrapp/light";
 import presets from "@bootstrapp/light/theme/presets.js";
 import { applySkin, clearSkin } from "@bootstrapp/showcase/lib/skins.js";
@@ -12,7 +11,7 @@ export default defineComponent({
   tag: "docs-skins",
   style: true,
   properties: {
-    ready: T.boolean({ defaultValue: false }),
+    ready: false,
   },
 
   async connected() {

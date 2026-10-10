@@ -1,5 +1,4 @@
 import { html, nothing } from "@bootstrapp/light/html";
-import T from "@bootstrapp/light/types";
 import { defineComponent } from "@bootstrapp/light";
 
 /** @param {string} url */
@@ -24,12 +23,12 @@ export default defineComponent({
   tag: "lc-link-preview",
   style: true,
   properties: {
-    url: T.string({ defaultValue: "" }),
-    title: T.string({ defaultValue: "" }),
-    description: T.string({ defaultValue: "" }),
-    image: T.string({ defaultValue: "" }),
-    favicon: T.string({ defaultValue: "" }),
-    domain: T.string({ defaultValue: "" }),
+    url: "",
+    title: "",
+    description: "",
+    image: "",
+    favicon: "",
+    domain: "",
   },
 
   render() {

@@ -10,12 +10,12 @@ export default defineComponent({
   mixins: [withOverlay({ dismissible: false, restoreFocus: false })],
   tag: "lc-modal",
   properties: {
-    open: T.boolean(false),
-    closeOnEscape: T.boolean(true),
-    closeOnBackdropClick: T.boolean(true),
+    open: false,
+    closeOnEscape: true,
+    closeOnBackdropClick: true,
     size: T.string({ defaultValue: "md", enum: ["sm", "md", "lg", "xl"] }),
     variant: T.string({ defaultValue: "default", enum: ["default", "media", "sheet"] }),
-    caption: T.string({ defaultValue: "" }),
+    caption: "",
     dialog: /** @type {Prop<HTMLDialogElement | null>} */ (
       T.object({ reactive: false, defaultValue: null })
     ),

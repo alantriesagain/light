@@ -11,15 +11,15 @@ export default defineComponent({
 
 	properties: {
 		data: /** @type {Prop<ChartDataPoint[]>} */ (T.array({ defaultValue: [] })),
-		height: T.number({ defaultValue: 200 }),
+		height: 200,
 		variant: T.string({
 			defaultValue: "primary",
 			enum: ["primary", "secondary", "success", "warning", "error", "info"],
 		}),
-		showLabels: T.boolean({ defaultValue: true }),
-		showDots: T.boolean({ defaultValue: true }),
-		showArea: T.boolean({ defaultValue: false }),
-		smooth: T.boolean({ defaultValue: true }),
+		showLabels: true,
+		showDots: true,
+		showArea: false,
+		smooth: true,
 		_gradientId: T.string({ reactive: false, defaultValue: "" }),
 	},
 

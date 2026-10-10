@@ -19,10 +19,10 @@ export default defineComponent({
       defaultValue: "left",
       enum: ["left", "right"],
     }),
-    eyebrow: T.string({ defaultValue: "" }),
-    headline: T.string({ defaultValue: "" }),
-    subheadline: T.string({ defaultValue: "" }),
-    body: T.string({ defaultValue: "" }),
+    eyebrow: "",
+    headline: "",
+    subheadline: "",
+    body: "",
     image: /** @type {Prop<ShowcaseImage>} */ (
       T.object({
         attribute: false,
@@ -44,7 +44,7 @@ export default defineComponent({
         },
       })
     ),
-    sectionId: T.string({ defaultValue: "" }),
+    sectionId: "",
   },
   render() {
     const image = this.image;

@@ -4,7 +4,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-editable",
   properties: {
-    isEditing: T.boolean(false),
+    isEditing: false,
     value: T.string(),
     editingValue: T.string(),
     onSave: T.function(),

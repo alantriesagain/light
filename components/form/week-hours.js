@@ -21,11 +21,11 @@ export default defineComponent({
   style: true,
   properties: {
     value: /** @type {Prop<WeekHoursEntry[]>} */ (T.array({ defaultValue: [] })),
-    name: T.string({ defaultValue: "" }),
-    label: T.string({ defaultValue: "" }),
-    locale: T.string({ defaultValue: "" }),
-    firstDay: T.number({ defaultValue: 1 }),
-    disabled: T.boolean({ defaultValue: false }),
+    name: "",
+    label: "",
+    locale: "",
+    firstDay: 1,
+    disabled: false,
   },
   events: {
     change: T.object({ value: T.array() }),

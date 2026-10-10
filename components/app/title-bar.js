@@ -6,13 +6,13 @@ import { lcText } from "../utils/text.js";
 export default defineComponent({
   tag: "lc-title-bar",
   properties: {
-    title: T.string(""),
+    title: "",
     variant: T.string({
       defaultValue: "default",
       enum: ["default", "unified", "hidden"],
     }),
-    showControls: T.boolean(true),
-    draggable: T.boolean(true),
+    showControls: true,
+    draggable: true,
   },
   style: true,
 

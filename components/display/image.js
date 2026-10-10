@@ -57,7 +57,7 @@ export default defineComponent({
   class: "bg-cover bg-center",
   properties: {
     src: T.string(),
-    alt: T.string(""),
+    alt: "",
   },
   connected() {
     this.applySrc();

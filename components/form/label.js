@@ -7,8 +7,8 @@ export default defineComponent({
   properties: {
     for: T.string(),
     text: T.string(),
-    required: T.boolean(false),
-    inline: T.boolean(false),
+    required: false,
+    inline: false,
   },
   style: true,
 

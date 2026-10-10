@@ -8,9 +8,9 @@ export default defineComponent({
     size: T.string({ defaultValue: "sm", enum: ["xs", "sm", "md"] }),
     variant: T.string({ defaultValue: "default", enum: ["default", "floating", "ghost"] }),
     align: T.string({ defaultValue: "start", enum: ["start", "center", "end", "between"] }),
-    vertical: T.boolean(false),
-    wrap: T.boolean(false),
-    scrollable: T.boolean(false),
+    vertical: false,
+    wrap: false,
+    scrollable: false,
   },
   connected() {
     this.setAttribute("role", "toolbar");

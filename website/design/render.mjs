@@ -14,7 +14,7 @@ for (const [name, board] of Object.entries(index.boards)) {
   await page.setContent(html, { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(400);
-  await page.screenshot({ path: join(out, name.replace(".dc.html", ".png")) });
+  await page.screenshot({ path: join(out, name.replace(".dc.html", ".png")), fullPage: true });
   await page.close();
 }
 await browser.close();

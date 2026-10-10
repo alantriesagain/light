@@ -1,6 +1,10 @@
-import { writeFileSync, mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 const OUT = new URL("./frames/", import.meta.url).pathname;
 mkdirSync(OUT, { recursive: true });
+const MANIFEST = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8")).bootstrapp.components.lc;
+const COMPONENTS = Object.entries(MANIFEST).reduce((acc, [name, file]) => { (acc[file.split("/").at(-2)] ??= []).push(name); return acc; }, {});
+const TOTAL = Object.keys(MANIFEST).length;
+const humanize = (name) => name.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
 
 const LIGHT = { canvas: "#f6f4ef", surface: "#ffffff", surfaceLight: "#f9fafb", surfaceDark: "#eef0f2", hover: "#f3f4f6", border: "#e2e8f0",
   text: "#1a1a1a", secondary: "#454e5c", muted: "#64748b", disabled: "#9ca3af", primary: "#0f766e", primaryLight: "#2dd4bf", primaryDark: "#115e59",
@@ -56,27 +60,28 @@ const SKINS = {
     surface: "#ffffff", canvas: "#faf5f0", surfaceDark: "#f5f0eb", text: "#1a1a1a", muted: "#6b7280", border: "#000000", borderW: "3px", btnBorder: "#000000",
     rField: "12px", rSelector: "6px", rBox: "16px", shField: "4px 4px 0px 0px #000000", shBox: "6px 6px 0px 0px #000000", weight: "900", transform: "uppercase", tracking: "0.05em",
     roles: ["border.width  3px", "shadow.field  4px 4px 0 0 #000", "shadow.box  6px 6px 0 0 #000", "control.weight  900", "control.transform  uppercase", "motion.press  2px 2px"] },
-  skeleton: { label: "Skeleton", font: "'Inter', system-ui, sans-serif", primary: "#0ea5e9", onPrimary: "#ffffff", secondary: "#8b5cf6", success: "#10b981", danger: "#ef4444",
-    surface: "#ffffff", canvas: "#f8fafc", surfaceDark: "#e2e8f0", text: "#0f172a", muted: "#64748b", border: "#e2e8f0", borderW: "1px", btnBorder: "#e2e8f0",
-    rField: "6px", rSelector: "4px", rBox: "12px", shField: "none", shBox: "none", weight: "500", transform: "none", tracking: "0",
-    roles: ["shadow.field  none", "shadow.box  none", "shadow.focus  0 0 0 2px #0ea5e9", "radius.field  0.375rem", "control.weight  500"] },
+  "gruvbox-dark": { label: "Gruvbox Dark", font: "'Manrope', system-ui, sans-serif", primary: "#fabd2f", onPrimary: "#282828", secondary: "#83a598", onSecondary: "#282828", success: "#b8bb26", danger: "#fb4934",
+    surface: "#3c3836", canvas: "#282828", surfaceDark: "#32302f", text: "#ebdbb2", muted: "#a89984", border: "#504945", borderW: "1px", btnBorder: "#504945",
+    rField: "4px", rSelector: "4px", rBox: "6px", shField: "none", shBox: "none", weight: "600", transform: "none", tracking: "0",
+    roles: ["radius.field  0.25rem", "shadow.field  none", "control.weight  600", "font.family  Manrope"] },
   daisy: { label: "Daisy", font: "system-ui, -apple-system, 'Segoe UI', sans-serif", primary: "#491eff", onPrimary: "#ffffff", secondary: "#ff41b4", success: "#00a96e", danger: "#ff5861",
     surface: "#ffffff", canvas: "#ffffff", surfaceDark: "#f2f2f2", text: "#1f2937", muted: "#6b7280", border: "rgba(31, 41, 55, 0.2)", borderW: "1px", btnBorder: "rgba(31, 41, 55, 0.2)",
     rField: "8px", rSelector: "9999px", rBox: "16px", shField: "0 3px 0 -1px rgba(0, 0, 0, 0.12), 0 1px 2px 0 rgba(0, 0, 0, 0.08)", shBox: "none", weight: "600", transform: "none", tracking: "0",
     roles: ["radius.selector  9999px", "radius.box  1rem", "shadow.field  0 3px 0 -1px rgba(0,0,0,.12)", "motion.press  0 1px", "control.weight  600"] },
 };
 
-const CATS = [
-  ["form", "Form", "list-checks", 22, "Controls that collect a value, and the form that draws them from a field list", ["Auth form", "Checkbox", "Code", "Color picker", "Diff", "File upload", "Form", "Icon picker", "Input", "Join", "Label", "Number input", "Radio", "Radio group", "Rating", "Search", "Segmented", "Select", "Slider", "Switch", "Textarea", "Time"]],
-  ["display", "Display", "eye", 27, "Text, media, charts and tables: the components that show what the app knows", ["Avatar", "Badge", "Bar chart", "Button", "Calendar", "Circle", "Data table", "Editable", "Icon", "Image", "Kanban", "Line chart", "Link", "Link preview", "List", "List item", "List row", "Markdown", "Pattern", "Pie chart", "Qr", "Sparkline", "Stat", "Table", "Tag", "Text", "Tile"]],
-  ["layout", "Layout", "layout-grid", 11, "Cards, grids and panes that arrange a screen", ["Card", "Container", "Divider", "Flex", "Grid", "Page", "Panel", "Prose", "Section", "Split pane", "Toolbar"]],
-  ["navigation", "Navigation", "compass", 12, "Menus, tabs, trees and breadcrumbs: how a reader moves between places", []],
-  ["overlay", "Overlay", "layers", 10, "Modals, drawers, sheets and popovers, stacked and dismissed by one controller", []],
-  ["feedback", "Feedback", "loader", 6, "What the app says while it works, succeeds, or has nothing to show", []],
-  ["app", "App shell", "smartphone", 8, "The frame around a screen: headers, bottom navigation, scrollers and decks", []],
-  ["page", "Page sections", "file-text", 14, "Marketing blocks a landing page is assembled from", []],
-  ["utility", "Utility", "pen-tool", 7, "Dark mode, drag and drop, device facts and other behaviour without chrome", []],
+const CAT_META = [
+  ["form", "Form", "list-checks", "Controls that collect a value, and the form that draws them from a field list"],
+  ["display", "Display", "eye", "Text, media, charts and tables: the components that show what the app knows"],
+  ["layout", "Layout", "layout-grid", "Cards, grids and panes that arrange a screen"],
+  ["navigation", "Navigation", "compass", "Menus, tabs, trees and breadcrumbs: how a reader moves between places"],
+  ["overlay", "Overlay", "layers", "Modals, drawers, sheets and popovers, stacked and dismissed by one controller"],
+  ["feedback", "Feedback", "loader", "What the app says while it works, succeeds, or has nothing to show"],
+  ["app", "App shell", "smartphone", "The frame around a screen: headers, bottom navigation, scrollers and decks"],
+  ["page", "Page sections", "file-text", "Marketing blocks a landing page is assembled from"],
+  ["utility", "Utility", "pen-tool", "Dark mode, drag and drop, device facts and other behaviour without chrome"],
 ];
+const CATS = CAT_META.map(([id, label, icon, desc]) => [id, label, icon, (COMPONENTS[id] ?? []).length, desc, (COMPONENTS[id] ?? []).sort().map(humanize)]);
 
 const PATHS = {
   search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
@@ -103,6 +108,11 @@ const PATHS = {
   palette: '<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.6 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.6 1.6-1.6H16c3.3 0 6-2.7 6-6 0-4.9-4.5-8.6-10-8.6z"/>',
   "toggle-right": '<rect x="2" y="6" width="20" height="12" rx="6"/><circle cx="16" cy="12" r="2"/>',
   layout: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
+  github: '<path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/>',
+  code: '<path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>',
+  activity: '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
+  braces: '<path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/>',
+  flask: '<path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2M8.5 2h7M7 16h10"/>',
 };
 const ic = (name, size = 16, extra = "") => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0;${extra}">${PATHS[name]}</svg>`;
 
@@ -136,7 +146,7 @@ a{color:${c.link};text-decoration:none}a:hover{color:${c.primaryDark}}
 .toc a.sub{padding-left:1.5rem}.toc a.on{border-left-color:${c.primary};color:${c.text};font-weight:700}
 .crumbs{display:flex;align-items:center;gap:.5rem;font-size:.8125rem;color:${c.muted}}.crumbs b{color:${c.text};font-weight:600}
 .code{background:${c.codeBg};font-family:${LOOK.fontMono};font-size:.8125rem;line-height:1.6;color:${c.text}}
-.tk-tag{color:${c.tokTag}}.tk-attr{color:${c.tokAttr}}.tk-str{color:${c.tokStr}}.tk-p{color:${c.muted}}
+.tk-tag{color:${c.tokTag}}.tk-attr{color:${c.tokAttr}}.tk-str{color:${c.tokStr}}.tk-p{color:${c.muted}}.tk-kw{color:${c.tokTag};font-weight:600}
 .ln{display:inline-block;width:2rem;color:${c.disabled};text-align:right;margin-right:1rem;user-select:none}
 .stage{position:relative;padding:1.5rem;background-color:var(--s-canvas);background-image:radial-gradient(var(--s-dot) 1px, transparent 1px);background-size:18px 18px;font-family:var(--s-font);color:var(--s-text)}
 .st-btn{display:inline-flex;align-items:center;justify-content:center;height:2.25rem;padding:0 1rem;border-radius:var(--s-rfield);border:var(--s-bw) solid var(--s-btn-border);background:var(--s-surface);color:var(--s-text);font:inherit;font-size:.875rem;font-weight:var(--s-weight);text-transform:var(--s-transform);letter-spacing:var(--s-tracking);box-shadow:var(--s-shfield);cursor:pointer;white-space:nowrap}
@@ -178,12 +188,11 @@ const skinVars = (name, dark = false) => {
   return `--s-font:${d.font};--s-primary:${d.primary};--s-on-primary:${d.onPrimary};--s-primary-border:${border(d.primary)};--s-secondary:${d.secondary};--s-on-secondary:${d.onSecondary ?? "#ffffff"};--s-secondary-border:${border(d.secondary)};--s-success:${d.success};--s-success-border:${border(d.success)};--s-danger:${d.danger};--s-danger-border:${border(d.danger)};--s-surface:${d.surface};--s-canvas:${d.canvas};--s-surface-dark:${d.surfaceDark};--s-text:${d.text};--s-muted:${d.muted};--s-border:${d.border};--s-bw:${d.borderW};--s-btn-border:${d.btnBorder};--s-rfield:${d.rField};--s-rselector:${d.rSelector};--s-rbox:${d.rBox};--s-shfield:${d.shField};--s-shbox:${d.shBox};--s-weight:${d.weight};--s-transform:${d.transform};--s-tracking:${d.tracking};--s-dot:${dot};`;
 };
 
-const brand = (c) => `<a href="Main.dc.html" style="display: flex; align-items: center; gap: 0.5rem; color: ${c.text};" aria-label="uix home"><span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; background: ${c.primary}; color: ${c.inverse};">${ic("box", 14)}</span><b style="font-size: 1rem; font-weight: 800; letter-spacing: -0.01em;">uix</b><span style="font-size: 0.75rem; color: ${c.muted};">0.2</span></a>`;
+const brand = (c) => `<a href="Home.dc.html" style="display: flex; align-items: center; gap: 0.5rem; color: ${c.text};" aria-label="light home"><span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; background: ${c.primary}; color: ${c.inverse};">${ic("box", 14)}</span><b style="font-size: 1rem; font-weight: 800; letter-spacing: -0.01em;">light</b><span style="font-size: 0.75rem; color: ${c.muted};">0.1</span></a>`;
 
 const PRESETS = [
   ["default", "Default", "Ink and one signal colour on cool grey, hairline edges", "#101210", "#e4572e"],
   ["neobrutalist", "Neobrutalist", "Thick black borders, hard offset shadows, uppercase controls", "#fabd2f", "#ec4899"],
-  ["skeleton", "Skeleton", "Flat tonal surfaces, hairline borders, a ring on focus", "#0ea5e9", "#8b5cf6"],
   ["daisy", "Daisy", "Pill selectors, a soft depth under buttons", "#491eff", "#ff41b4"],
   ["gruvbox-dark", "Gruvbox Dark", "Warm retro groove palette on a dark canvas", "#fabd2f", "#83a598"],
   ["gruvbox-light", "Gruvbox Light", "Warm retro groove palette on a cream canvas", "#fbf1c7", "#f2e5bc"],
@@ -212,6 +221,7 @@ const header = (c, { page = "components", skin = "default", dark = false, skinOp
   <button type="button" class="btn" aria-label="Search components" style="width: 260px; justify-content: flex-start; font-weight: 500; color: ${c.muted}; box-shadow: none;">${ic("search", 15)}<span style="flex-grow: 1; text-align: left;">Search components</span><span class="kbd">⌘</span><span class="kbd">K</span></button>
   ${skinSelect(c, skin, skinOpen)}
   <button type="button" class="btn icon" aria-label="${dark ? "Switch to light mode" : "Switch to dark mode"}" style="box-shadow: none; border-color: transparent; background: transparent;">${ic(dark ? "sun" : "moon", 16)}</button>
+  <a href="#github" class="btn icon" aria-label="light on GitHub" style="box-shadow: none; border-color: transparent; background: transparent;">${ic("github", 16)}</a>
 </header>`;
 
 const rail = (c, { open = [], active = "", h = 900 }) => `
@@ -269,13 +279,13 @@ const overview = ({ skin = "default", dark = false, title, skinOpen = false }) =
   return shell({ c, title, header: header(c, { page: "components", skin, dark, skinOpen }), rail: rail(c, { open: ["form", "display"] }), aside: null, main: `
 <section style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; margin-bottom: 3rem;">
   <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-    <h1 style="font-size: 3.5rem; line-height: 1.05; font-weight: 800; letter-spacing: -0.03em;">117 components,<br>one theme, any look.</h1>
-    <p style="font-size: 1.125rem; line-height: 1.55; color: ${c.secondary}; max-width: 34rem;">Every uix component reads the same tokens, so a skin redresses all of them at once. Pick one in the bar above and watch the sink on the right change clothes.</p>
-    <div style="display: flex; gap: 0.75rem;"><a href="#form" class="btn primary">Browse components</a><a href="#theming" class="btn">Read the theming guide</a></div>
+    <h1 style="font-size: 3.5rem; line-height: 1.05; font-weight: 800; letter-spacing: -0.03em;">${TOTAL} components.</h1>
+    <p style="font-size: 1.125rem; line-height: 1.55; color: ${c.secondary}; max-width: 34rem;">They all read the same theme tokens. Pick a skin in the bar above and the sink on the right follows.</p>
+    <div style="display: flex; gap: 0.75rem;"><a href="#form" class="btn primary">Browse</a><a href="#theming" class="btn">Theming</a></div>
   </div>
   <div style="display: flex; flex-direction: column; gap: 0.5rem;">
     ${sink(c, skin, dark)}
-    <p style="font-size: 0.8125rem; color: ${c.muted}; padding: 0 0.25rem;">Wearing <b style="color: ${c.text};">${SKINS[skin].label}</b> · every control above is a real uix component</p>
+    <p style="font-size: 0.8125rem; color: ${c.muted}; padding: 0 0.25rem;">Wearing <b style="color: ${c.text};">${SKINS[skin].label}</b></p>
   </div>
 </section>
 ${CATS.slice(0, 2).map(([id, label, , count, desc]) => `
@@ -295,23 +305,23 @@ const componentPage = ({ dark = false, title, palette = false }) => {
 <div style="display: flex; align-items: flex-start; gap: 1rem; margin-top: 1rem;">
   <div style="display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1;">
     <h1 style="font-size: calc(2.5rem * var(--display-scale)); line-height: 1.1;">Button</h1>
-    <button type="button" class="btn xs mono" style="align-self: flex-start; font-weight: 500;">&lt;uix-button&gt;${ic("copy", 12)}</button>
+    <button type="button" class="btn xs mono" style="align-self: flex-start; font-weight: 500;">&lt;lc-button&gt;${ic("copy", 12)}</button>
   </div>
   <div style="display: flex; gap: 0.5rem;"><a href="#bar-chart" class="btn icon xs" aria-label="Previous: Bar chart" title="Bar chart">${ic("chevron-left", 14)}</a><a href="#calendar" class="btn icon xs" aria-label="Next: Calendar" title="Calendar">${ic("chevron-right", 14)}</a></div>
 </div>
 <p style="font-size: 1.125rem; line-height: 1.55; color: ${c.secondary}; max-width: 62ch; margin-top: 1rem;">A clickable action. Colour attributes map to the theme's roles, so <code class="mono" style="font-size: 0.9375rem; padding: 0.125rem 0.375rem; border-radius: 6px; background: ${c.surfaceDark};">primary</code> is whatever the theme says primary is, and a skin redresses every button at once.</p>
 <section id="examples" style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 3rem;">
-  <div style="display: flex; flex-direction: column; gap: 0.25rem;"><h2 style="font-size: calc(1.5rem * var(--display-scale));">Examples</h2><p style="font-size: 0.9375rem; color: ${c.secondary};">Each example is a real render of the component, in the skin picked above. Switch to Code for the markup that produced it.</p></div>
+  <div style="display: flex; flex-direction: column; gap: 0.25rem;"><h2 style="font-size: calc(1.5rem * var(--display-scale));">Examples</h2><p style="font-size: 0.9375rem; color: ${c.secondary};">Each example is the component itself, in the skin picked above. Code shows the markup that produced it.</p></div>
   <article class="card" id="basic" style="overflow: hidden;">
     ${exampleHead("Basic", "", "code")}
-    <div class="code" style="position: relative; padding: 1rem 1rem 1rem 0.75rem;">${copyBtn}${codeLines([T("uix-button", "", "Click me")], true)}</div>
+    <div class="code" style="position: relative; padding: 1rem 1rem 1rem 0.75rem;">${copyBtn}${codeLines([T("lc-button", "", "Click me")], true)}</div>
   </article>
   <article class="card" id="variants" style="overflow: hidden;">
     ${exampleHead("Variants", "Different visual styles for various action types", "preview")}
     <div class="stage" style="${v} display: flex; align-items: center; justify-content: center; gap: 0.75rem; min-height: 7.5rem;">
       <button type="button" class="st-btn">Default</button><button type="button" class="st-btn primary">Primary</button><button type="button" class="st-btn secondary">Secondary</button><button type="button" class="st-btn success">Success</button><button type="button" class="st-btn danger">Danger</button>
     </div>
-    <div class="code" style="display: flex; align-items: center; gap: 1rem; padding: 0.5rem 1rem; border-top: 1px solid ${c.border}; white-space: nowrap; overflow: hidden;"><span style="flex-grow: 1; overflow: hidden; text-overflow: ellipsis;">${T("uix-button", A("primary"), "Primary")} ${T("uix-button", A("secondary"), "Secondary")} ${T("uix-button", A("success"), "Success")} …</span><button type="button" class="btn xs">${ic("copy", 13)}Copy</button></div>
+    <div class="code" style="display: flex; align-items: center; gap: 1rem; padding: 0.5rem 1rem; border-top: 1px solid ${c.border}; white-space: nowrap; overflow: hidden;"><span style="flex-grow: 1; overflow: hidden; text-overflow: ellipsis;">${T("lc-button", A("primary"), "Primary")} ${T("lc-button", A("secondary"), "Secondary")} ${T("lc-button", A("success"), "Success")} …</span><button type="button" class="btn xs">${ic("copy", 13)}Copy</button></div>
   </article>
   <article class="card" id="styles" style="overflow: hidden;">
     ${exampleHead("Styles", "Outline, ghost and disabled", "preview")}
@@ -335,7 +345,7 @@ const paletteOverlay = (c) => {
     <div style="display: flex; flex-direction: column; padding: 0.25rem 0.5rem 0.5rem;">
       ${group("Components")}${row("toggle-right", "Switch", "Form", true, "↵")}${row("layers", "Swipe deck", "App shell")}${row("search", "Search", "Form")}
       ${group("Pages")}${row("palette", "Skins", "The four presets, side by side")}
-      ${group("Skins")}${row("palette", "Skin: Skeleton", "Flat tonal surfaces, hairline borders")}
+      ${group("Skins")}${row("palette", "Skin: Gruvbox Dark", "Warm retro groove palette on a dark canvas")}
     </div>
     <div style="display: flex; align-items: center; gap: 1rem; padding: 0.5rem 1rem; border-top: 1px solid ${c.border}; font-size: 0.75rem; color: ${c.muted};"><span><span class="kbd">↑</span> <span class="kbd">↓</span> navigate</span><span><span class="kbd">↵</span> open</span><span><span class="kbd">esc</span> close</span></div>
   </div>
@@ -345,13 +355,13 @@ const paletteOverlay = (c) => {
 const skinsPage = ({ title }) => {
   const c = chrome(false); CHROME = c;
   const main = `
-<div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem;"><h1 style="font-size: 2.5rem; font-weight: 800; letter-spacing: -0.025em; line-height: 1.1;">Skins</h1><p style="font-size: 1.125rem; line-height: 1.55; color: ${c.secondary}; max-width: 62ch;">A skin is a whole preset. The same nine role tokens carry each look, so what separates them is a dozen lines of theme.</p></div>
+<div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem;"><h1 style="font-size: 2.5rem; font-weight: 800; letter-spacing: -0.025em; line-height: 1.1;">Skins</h1><p style="font-size: 1.125rem; line-height: 1.55; color: ${c.secondary}; max-width: 62ch;">A skin is a preset. The looks differ by a few theme lines: radius, shadow, motion, control weight.</p></div>
 <div style="display: flex; flex-direction: column; gap: 1rem;">
 ${Object.entries(SKINS).map(([k, s]) => `
 <section class="card" style="display: grid; grid-template-columns: 16rem minmax(0, 1fr); overflow: hidden;">
   <div style="display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem; border-right: 1px solid ${c.border};">
     <div style="display: flex; align-items: center; gap: 0.5rem;"><span style="display: inline-flex; gap: 2px;"><i style="width: 10px; height: 10px; border-radius: 9999px; background: ${s.primary};"></i><i style="width: 10px; height: 10px; border-radius: 9999px; background: ${s.secondary};"></i></span><h2 style="font-size: 1.125rem; font-weight: 800;">${s.label}</h2></div>
-    <p style="font-size: 0.875rem; line-height: 1.5; color: ${c.secondary};">${{ default: "The framework's own look: ink and one signal colour on cool grey, hairline edges, the platform's type", neobrutalist: "Thick black borders, hard offset shadows, uppercase controls", skeleton: "Flat tonal surfaces, hairline borders, no shadows, a ring on focus", daisy: "Pill selectors, a soft depth under buttons, base surfaces in three steps" }[k]}</p>
+    <p style="font-size: 0.875rem; line-height: 1.5; color: ${c.secondary};">${{ default: "The framework's own look: ink and one signal colour on cool grey, hairline edges, the platform's type", neobrutalist: "Thick black borders, hard offset shadows, uppercase controls", "gruvbox-dark": "Warm retro groove palette on a dark canvas", daisy: "Pill selectors, a soft depth under buttons, base surfaces in three steps" }[k]}</p>
     <div class="mono" style="display: flex; flex-direction: column; gap: 2px; font-size: 0.75rem; color: ${c.muted};">${s.roles.slice(0, 3).map((r) => `<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${r}</span>`).join("")}</div>
   </div>
   <div class="stage" style="${skinVars(k)} display: flex; align-items: center; gap: 1rem; padding: 1.25rem 1.5rem;">
@@ -376,9 +386,9 @@ const phone = ({ title }) => {
     <button type="button" class="btn icon" aria-label="Switch to dark mode" style="border-color: transparent; background: transparent; box-shadow: none;">${ic("moon", 20)}</button>
   </header>
   <div style="display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem 1rem;">
-    <h1 style="font-size: 2.25rem; line-height: 1.05; font-weight: 800; letter-spacing: -0.03em;">117 components, one theme, any look.</h1>
-    <p style="font-size: 0.9375rem; line-height: 1.5; color: ${c.secondary};">Every uix component reads the same tokens, so a skin redresses all of them at once.</p>
-    <a href="#form" class="btn primary" style="align-self: flex-start;">Browse components</a>
+    <h1 style="font-size: 2.25rem; line-height: 1.05; font-weight: 800; letter-spacing: -0.03em;">${TOTAL} components.</h1>
+    <p style="font-size: 0.9375rem; line-height: 1.5; color: ${c.secondary};">They all read the same theme tokens. Pick a skin and the sink follows.</p>
+    <a href="#form" class="btn primary" style="align-self: flex-start;">Browse</a>
     ${sink(c, "default").replace("grid-template-columns: 1fr 1fr", "grid-template-columns: 1fr").replace("padding: 1.5rem;", "padding: 1rem;")}
   </div>
   <div style="position: absolute; inset: 0; background: rgba(21, 24, 19, 0.45);"></div>
@@ -428,19 +438,190 @@ class Component extends DCLogic {
 </html>
 `;
 
-const boards = {
-  "Main.dc.html": { html: overview({ title: "Overview" }), x: 0, y: 0, w: 1440, h: 900, title: "Overview" },
-  "Overview-neobrutalist.dc.html": { html: overview({ skin: "neobrutalist", title: "Overview, Neobrutalist skin", skinOpen: true }), x: 1520, y: 0, w: 1440, h: 900, title: "Overview, Neobrutalist skin, skin menu open" },
-  "Component-code.dc.html": { html: componentPage({ title: "Button, code view" }), x: 3040, y: 0, w: 1440, h: 900, title: "Component page, code open" },
-  "Component-dark.dc.html": { html: componentPage({ dark: true, title: "Button, dark" }), x: 0, y: 1020, w: 1440, h: 900, title: "Component page, dark" },
-  "Palette.dc.html": { html: componentPage({ title: "Command palette", palette: true }), x: 1520, y: 1020, w: 1440, h: 900, title: "Command palette" },
-  "Skins.dc.html": { html: skinsPage({ title: "Skins" }), x: 3040, y: 1020, w: 1440, h: 1180, title: "Skins page" },
-  "Phone-drawer.dc.html": { html: phone({ title: "Phone, navigation drawer" }), x: 0, y: 2320, w: 390, h: 844, title: "Phone, drawer open" },
+const KW = (w) => `<span class="tk-kw">${w}</span>`;
+const S = (s) => `<span class="tk-str">${s}</span>`;
+const P = (s) => `<span class="tk-p">${s}</span>`;
+const TAG = (tag, attrs = "", inner = "", close = true) => `${P("&lt;")}<span class="tk-tag">${tag}</span>${attrs}${P("&gt;")}${inner}${close ? `${P("&lt;/")}<span class="tk-tag">${tag}</span>${P("&gt;")}` : ""}`;
+const COPY = `<button type="button" class="btn xs" style="position: absolute; top: 0.625rem; right: 0.625rem;">${ic("copy", 13)}Copy</button>`;
+const inlineCode = (c, text) => `<code class="mono" style="font-size: 0.9em; padding: 0.125rem 0.375rem; border-radius: var(--r-selector); background: ${c.surfaceDark}; color: ${c.text};">${text}</code>`;
+
+const SNIPPETS = {
+  counter: [
+    `${KW("import")} View, { defineComponent } ${KW("from")} ${S('"@bootstrapp/light"')};`,
+    `${KW("import")} { html } ${KW("from")} ${S('"@bootstrapp/light/html"')};`,
+    `${KW("import")} T ${KW("from")} ${S('"@bootstrapp/light/types"')};`,
+    ``,
+    `${KW("const")} counter = defineComponent({`,
+    `  tag: ${S('"my-counter"')},`,
+    `  properties: { count: T.number(0) },`,
+    `  render() {`,
+    `    ${KW("return")} html\`${TAG("button", ` ${A("@click", "").trim()}${P("=")}\${() =&gt; this.count++}`, "Clicks: \${this.count}")}\`;`,
+    `  },`,
+    `});`,
+    ``,
+    `View.define(counter);`,
+  ],
+  attributes: [
+    `properties: {`,
+    `  label: T.string(${S('"Clicks"')}),`,
+    `  count: T.number(0),`,
+    `  big: T.boolean(),`,
+    `},`,
+    ``,
+    `${P("// in the page")}`,
+    `${TAG("my-counter")}`,
+    `${TAG("my-counter", `${A("label", "Taps")}${A("count", "7")}${A("big")}`)}`,
+  ],
+  templates: [
+    `render() {`,
+    `  ${KW("return")} html\``,
+    `    ${TAG("ul", "", "\${this.items.map((item) =&gt; key(item.id, html`" + TAG("li", "", "\${item.text}") + "`))}")}`,
+    `    \${this.items.length ? nothing : html\`${TAG("p", "", "Nothing yet")}\`}`,
+    `    ${TAG("slot", A("name", "footer"))}`,
+    `  \`;`,
+    `}`,
+  ],
+  signals: [
+    `${KW("import")} { signal, computed, effect } ${KW("from")} ${S('"@bootstrapp/light/signals"')};`,
+    ``,
+    `${KW("const")} qty = signal(2);`,
+    `${KW("const")} price = signal(9.5);`,
+    `${KW("const")} total = computed(() =&gt; qty() * price());`,
+    ``,
+    `effect(() =&gt; { output.textContent = total().toFixed(2); });`,
+    `qty.set(3); ${P("// output reads 28.50")}`,
+  ],
+  theme: [
+    `${KW("import")} { applyTheme, applyScopedTheme } ${KW("from")} ${S('"@bootstrapp/light/theme"')};`,
+    `${KW("import")} { loadPreset } ${KW("from")} ${S('"@bootstrapp/light/theme/presets.js"')};`,
+    ``,
+    `applyTheme({`,
+    `  color: { primary: ${S('"#101210"')}, accent: ${S('"#e4572e"')} },`,
+    `  radius: { field: ${S('"0.125rem"')}, box: ${S('"0.25rem"')} },`,
+    `});`,
+    ``,
+    `applyScopedTheme(${S('"[data-skin=neo]"')}, ${KW("await")} loadPreset(${S('"neobrutalist"')}));`,
+  ],
+  form: [
+    `${TAG("lc-form", "", "", false)}`,
+    `  <span class="tk-attr">.fields</span>${P("=")}\${[`,
+    `    { name: ${S('"email"')}, label: ${S('"Email"')}, type: ${S('"email"')}, required: ${KW("true")} },`,
+    `    { name: ${S('"plan"')}, label: ${S('"Plan"')}, type: ${S('"select"')}, options: [${S('"Free"')}, ${S('"Pro"')}] },`,
+    `    { name: ${S('"news"')}, label: ${S('"Newsletter"')}, type: ${S('"checkbox"')} },`,
+    `  ]}`,
+    `  <span class="tk-attr">@form-submit</span>${P("=")}\${(e) =&gt; save(e.detail)}`,
+    `${P("&gt;&lt;/")}<span class="tk-tag">lc-form</span>${P("&gt;")}`,
+  ],
+  test: [
+    `${KW("import")} assert ${KW("from")} ${S('"node:assert/strict"')};`,
+    `${KW("import")} { it } ${KW("from")} ${S('"node:test"')};`,
+    ``,
+    `it(${S('"counts a click"')}, ${KW("async")} () =&gt; {`,
+    `  ${KW("const")} el = document.createElement(${S('"my-counter"')});`,
+    `  document.body.append(el);`,
+    `  el.querySelector(${S('"button"')}).click();`,
+    `  ${KW("await")} el.$requestUpdate();`,
+    `  assert.equal(el.count, 1);`,
+    `});`,
+  ],
 };
-const index = { v: 3, createdOnFiles: { v: 1, at: new Date().toISOString() }, title: "uix showcase", launch: { view: "canvas" }, pages: [], boards: {}, order: [], notes: {
-  desktop: { x: 0, y: -300, text: "uix showcase, desktop 1440×900", kind: "title1", maxW: 4480 },
-  states: { x: 0, y: 720, text: "Dark mode, ⌘K palette, the Skins page", kind: "title1", maxW: 4480 },
-  phone: { x: 0, y: 2020, text: "Phone 390×844, rem drawn at 20px", kind: "title1", maxW: 1440 },
+
+const stBtn = (label, extra = "") => `<button type="button" class="st-btn primary" style="${extra}">${label}</button>`;
+const RESULTS = {
+  counter: () => `<div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">${stBtn("Clicks: 3", "height: 3rem; padding: 0 1.5rem; font-size: 1rem;")}<span style="font-size: 0.8125rem; color: var(--s-muted);">&lt;my-counter&gt; after three clicks</span></div>`,
+  attributes: () => `<div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">${stBtn("Clicks: 0")}${stBtn("Taps: 7", "height: 3.25rem; padding: 0 1.75rem; font-size: 1.125rem;")}<span style="font-size: 0.8125rem; color: var(--s-muted);">the second one read its three attributes</span></div>`,
+  templates: () => `<div class="st-card" style="width: 16rem; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem;"><ul style="margin: 0; padding: 0 0 0 1.25rem; display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem;"><li>Milk</li><li>Bread</li><li>Coffee</li></ul><div style="border-top: var(--s-bw) solid var(--s-border); padding-top: 0.5rem; font-size: 0.75rem; color: var(--s-muted);">3 items · slotted by the page</div></div>`,
+  signals: () => `<div class="st-card" style="display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; font-size: 0.9375rem;"><span style="display: inline-flex; align-items: center; border-radius: var(--s-rfield); border: var(--s-bw) solid var(--s-border); overflow: hidden;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2.25rem; border-right: var(--s-bw) solid var(--s-border); font-weight: 700;">−</span><span style="display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; font-weight: 700;">3</span><span style="display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2.25rem; border-left: var(--s-bw) solid var(--s-border); font-weight: 700;">+</span></span><span style="color: var(--s-muted);">× 9.50 =</span><b style="font-size: 1.5rem; font-weight: 800;">28.50</b></div>`,
+  theme: (c, dark, phone) => `<div style="display: grid; grid-template-columns: ${phone ? "1fr" : "1fr 1fr"}; gap: 1rem; width: 100%;">${["default", "neobrutalist"].map((k) => `<div style="${skinVars(k, dark)} display: flex; flex-direction: column; gap: 0.5rem; font-family: var(--s-font); color: var(--s-text);"><div class="st-card" style="display: flex; flex-direction: column; gap: 0.5rem; padding: 0.875rem;"><b style="font-size: 0.9375rem; font-weight: 800;">Sign in</b><div class="st-input">you@example.com</div>${stBtn("Sign in")}</div><span style="font-size: 0.75rem; color: ${c.muted}; font-family: ${LOOK.fontUI};">${k === "default" ? "applyTheme" : "applyScopedTheme, neobrutalist"}</span></div>`).join("")}</div>`,
+  form: () => `<div class="st-card" style="width: 18rem; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem;"><div><span class="st-label">Email</span><div class="st-input">you@example.com</div></div><div><span class="st-label">Plan</span><div class="st-input" style="justify-content: space-between; color: var(--s-text);">Free ${ic("chevron-down", 14)}</div></div><label class="st-check"><i>${ic("check", 12)}</i>Newsletter</label>${stBtn("Save", "width: 100%;")}</div>`,
+  test: (c) => `<div class="code" style="width: 100%; padding: 1rem 1.25rem; border-radius: var(--r-box); background: ${c.text}; color: ${c.canvas}; font-size: 0.8125rem; line-height: 1.7;"><div><span style="color: ${c.disabled};">$</span> light test counter.browser.test.js</div><div><span style="color: #4ade80;">✓</span> 1 passed <span style="color: ${c.disabled};">0 failed</span> counter.browser.test.js</div><div style="margin-top: 0.5rem; font-weight: 700;">1 passed, 1 total</div></div>`,
+};
+
+const PAIRS = [
+  ["counter", "A component", (c) => `Properties go in ${inlineCode(c, "properties")}, markup comes out of ${inlineCode(c, "render()")}, and ${inlineCode(c, "View.define")} registers the tag. When a property changes, the element renders again on the next frame. No class, no shadow DOM.`],
+  ["attributes", "Properties read their attributes", (c) => `${inlineCode(c, "T")} declares a property's type and default. An attribute sets it, a ${inlineCode(c, "T.boolean")} is true when the attribute is present, and the element reflects what changes.`],
+  ["templates", "Templates", (c) => `${inlineCode(c, "html")} is a tagged template. ${inlineCode(c, "key")} keeps a list item in place when the list changes, ${inlineCode(c, "nothing")} renders nothing, and a slot projects the host's children in the light DOM.`],
+  ["signals", "Signals", (c) => `A component's state is a store of signals. On their own, a computed follows what it reads and an effect runs when that changes.`],
+  ["theme", "Theme", (c) => `A theme is an object. ${inlineCode(c, "applyTheme")} writes it as the CSS variables every component reads; ${inlineCode(c, "applyScopedTheme")} does the same under one selector, which is what a skin is.`],
+  ["form", `${TOTAL} components`, (c) => `Forms, tables, charts, overlays, navigation, app shells and page sections, in nine categories. A form draws itself from a field list.`],
+  ["test", "Tests run in the browser", (c) => `The test is a ${inlineCode(c, "node:test")} file. ${inlineCode(c, "light test")} runs it in Chromium; the same file runs under node when it needs no DOM.`],
+];
+
+const pair = (c, { dark, phone }, [key, title, lede]) => {
+  const code = `<div class="card code" style="position: relative; padding: 1.25rem 1.25rem 1.25rem 0.75rem; white-space: pre-wrap; overflow-wrap: anywhere; ${phone ? "font-size: 0.6875rem;" : ""}">${COPY}${codeLines(SNIPPETS[key], true)}</div>`;
+  const result = `<div class="card stage" style="${skinVars("default", dark)} display: flex; align-items: center; justify-content: center; padding: 1.5rem; min-height: ${phone ? "12rem" : "14rem"};">${RESULTS[key](c, dark, phone)}</div>`;
+  return `
+<section style="display: flex; flex-direction: column; gap: 1rem; padding: ${phone ? "1.5rem 0" : "2.5rem 0"}; border-top: 1px solid ${c.border};">
+  <div style="display: flex; flex-direction: column; gap: 0.375rem; max-width: 44rem;"><h2 style="font-size: ${phone ? "1.375rem" : "1.625rem"}; line-height: 1.15;">${title}</h2><p style="font-size: 0.9375rem; line-height: 1.55; color: ${c.secondary};">${lede(c)}</p></div>
+  ${phone
+    ? `<div class="seg" style="align-self: flex-start;"><button type="button" aria-pressed="false">Code</button><button type="button" aria-pressed="true">Result</button></div>${result}`
+    : `<div style="display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1rem; align-items: stretch;">${code}${result}</div>`}
+</section>`;
+};
+
+const hero = (c, { phone }) => `
+<section style="display: flex; flex-direction: column; gap: 1.25rem; padding: ${phone ? "2rem 0 1.5rem" : "4rem 0 3rem"}; max-width: 46rem;">
+  <span class="eyebrow" style="display: inline-flex; align-items: center; gap: 0.5rem;"><span class="mono" style="text-transform: none; letter-spacing: 0; font-weight: 600; color: ${c.text};">@bootstrapp/light</span><span>·</span><span>MIT</span><span>·</span><span>no dependencies</span></span>
+  <h1 style="font-size: ${phone ? "2.25rem" : "3.25rem"}; line-height: 1.05; letter-spacing: -0.035em;">Web components for the light DOM, written as plain objects.</h1>
+  <p style="font-size: ${phone ? "1rem" : "1.125rem"}; line-height: 1.55; color: ${c.secondary};">The engine, the html renderer, signals, a theme engine and ${TOTAL} components in one package. Below, each piece as code and as what it renders.</p>
+  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem;"><a href="Components.dc.html" class="btn primary">Components</a><a href="#readme" class="btn">${ic("github", 15)}README</a><span class="mono card" style="display: inline-flex; align-items: center; gap: 0.75rem; height: 2.25rem; padding: 0 0.5rem 0 0.875rem; font-size: 0.8125rem; color: ${c.text};"><span><span style="color: ${c.muted};">$</span> npm i @bootstrapp/light</span><button type="button" class="btn icon xs" aria-label="Copy" style="box-shadow: none; border-color: transparent; background: transparent;">${ic("copy", 13)}</button></span></div>
+</section>`;
+
+const cta = (c, { phone }) => `
+<section style="display: flex; flex-direction: ${phone ? "column" : "row"}; align-items: ${phone ? "stretch" : "center"}; justify-content: space-between; gap: 2rem; margin: ${phone ? "1.5rem 0 2rem" : "3rem 0 4rem"}; padding: ${phone ? "2rem 1.5rem" : "3rem"}; border-radius: var(--r-box); background: ${c.text}; color: ${c.canvas};">
+  <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 36rem;"><h2 style="font-size: ${phone ? "1.75rem" : "2.25rem"}; line-height: 1.1; color: ${c.canvas};">See all ${TOTAL}.</h2><p style="font-size: 1rem; line-height: 1.5; color: ${c.canvas}; opacity: 0.75;">The catalogue draws each component from its demo file, with its props, its examples and a playground, in any skin.</p></div>
+  <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;"><a href="Components.dc.html" class="btn" style="background: ${c.canvas}; color: ${c.text}; border-color: ${c.canvas}; box-shadow: none;">Components</a><a href="#theming" class="btn" style="background: transparent; color: ${c.canvas}; border-color: ${c.canvas}; box-shadow: none;">Theming</a></div>
+</section>`;
+
+const footer = (c, { phone }) => `
+<footer style="border-top: 1px solid ${c.border}; background: ${c.surface};">
+  <div style="max-width: 72rem; margin: 0 auto; padding: ${phone ? "2rem 1rem" : "3rem 2rem"}; display: grid; grid-template-columns: ${phone ? "1fr" : "2fr 1fr 1fr 1fr"}; gap: 2rem;">
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">${brand(c)}<p style="font-size: 0.875rem; line-height: 1.5; color: ${c.secondary}; max-width: 22rem;">Web components for the light DOM.</p></div>
+    ${[["Site", ["Components", "Theming", "Skins"]], ["Source", ["GitHub", "npm", "README"]], ["License", ["MIT"]]].map(([title, links]) => `<div style="display: flex; flex-direction: column; gap: 0.625rem;"><span class="eyebrow">${title}</span>${links.map((l) => `<a href="#${l.toLowerCase()}" style="font-size: 0.875rem; font-weight: 500; color: ${c.secondary};">${l}</a>`).join("")}</div>`).join("")}
+  </div>
+  <div style="max-width: 72rem; margin: 0 auto; padding: 0 ${phone ? "1rem" : "2rem"} 1.5rem; font-size: 0.75rem; color: ${c.muted};">Alan Meira</div>
+</footer>`;
+
+const phoneHeader = (c) => `
+<header style="position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 0.5rem; height: 3.5rem; padding: 0 0.75rem; background: ${c.canvas}; border-bottom: 1px solid ${c.border};">
+  ${brand(c)}
+  <span style="flex-grow: 1;"></span>
+  <button type="button" class="btn icon" aria-label="Search components" style="border-color: transparent; background: transparent; box-shadow: none;">${ic("search", 20)}</button>
+  <button type="button" class="btn icon" aria-label="Switch to dark mode" style="border-color: transparent; background: transparent; box-shadow: none;">${ic("moon", 20)}</button>
+  <button type="button" class="btn icon" aria-label="Open menu" style="border-color: transparent; background: transparent; box-shadow: none;">${ic("menu", 20)}</button>
+</header>`;
+
+const home = ({ dark = false, phone = false, title, h }) => {
+  const c = chrome(dark); CHROME = c;
+  const o = { dark, phone };
+  const w = phone ? 390 : 1440;
+  return page({ title, w, h, phone, body: `
+<div style="position: relative; width: ${w}px; min-height: ${h}px; background: ${c.canvas};">
+  ${phone ? phoneHeader(c) : header(c, { page: "home", skin: "default", dark })}
+  <main style="max-width: 72rem; margin: 0 auto; padding: 0 ${phone ? "1rem" : "2rem"}; display: flex; flex-direction: column;">
+    ${hero(c, o)}${PAIRS.map((p) => pair(c, o, p)).join("")}${cta(c, o)}
+  </main>
+  ${footer(c, o)}
+</div>` });
+};
+
+const boards = {
+  "Home.dc.html": { html: home({ title: "Home", h: 3600 }), x: 0, y: 0, w: 1440, h: 3600, title: "Home" },
+  "Home-dark.dc.html": { html: home({ dark: true, title: "Home, dark", h: 3600 }), x: 1520, y: 0, w: 1440, h: 3600, title: "Home, dark" },
+  "Home-phone.dc.html": { html: home({ phone: true, title: "Home, phone", h: 4800 }), x: 3040, y: 0, w: 390, h: 4800, title: "Home, phone 390" },
+  "Components.dc.html": { html: overview({ title: "Components" }), x: 0, y: 7700, w: 1440, h: 900, title: "Components" },
+  "Overview-neobrutalist.dc.html": { html: overview({ skin: "neobrutalist", title: "Components, Neobrutalist skin", skinOpen: true }), x: 1520, y: 7700, w: 1440, h: 900, title: "Components, Neobrutalist skin, skin menu open" },
+  "Component-code.dc.html": { html: componentPage({ title: "Button, code view" }), x: 3040, y: 7700, w: 1440, h: 900, title: "Component page, code open" },
+  "Component-dark.dc.html": { html: componentPage({ dark: true, title: "Button, dark" }), x: 0, y: 8720, w: 1440, h: 900, title: "Component page, dark" },
+  "Palette.dc.html": { html: componentPage({ title: "Command palette", palette: true }), x: 1520, y: 8720, w: 1440, h: 900, title: "Command palette" },
+  "Skins.dc.html": { html: skinsPage({ title: "Skins" }), x: 3040, y: 8720, w: 1440, h: 1180, title: "Skins page" },
+  "Phone-drawer.dc.html": { html: phone({ title: "Phone, navigation drawer" }), x: 0, y: 10020, w: 390, h: 844, title: "Phone, drawer open" },
+};
+const index = { v: 3, createdOnFiles: { v: 1, at: new Date().toISOString() }, title: "light", launch: { view: "canvas" }, pages: [], boards: {}, order: [], notes: {
+  home: { x: 0, y: -300, text: "light: the home page, 1440 wide, in dark mode, and on a phone at 390", kind: "title1", maxW: 4480 },
+  desktop: { x: 0, y: 7400, text: "The catalogue, desktop 1440×900", kind: "title1", maxW: 4480 },
+  states: { x: 0, y: 8420, text: "Dark mode, ⌘K palette, the Skins page", kind: "title1", maxW: 4480 },
+  phone: { x: 0, y: 9720, text: "Phone 390×844, rem drawn at 20px", kind: "title1", maxW: 1440 },
 }, designSystems: [] };
 for (const [name, b] of Object.entries(boards)) {
   writeFileSync(OUT + name, b.html);

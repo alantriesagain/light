@@ -1,0 +1,127 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-10T20:21:59.407Z"
+ },
+ "title": "light",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Home.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 3600,
+   "title": "Home"
+  },
+  "Home-dark.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 3600,
+   "title": "Home, dark"
+  },
+  "Home-phone.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 390,
+   "h": 4800,
+   "title": "Home, phone 390"
+  },
+  "Components.dc.html": {
+   "x": 0,
+   "y": 7700,
+   "w": 1440,
+   "h": 900,
+   "title": "Components"
+  },
+  "Overview-neobrutalist.dc.html": {
+   "x": 1520,
+   "y": 7700,
+   "w": 1440,
+   "h": 900,
+   "title": "Components, Neobrutalist skin, skin menu open"
+  },
+  "Component-code.dc.html": {
+   "x": 3040,
+   "y": 7700,
+   "w": 1440,
+   "h": 900,
+   "title": "Component page, code open"
+  },
+  "Component-dark.dc.html": {
+   "x": 0,
+   "y": 8720,
+   "w": 1440,
+   "h": 900,
+   "title": "Component page, dark"
+  },
+  "Palette.dc.html": {
+   "x": 1520,
+   "y": 8720,
+   "w": 1440,
+   "h": 900,
+   "title": "Command palette"
+  },
+  "Skins.dc.html": {
+   "x": 3040,
+   "y": 8720,
+   "w": 1440,
+   "h": 1180,
+   "title": "Skins page"
+  },
+  "Phone-drawer.dc.html": {
+   "x": 0,
+   "y": 10020,
+   "w": 390,
+   "h": 844,
+   "title": "Phone, drawer open"
+  }
+ },
+ "order": [
+  "Home.dc.html",
+  "Home-dark.dc.html",
+  "Home-phone.dc.html",
+  "Components.dc.html",
+  "Overview-neobrutalist.dc.html",
+  "Component-code.dc.html",
+  "Component-dark.dc.html",
+  "Palette.dc.html",
+  "Skins.dc.html",
+  "Phone-drawer.dc.html"
+ ],
+ "notes": {
+  "home": {
+   "x": 0,
+   "y": -300,
+   "text": "light: the home page, 1440 wide, in dark mode, and on a phone at 390",
+   "kind": "title1",
+   "maxW": 4480
+  },
+  "desktop": {
+   "x": 0,
+   "y": 7400,
+   "text": "The catalogue, desktop 1440×900",
+   "kind": "title1",
+   "maxW": 4480
+  },
+  "states": {
+   "x": 0,
+   "y": 8420,
+   "text": "Dark mode, ⌘K palette, the Skins page",
+   "kind": "title1",
+   "maxW": 4480
+  },
+  "phone": {
+   "x": 0,
+   "y": 9720,
+   "text": "Phone 390×844, rem drawn at 20px",
+   "kind": "title1",
+   "maxW": 1440
+  }
+ },
+ "designSystems": []
+}

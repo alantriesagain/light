@@ -11,7 +11,7 @@ import { ROUTER_CHANGED } from "bootstrapp/router/events.js";
 import presets from "@bootstrapp/light/theme/presets.js";
 import { browsableCategories, humanize } from "@bootstrapp/showcase/lib/categories.js";
 import { matchesBreakpoint } from "@bootstrapp/light/components/utils/breakpoints.js";
-import { componentPath } from "../../lib/paths.js";
+import { componentPath, GITHUB_URL } from "../../lib/paths.js";
 import { GROUPS, searchIndex } from "../../lib/search-index.js";
 
 /** @import { Prop, SkinOption } from "../../types.ts" */
@@ -38,6 +38,7 @@ export default defineComponent({
     skins: /** @type {Prop<SkinOption[]>} */ (T.array({ sync: "catalogue", defaultValue: [] })),
     toc: /** @type {Prop<TocItem[]>} */ (T.array({ sync: "catalogue", defaultValue: [] })),
     phone: false,
+    landing: false,
     openGroups: /** @type {Prop<string[]>} */ (T.array({ defaultValue: [] })),
   },
 
@@ -51,6 +52,7 @@ export default defineComponent({
   },
 
   _follow() {
+    this.landing = $APP.Router.path === "/";
     const category = categoryOf($APP.Router.path);
     if (category && !this.openGroups.includes(category)) this.openGroups = [...this.openGroups, category];
     if (!this.openGroups.length) this.openGroups = [browsableCategories()[0]?.id ?? ""];
@@ -103,11 +105,11 @@ export default defineComponent({
   render() {
     const docs = searchIndex(browsableCategories(), presets);
     return html`
-      <lc-app-shell breakpoint="md" aside-breakpoint="xl" nav-width="var(--docs-nav)" aside-width=${this.toc.length ? "var(--docs-aside)" : "0px"} header-height="var(--docs-header)">
+      <lc-app-shell breakpoint="md" aside-breakpoint="xl" nav-width=${this.landing ? "0px" : "var(--docs-nav)"} aside-width=${this.toc.length && !this.landing ? "var(--docs-aside)" : "0px"} header-height="var(--docs-header)">
         <header slot="navbar" class="shell-header">
-          <lc-link href="/" class="shell-brand" aria-label="lc home">
+          <lc-link href="/" class="shell-brand" aria-label="Light home">
             <span class="shell-mark"><lc-icon name="box" size="14"></lc-icon></span>
-            <b>lc</b>
+            <b>Light</b>
           </lc-link>
           <nav class="shell-links" aria-label="Site">
             ${LINKS.map((link) => html`<lc-nav-item href=${link.href} label=${link.label} active-match=${link.href} active-bg size="sm"></lc-nav-item>`)}
@@ -124,15 +126,20 @@ export default defineComponent({
           ${this.phone ? nothing : this._renderSkinTrigger()}
           <lc-dropdown id=${SKIN_MENU} bordered rounded shadow position="bottom-right" .content=${() => this._renderSkinMenu()}></lc-dropdown>
           <lc-darkmode compact size="18"></lc-darkmode>
+          <lc-link href=${GITHUB_URL} external class="shell-github" aria-label="Light on GitHub"><lc-icon name="github" size="16"></lc-icon></lc-link>
         </header>
-        <div slot="nav" class="shell-nav">
-          ${this.phone ? html`<div class="shell-nav-skin">${this._renderSkinTrigger()}</div>` : nothing}
-          <lc-nav-tree .groups=${this._groups()} .open=${this.openGroups} collapse-at=${COLLAPSE_AT} @nav-tree-toggle=${(/** @type {CustomEvent} */ e) => { this.openGroups = e.detail.open ? [...this.openGroups, e.detail.id] : this.openGroups.filter((id) => id !== e.detail.id); }}></lc-nav-tree>
-        </div>
-        <div class="shell-main">${this.component}</div>
-        <aside slot="aside" class="shell-aside">
-          ${this.toc.length ? html`<lc-toc .items=${this.toc} offset="56"></lc-toc>` : nothing}
-        </aside>
+        ${this.landing
+          ? nothing
+          : html`
+              <div slot="nav" class="shell-nav">
+                ${this.phone ? html`<div class="shell-nav-skin">${this._renderSkinTrigger()}</div>` : nothing}
+                <lc-nav-tree .groups=${this._groups()} .open=${this.openGroups} collapse-at=${COLLAPSE_AT} @nav-tree-toggle=${(/** @type {CustomEvent} */ e) => { this.openGroups = e.detail.open ? [...this.openGroups, e.detail.id] : this.openGroups.filter((id) => id !== e.detail.id); }}></lc-nav-tree>
+              </div>
+            `}
+        <div class=${this.landing ? "shell-main shell-main-landing" : "shell-main"}>${this.component}</div>
+        ${this.landing || !this.toc.length
+          ? nothing
+          : html`<aside slot="aside" class="shell-aside"><lc-toc .items=${this.toc} offset="56"></lc-toc></aside>`}
       </lc-app-shell>
     `;
   },

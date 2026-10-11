@@ -9,6 +9,10 @@
 
 export const COMPONENTS_PATH = "/components";
 
+export const GITHUB_URL = "https://github.com/alantriesagain/light";
+export const README_URL = `${GITHUB_URL}#readme`;
+export const NPM_URL = "https://www.npmjs.com/package/@bootstrapp/light";
+
 /** @param {string} category */
 export const categoryPath = (category) => `${COMPONENTS_PATH}/${category}`;
 

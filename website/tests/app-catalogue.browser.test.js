@@ -8,7 +8,7 @@ describe("catalogue controller and the shell", () => {
   let catalogue;
 
   before(async () => {
-    app = await bootApp("/");
+    app = await bootApp("/components");
     catalogue = await awaitModule(app.win, "catalogue");
     await until(() => app.doc.querySelectorAll("lc-nav-tree .nav-tree-group").length === 9);
   });

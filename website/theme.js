@@ -35,6 +35,7 @@ export default {
     "2xl": "1.5rem",
     "3xl": "1.875rem",
     "4xl": "2.5rem",
+    display: "clamp(3.5rem, 7vw, 5rem)",
     hero: "clamp(2.25rem, 5vw, 3.5rem)",
     section: "clamp(1.75rem, 3.5vw, 2.5rem)",
     subhead: "1.0625rem",

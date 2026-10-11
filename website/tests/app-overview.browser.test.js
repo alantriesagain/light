@@ -8,7 +8,7 @@ describe("the overview and a category", () => {
   let app;
 
   before(async () => {
-    app = await bootApp("/");
+    app = await bootApp("/components");
     await until(() => app.doc.querySelectorAll(".catalogue-card").length > 0);
   });
 

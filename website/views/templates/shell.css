@@ -3,6 +3,7 @@
   --docs-nav: 16rem;
   --docs-aside: 13.75rem;
   --docs-measure: 53.75rem;
+  --docs-landing: 72rem;
   display: block;
   min-height: 100vh;
 
@@ -144,6 +145,22 @@
     padding: var(--spacing-2xl);
   }
 
+  .shell-main-landing {
+    max-width: var(--docs-landing);
+    margin: 0 auto;
+    padding: 0 var(--spacing-2xl);
+  }
+
+  .shell-github {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-field);
+    color: var(--text-secondary);
+  }
+
   .shell-aside {
     padding: var(--spacing-xl) var(--spacing-lg);
   }
@@ -191,6 +208,10 @@
 
     .shell-main {
       padding: var(--spacing-lg);
+    }
+
+    .shell-main-landing {
+      padding: 0 var(--spacing-lg);
     }
   }
 }

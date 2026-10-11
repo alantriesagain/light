@@ -1,7 +1,7 @@
 import { defineRoutes } from "bootstrapp/router";
 
 export default defineRoutes({
-  "/": { name: "overview", title: "Light", component: "docs-overview" },
+  "/": { name: "home", title: "Light", component: "docs-home" },
   "/components": { name: "components", title: "Components", component: "docs-overview" },
   "/components/:category": { name: "category", title: "Components", component: "docs-category" },
   "/components/:category/:name": { name: "component", title: "Components", component: "docs-component" },

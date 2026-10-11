@@ -447,25 +447,22 @@ const inlineCode = (c, text) => `<code class="mono" style="font-size: 0.9em; pad
 
 const SNIPPETS = {
   counter: [
-    `${KW("import")} View, { defineComponent } ${KW("from")} ${S('"@bootstrapp/light"')};`,
+    `${KW("import")} View ${KW("from")} ${S('"@bootstrapp/light"')};`,
     `${KW("import")} { html } ${KW("from")} ${S('"@bootstrapp/light/html"')};`,
-    `${KW("import")} T ${KW("from")} ${S('"@bootstrapp/light/types"')};`,
     ``,
-    `${KW("const")} counter = defineComponent({`,
+    `View.define({`,
     `  tag: ${S('"my-counter"')},`,
-    `  properties: { count: T.number(0) },`,
+    `  properties: { count: 0 },`,
     `  render() {`,
     `    ${KW("return")} html\`${TAG("button", ` ${A("@click", "").trim()}${P("=")}\${() =&gt; this.count++}`, "Clicks: \${this.count}")}\`;`,
     `  },`,
     `});`,
-    ``,
-    `View.define(counter);`,
   ],
   attributes: [
     `properties: {`,
-    `  label: T.string(${S('"Clicks"')}),`,
-    `  count: T.number(0),`,
-    `  big: T.boolean(),`,
+    `  label: ${S('"Clicks"')},`,
+    `  count: 0,`,
+    `  big: ${KW("false")},`,
     `},`,
     ``,
     `${P("// in the page")}`,
@@ -512,6 +509,15 @@ const SNIPPETS = {
     `  <span class="tk-attr">@form-submit</span>${P("=")}\${(e) =&gt; save(e.detail)}`,
     `${P("&gt;&lt;/")}<span class="tk-tag">lc-form</span>${P("&gt;")}`,
   ],
+  env: [
+    `${KW("import")} { env } ${KW("from")} ${S('"@bootstrapp/light/env"')};`,
+    `${KW("import")} { configureNavigation } ${KW("from")} ${S('"@bootstrapp/light/navigation"')};`,
+    ``,
+    `env.subscribe(() =&gt; { label.textContent = \`\${env.width}×\${env.height} · \${env.breakpoint} · \${env.os}\`; });`,
+    ``,
+    `configureNavigation({ href: (path) =&gt; \`/app\${path}\`, go: router.go });`,
+    `html\`${TAG("lc-link", A("href", "/components"), "Components")}\``,
+  ],
   test: [
     `${KW("import")} assert ${KW("from")} ${S('"node:assert/strict"')};`,
     `${KW("import")} { it } ${KW("from")} ${S('"node:test"')};`,
@@ -534,24 +540,34 @@ const RESULTS = {
   signals: () => `<div class="st-card" style="display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; font-size: 0.9375rem;"><span style="display: inline-flex; align-items: center; border-radius: var(--s-rfield); border: var(--s-bw) solid var(--s-border); overflow: hidden;"><span style="display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2.25rem; border-right: var(--s-bw) solid var(--s-border); font-weight: 700;">−</span><span style="display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; font-weight: 700;">3</span><span style="display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2.25rem; border-left: var(--s-bw) solid var(--s-border); font-weight: 700;">+</span></span><span style="color: var(--s-muted);">× 9.50 =</span><b style="font-size: 1.5rem; font-weight: 800;">28.50</b></div>`,
   theme: (c, dark, phone) => `<div style="display: grid; grid-template-columns: ${phone ? "1fr" : "1fr 1fr"}; gap: 1rem; width: 100%;">${["default", "neobrutalist"].map((k) => `<div style="${skinVars(k, dark)} display: flex; flex-direction: column; gap: 0.5rem; font-family: var(--s-font); color: var(--s-text);"><div class="st-card" style="display: flex; flex-direction: column; gap: 0.5rem; padding: 0.875rem;"><b style="font-size: 0.9375rem; font-weight: 800;">Sign in</b><div class="st-input">you@example.com</div>${stBtn("Sign in")}</div><span style="font-size: 0.75rem; color: ${c.muted}; font-family: ${LOOK.fontUI};">${k === "default" ? "applyTheme" : "applyScopedTheme, neobrutalist"}</span></div>`).join("")}</div>`,
   form: () => `<div class="st-card" style="width: 18rem; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem;"><div><span class="st-label">Email</span><div class="st-input">you@example.com</div></div><div><span class="st-label">Plan</span><div class="st-input" style="justify-content: space-between; color: var(--s-text);">Free ${ic("chevron-down", 14)}</div></div><label class="st-check"><i>${ic("check", 12)}</i>Newsletter</label>${stBtn("Save", "width: 100%;")}</div>`,
+  env: (c) => `<div class="st-card" style="display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem 1.25rem; min-width: 16rem;"><span class="mono" style="font-size: 0.875rem;">1440×900 · lg · linux · light</span><span style="font-size: 0.75rem; color: var(--s-muted);">env, updated on resize</span><a href="#components" style="display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.9375rem; font-weight: 600; color: var(--s-primary);">Components ${ic("chevron-right", 14)}</a><span style="font-size: 0.75rem; color: var(--s-muted);">lc-link, href rewritten to /app/components</span></div>`,
   test: (c) => `<div class="code" style="width: 100%; padding: 1rem 1.25rem; border-radius: var(--r-box); background: ${c.text}; color: ${c.canvas}; font-size: 0.8125rem; line-height: 1.7;"><div><span style="color: ${c.disabled};">$</span> light test counter.browser.test.js</div><div><span style="color: #4ade80;">✓</span> 1 passed <span style="color: ${c.disabled};">0 failed</span> counter.browser.test.js</div><div style="margin-top: 0.5rem; font-weight: 700;">1 passed, 1 total</div></div>`,
 };
 
 const PAIRS = [
-  ["counter", "A component", (c) => `Properties go in ${inlineCode(c, "properties")}, markup comes out of ${inlineCode(c, "render()")}, and ${inlineCode(c, "View.define")} registers the tag. When a property changes, the element renders again on the next frame. No class, no shadow DOM.`],
-  ["attributes", "Properties read their attributes", (c) => `${inlineCode(c, "T")} declares a property's type and default. An attribute sets it, a ${inlineCode(c, "T.boolean")} is true when the attribute is present, and the element reflects what changes.`],
-  ["templates", "Templates", (c) => `${inlineCode(c, "html")} is a tagged template. ${inlineCode(c, "key")} keeps a list item in place when the list changes, ${inlineCode(c, "nothing")} renders nothing, and a slot projects the host's children in the light DOM.`],
-  ["signals", "Signals", (c) => `A component's state is a store of signals. On their own, a computed follows what it reads and an effect runs when that changes.`],
-  ["theme", "Theme", (c) => `A theme is an object. ${inlineCode(c, "applyTheme")} writes it as the CSS variables every component reads; ${inlineCode(c, "applyScopedTheme")} does the same under one selector, which is what a skin is.`],
-  ["form", `${TOTAL} components`, (c) => `Forms, tables, charts, overlays, navigation, app shells and page sections, in nine categories. A form draws itself from a field list.`],
-  ["test", "Tests run in the browser", (c) => `The test is a ${inlineCode(c, "node:test")} file. ${inlineCode(c, "light test")} runs it in Chromium; the same file runs under node when it needs no DOM.`],
+  ["counter", "box", "View engine", "View.define, mixins, lifecycle hooks, $own for cleanup, plugins. One render per element per frame.", (c) => `A component is an object: its properties, its template, its hooks. Light makes it a custom element.`],
+  ["templates", "code", "html", "Tagged templates with keyed lists, element bindings and slots in the light DOM. Prerendered markup is adopted, not replaced.", (c) => `Templates are tagged template literals. Lists stay keyed, children slot in, served markup is reused.`],
+  ["signals", "activity", "Signals", "signal, computed, effect and batch. A component's state is a store of them.", (c) => `State is signals. A computed follows what it reads; an effect runs when that changes.`],
+  ["attributes", "braces", "Properties", "A property is its default: a number, a string, a boolean, an array, an object. It reads and reflects its attribute; T.* adds an option.", (c) => `A property is its default, and reads its attribute. T.* is there when it needs an option.`],
+  ["env", "compass", "env and navigation", "Viewport, breakpoint, OS and colour scheme. Links are plain anchors until a router is configured.", (c) => `The page's size, OS and colour scheme, and links that work with or without a router.`],
+  ["theme", "palette", "Theme", "Tokens from a theme object, five presets, skins scoped to one element, dark mode, icons from any Iconify set.", (c) => `A theme is an object. Apply it to the page, or to one element as a skin.`],
+  ["form", "layout-grid", `${TOTAL} components`, "Forms, tables, charts, overlays, navigation, app shells and page sections. Each one has a demo.", (c) => `Forms, tables, charts, overlays, navigation, app shells and page sections. Each one has a demo.`],
+  ["test", "flask", "light test", "node:test and node:assert in the browser. The same test file runs under node or in Chromium.", (c) => `Tests are node:test files. light test runs them in a real browser.`],
 ];
 
-const pair = (c, { dark, phone }, [key, title, lede]) => {
+const features = (c, { phone }) => `
+<section style="display: flex; flex-direction: column; gap: 1.25rem; padding: ${phone ? "1.5rem 0" : "2.5rem 0"}; border-top: 1px solid ${c.border};">
+  <div style="display: flex; flex-direction: column; gap: 0.375rem;"><span class="eyebrow">The package</span><h2 style="font-size: ${phone ? "1.5rem" : "2rem"}; line-height: 1.1;">What is in it</h2></div>
+  <div style="display: grid; grid-template-columns: repeat(${phone ? 2 : 4}, minmax(0, 1fr)); gap: ${phone ? "0.75rem" : "1rem"};">
+    ${PAIRS.map(([key, icon, title, card]) => `<a href="#${key}" class="card" style="display: flex; flex-direction: column; gap: 0.625rem; padding: ${phone ? "0.875rem" : "1.25rem"}; color: ${c.text};"><span style="display: inline-flex; width: 2.25rem; height: 2.25rem; align-items: center; justify-content: center; border-radius: var(--r-field); background: ${c.surfaceDark}; color: ${c.text};">${ic(icon, 18)}</span><b style="font-size: ${phone ? "0.875rem" : "1rem"}; font-weight: 700;">${title}</b><p style="font-size: ${phone ? "0.75rem" : "0.875rem"}; line-height: 1.5; color: ${c.secondary};">${card}</p></a>`).join("")}
+  </div>
+</section>`;
+
+const pair = (c, { dark, phone }, [key, , title, , lede]) => {
   const code = `<div class="card code" style="position: relative; padding: 1.25rem 1.25rem 1.25rem 0.75rem; white-space: pre-wrap; overflow-wrap: anywhere; ${phone ? "font-size: 0.6875rem;" : ""}">${COPY}${codeLines(SNIPPETS[key], true)}</div>`;
   const result = `<div class="card stage" style="${skinVars("default", dark)} display: flex; align-items: center; justify-content: center; padding: 1.5rem; min-height: ${phone ? "12rem" : "14rem"};">${RESULTS[key](c, dark, phone)}</div>`;
   return `
-<section style="display: flex; flex-direction: column; gap: 1rem; padding: ${phone ? "1.5rem 0" : "2.5rem 0"}; border-top: 1px solid ${c.border};">
+<section id="${key}" style="display: flex; flex-direction: column; gap: 1rem; padding: ${phone ? "1.5rem 0" : "2.5rem 0"}; border-top: 1px solid ${c.border};">
   <div style="display: flex; flex-direction: column; gap: 0.375rem; max-width: 44rem;"><h2 style="font-size: ${phone ? "1.375rem" : "1.625rem"}; line-height: 1.15;">${title}</h2><p style="font-size: 0.9375rem; line-height: 1.55; color: ${c.secondary};">${lede(c)}</p></div>
   ${phone
     ? `<div class="seg" style="align-self: flex-start;"><button type="button" aria-pressed="false">Code</button><button type="button" aria-pressed="true">Result</button></div>${result}`
@@ -561,10 +577,28 @@ const pair = (c, { dark, phone }, [key, title, lede]) => {
 
 const hero = (c, { phone }) => `
 <section style="display: flex; flex-direction: column; gap: 1.25rem; padding: ${phone ? "2rem 0 1.5rem" : "4rem 0 3rem"}; max-width: 46rem;">
-  <span class="eyebrow" style="display: inline-flex; align-items: center; gap: 0.5rem;"><span class="mono" style="text-transform: none; letter-spacing: 0; font-weight: 600; color: ${c.text};">@bootstrapp/light</span><span>·</span><span>MIT</span><span>·</span><span>no dependencies</span></span>
-  <h1 style="font-size: ${phone ? "2.25rem" : "3.25rem"}; line-height: 1.05; letter-spacing: -0.035em;">Web components for the light DOM, written as plain objects.</h1>
-  <p style="font-size: ${phone ? "1rem" : "1.125rem"}; line-height: 1.55; color: ${c.secondary};">The engine, the html renderer, signals, a theme engine and ${TOTAL} components in one package. Below, each piece as code and as what it renders.</p>
+  <h1 style="display: flex; flex-direction: column; gap: 0.25rem;"><span style="font-size: ${phone ? "3.5rem" : "5rem"}; line-height: 0.95; letter-spacing: -0.045em;">Light</span><span style="font-size: ${phone ? "1.5rem" : "2.25rem"}; line-height: 1.1; letter-spacing: -0.025em; color: ${c.secondary};">Web Components made simple.</span></h1>
+  <p style="font-size: ${phone ? "1rem" : "1.125rem"}; line-height: 1.55; color: ${c.secondary};">Everything React does, on custom elements and event listeners instead of a virtual DOM. Signals, a theme engine and ${TOTAL} components come in the box.</p>
   <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem;"><a href="Components.dc.html" class="btn primary">Components</a><a href="#readme" class="btn">${ic("github", 15)}README</a><span class="mono card" style="display: inline-flex; align-items: center; gap: 0.75rem; height: 2.25rem; padding: 0 0.5rem 0 0.875rem; font-size: 0.8125rem; color: ${c.text};"><span><span style="color: ${c.muted};">$</span> npm i @bootstrapp/light</span><button type="button" class="btn icon xs" aria-label="Copy" style="box-shadow: none; border-color: transparent; background: transparent;">${ic("copy", 13)}</button></span></div>
+</section>`;
+
+const FACTS = [
+  ["0", "dependencies", "Nothing under node_modules besides Light itself. What you install is what runs."],
+  ["No", "build step", "ES modules served as they are. An importmap, or a bundler if you already have one."],
+  ["JS", "with types", "Written in JavaScript with JSDoc. The .d.ts files ship in the package, so TypeScript reads every signature."],
+];
+const facts = (c, { phone }) => `
+<section class="card" style="display: grid; grid-template-columns: repeat(${phone ? 1 : 3}, minmax(0, 1fr)); margin: ${phone ? "0 0 0.5rem" : "0 0 1rem"}; overflow: hidden;">
+  ${FACTS.map(([value, label, line], i) => `<div style="display: flex; flex-direction: column; gap: 0.5rem; padding: ${phone ? "1.25rem 1rem" : "1.5rem 1.75rem"}; ${i ? (phone ? `border-top: 1px solid ${c.border};` : `border-left: 1px solid ${c.border};`) : ""}"><div style="display: flex; align-items: baseline; gap: 0.625rem;"><span style="font-family: ${LOOK.fontDisplay}; font-size: ${phone ? "2.25rem" : "2.75rem"}; font-weight: 800; letter-spacing: -0.04em; line-height: 1;">${value}</span><span class="eyebrow" style="color: ${c.text};">${label}</span></div><p style="font-size: 0.875rem; line-height: 1.5; color: ${c.secondary};">${line}</p></div>`).join("")}
+</section>`;
+
+const PRINCIPLES = [
+  ["The name", "Light, as in light DOM.", "Web components come with the shadow DOM, and it makes them far more complicated than they need to be. Light turns it off. A component is a plain element in the page, with the page's CSS and the page's events, and that alone makes it a smaller and faster replacement for React."],
+  ["The language", "JavaScript, typed.", "Light is plain JavaScript, so it runs as written, with no build step. Its types come from JSDoc, checked by TypeScript and shipped as .d.ts, so in a TypeScript project it is a typed package like any other."],
+];
+const principles = (c, { phone }) => `
+<section style="display: grid; grid-template-columns: repeat(${phone ? 1 : 2}, minmax(0, 1fr)); gap: 1rem; padding: ${phone ? "1.5rem 0" : "2.5rem 0"}; border-top: 1px solid ${c.border};">
+  ${PRINCIPLES.map(([eyebrow, title, text]) => `<div class="card" style="display: flex; flex-direction: column; gap: 0.625rem; padding: ${phone ? "1.25rem" : "1.75rem"};"><span class="eyebrow">${eyebrow}</span><h2 style="font-size: ${phone ? "1.375rem" : "1.625rem"}; line-height: 1.15;">${title}</h2><p style="font-size: ${phone ? "0.9375rem" : "1rem"}; line-height: 1.55; color: ${c.secondary};">${text}</p></div>`).join("")}
 </section>`;
 
 const cta = (c, { phone }) => `
@@ -575,9 +609,9 @@ const cta = (c, { phone }) => `
 
 const footer = (c, { phone }) => `
 <footer style="border-top: 1px solid ${c.border}; background: ${c.surface};">
-  <div style="max-width: 72rem; margin: 0 auto; padding: ${phone ? "2rem 1rem" : "3rem 2rem"}; display: grid; grid-template-columns: ${phone ? "1fr" : "2fr 1fr 1fr 1fr"}; gap: 2rem;">
-    <div style="display: flex; flex-direction: column; gap: 0.75rem;">${brand(c)}<p style="font-size: 0.875rem; line-height: 1.5; color: ${c.secondary}; max-width: 22rem;">Web components for the light DOM.</p></div>
-    ${[["Site", ["Components", "Theming", "Skins"]], ["Source", ["GitHub", "npm", "README"]], ["License", ["MIT"]]].map(([title, links]) => `<div style="display: flex; flex-direction: column; gap: 0.625rem;"><span class="eyebrow">${title}</span>${links.map((l) => `<a href="#${l.toLowerCase()}" style="font-size: 0.875rem; font-weight: 500; color: ${c.secondary};">${l}</a>`).join("")}</div>`).join("")}
+  <div style="max-width: 72rem; margin: 0 auto; padding: ${phone ? "2rem 1rem" : "3rem 2rem"}; display: grid; grid-template-columns: ${phone ? "1fr" : "2fr 1fr 1fr"}; gap: 2rem;">
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">${brand(c)}<p style="font-size: 0.875rem; line-height: 1.5; color: ${c.secondary}; max-width: 22rem;">Web Components made simple.</p></div>
+    ${[["Site", ["Components", "Theming", "Skins"]], ["Source", ["GitHub", "npm", "README"]]].map(([title, links]) => `<div style="display: flex; flex-direction: column; gap: 0.625rem;"><span class="eyebrow">${title}</span>${links.map((l) => `<a href="#${l.toLowerCase()}" style="font-size: 0.875rem; font-weight: 500; color: ${c.secondary};">${l}</a>`).join("")}</div>`).join("")}
   </div>
   <div style="max-width: 72rem; margin: 0 auto; padding: 0 ${phone ? "1rem" : "2rem"} 1.5rem; font-size: 0.75rem; color: ${c.muted};">Alan Meira</div>
 </footer>`;
@@ -599,16 +633,16 @@ const home = ({ dark = false, phone = false, title, h }) => {
 <div style="position: relative; width: ${w}px; min-height: ${h}px; background: ${c.canvas};">
   ${phone ? phoneHeader(c) : header(c, { page: "home", skin: "default", dark })}
   <main style="max-width: 72rem; margin: 0 auto; padding: 0 ${phone ? "1rem" : "2rem"}; display: flex; flex-direction: column;">
-    ${hero(c, o)}${PAIRS.map((p) => pair(c, o, p)).join("")}${cta(c, o)}
+    ${hero(c, o)}${facts(c, o)}${principles(c, o)}${features(c, o)}${PAIRS.map((p) => pair(c, o, p)).join("")}${cta(c, o)}
   </main>
   ${footer(c, o)}
 </div>` });
 };
 
 const boards = {
-  "Home.dc.html": { html: home({ title: "Home", h: 3600 }), x: 0, y: 0, w: 1440, h: 3600, title: "Home" },
-  "Home-dark.dc.html": { html: home({ dark: true, title: "Home, dark", h: 3600 }), x: 1520, y: 0, w: 1440, h: 3600, title: "Home, dark" },
-  "Home-phone.dc.html": { html: home({ phone: true, title: "Home, phone", h: 4800 }), x: 3040, y: 0, w: 390, h: 4800, title: "Home, phone 390" },
+  "Home.dc.html": { html: home({ title: "Light - Web Components made simple", h: 5200 }), x: 0, y: 0, w: 1440, h: 5200, title: "Home" },
+  "Home-dark.dc.html": { html: home({ dark: true, title: "Home, dark", h: 5200 }), x: 1520, y: 0, w: 1440, h: 5200, title: "Home, dark" },
+  "Home-phone.dc.html": { html: home({ phone: true, title: "Home, phone", h: 7200 }), x: 3040, y: 0, w: 390, h: 7200, title: "Home, phone 390" },
   "Components.dc.html": { html: overview({ title: "Components" }), x: 0, y: 7700, w: 1440, h: 900, title: "Components" },
   "Overview-neobrutalist.dc.html": { html: overview({ skin: "neobrutalist", title: "Components, Neobrutalist skin", skinOpen: true }), x: 1520, y: 7700, w: 1440, h: 900, title: "Components, Neobrutalist skin, skin menu open" },
   "Component-code.dc.html": { html: componentPage({ title: "Button, code view" }), x: 3040, y: 7700, w: 1440, h: 900, title: "Component page, code open" },

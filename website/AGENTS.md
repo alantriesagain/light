@@ -13,9 +13,11 @@ through the ordinary boot with nothing set up by hand.
   loads one; the snippet under an example is `render.toString()`.
 - The skins: `@bootstrapp/theme/presets.js`. A skin dresses the stages only, through
   `applyScopedTheme`; the chrome keeps this project's `theme.js`.
-- The route table is `routes.js`: `/`, `/components`, `/components/:category`,
-  `/components/:category/:name`, `/theming`, `/skins`, every one inside the
-  `template-shell` template. The router spreads `category` and `name` onto the page as props.
+- The route table is `routes.js`: `/` (the landing page, `views/home.js`, its words and
+  snippets in `lib/home-content.js` and its live `my-counter` in `lib/home-demos.js`),
+  `/components`, `/components/:category`, `/components/:category/:name`, `/theming`,
+  `/skins`, every one inside the `template-shell` template, which drops the rail and the
+  outline on the landing page. The router spreads `category` and `name` onto the page as props.
 - `controllers/catalogue.js` keeps what the pages share: the chosen skin (persisted, and
   taken from `?skin=` on boot), the search, the presets with their swatches, the current
   page's outline, and `open`/`select` for a card or a palette pick.

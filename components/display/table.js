@@ -42,7 +42,7 @@ export default defineComponent({
   tag: "lc-table",
   style: true,
   dataQuery: true,
-  properties: {
+  props: {
     columns: /** @type {Prop<(string | TableColumn)[]>} */ (T.array({ defaultValue: [] })),
     rows: /** @type {Prop<TableRow[]>} */ (T.array({ defaultValue: [] })),
     selectRow: /** @type {Prop<TableRowSelect | null>} */ (T.function()),

@@ -24,7 +24,7 @@ const token = (theme, group, key) => {
 export default defineController({
   name: "catalogue",
   adapter: true,
-  properties: {
+  props: {
     skin: T.string({ defaultValue: HOST_THEME, sync: "local", key: "lc:skin" }),
     search: "",
     toc: /** @type {Prop<TocItem[]>} */ (T.array({ defaultValue: [] })),

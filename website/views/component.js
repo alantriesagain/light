@@ -17,7 +17,7 @@ const pagerLink = (ref) => (ref ? { label: humanize(ref.name), href: componentPa
 
 export default defineComponent({
   tag: "docs-component",
-  properties: {
+  props: {
     category: T.string(),
     name: T.string(),
     skin: T.string({ sync: "catalogue", defaultValue: "" }),

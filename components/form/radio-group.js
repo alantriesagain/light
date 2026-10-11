@@ -8,7 +8,7 @@ import T from "@bootstrapp/light/types";
 export default defineComponent({
   mixins: [withFormControl],
   tag: "lc-radio-group",
-  properties: {
+  props: {
     orientation: T.string({
       defaultValue: "vertical",
       enum: ["vertical", "horizontal"],

@@ -12,7 +12,7 @@ const MIN_INTERVAL = 45;
 export default defineComponent({
   mixins: [withFormControl],
   tag: "lc-number-input",
-  properties: {
+  props: {
     _holdTimer: /** @type {Prop<ReturnType<typeof setTimeout> | null>} */ (T.object({ reactive: false, defaultValue: null })),
     value: /** @type {Prop<number | null>} */ (T.number({ defaultValue: null })),
     min: /** @type {Prop<number | null>} */ (T.number({ defaultValue: null })),

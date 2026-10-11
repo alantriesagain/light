@@ -9,7 +9,7 @@ let renderedAt = 0;
 /** @param {boolean} attribute */
 const define = (attribute) =>
   View.define(attribute ? "bench-reflecting" : "bench-quiet", {
-    properties: {
+    props: {
       variant: T.string({ defaultValue: "primary", attribute }),
       size: T.string({ defaultValue: "md", attribute }),
       label: T.string({ defaultValue: "Label", attribute }),

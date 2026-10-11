@@ -12,7 +12,7 @@ const pagerLink = (category) => (category ? { label: category.label, href: categ
 
 export default defineComponent({
   tag: "docs-category",
-  properties: {
+  props: {
     category: T.string(),
     search: T.string({ sync: "catalogue", defaultValue: "" }),
     skin: T.string({ sync: "catalogue", defaultValue: "" }),

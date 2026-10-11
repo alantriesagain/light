@@ -10,7 +10,7 @@ export default defineComponent({
   mixins: [withPopover],
   style: true,
   tag: "lc-dropdown",
-  properties: {
+  props: {
     autoClose: true,
     items: /** @type {Prop<DropdownItem[]>} */ (T.array()),
     content: /** @type {Prop<(() => TemplateValue) | null>} */ (T.object({ attribute: false, defaultValue: null, hasChanged: () => false })),

@@ -14,7 +14,7 @@ const defineHost = (options) => {
   View.define(tag, defineComponent({
     mixins: [withSwipeThreshold(options)],
     tag,
-    properties: {
+    props: {
       open: true,
       log: /** @type {import("../types.ts").Prop<number[]>} */ (T.object({ reactive: false, defaultValue: null })),
     },

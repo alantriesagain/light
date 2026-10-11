@@ -4,7 +4,7 @@ import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
   tag: "lc-progress-bar",
-  properties: {
+  props: {
     value: 0,
     max: 100,
     variant: T.string({

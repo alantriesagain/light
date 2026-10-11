@@ -8,7 +8,7 @@ import { lcText } from "../utils/text.js";
 export default defineComponent({
   tag: "lc-kanban",
   style: true,
-  properties: {
+  props: {
     rows: /** @type {Prop<KanbanRow[]>} */ (T.array({ defaultValue: [] })),
     columns: /** @type {Prop<KanbanColumn[]>} */ (T.array({ defaultValue: [] })),
     groupByField: "section",

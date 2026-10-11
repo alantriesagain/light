@@ -87,13 +87,7 @@
     import View from '@bootstrapp/light';
     import { html } from '@bootstrapp/light/html';
 
-    View.define({
-      tag: 'my-counter',
-      properties: {
-        count: 0,
-        label: 'Counter'
-      },
-
+    View.define('my-counter', { count: 0, label: 'Counter' }, {
       increment() {
         this.count++;
       },

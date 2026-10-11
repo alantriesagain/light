@@ -19,34 +19,30 @@ Web components for the light DOM, written as plain objects. A component is a def
 import View from "@bootstrapp/light";
 import { html } from "@bootstrapp/light/html";
 
-View.define({
-  tag: "my-counter",
-  properties: {
-    count: 0,
-    label: "Count",
-  },
-  increment() {
-    this.count++;
-  },
-  render() {
-    return html`
-      <button @click=${() => this.increment()}>
-        ${this.label}: ${this.count}
-      </button>
-    `;
-  },
-});
+View.define("my-counter", { count: 0, label: "Count" }, (el) => html`
+  <button @click=${() => el.count++}>${el.label}: ${el.count}</button>
+`);
 ```
 
 `<my-counter label="Clicks"></my-counter>` now renders and updates on every click.
 
-`View.define(definition)` builds the class and registers the tag the definition names; `View.define(tag, definition)` names it instead. It types `this` inside the definition: the declared properties, the sibling methods, the engine's members and a typed `$emit` from the `events` block. Reading a name the component does not declare is a type error, except on a component that `extends` a tag: its base is known only by that tag, so other members read as `unknown`. A component that `extends` a tag not yet defined is registered once that tag is, so a page may define its components in any order. Defining a tag again with the same definition is a no-op; with another definition it throws.
+`View.define(tag, props, render)` builds the class and registers the tag: the props beside the tag, then the render as a function of the element. A component with methods, hooks, events or mixins passes a definition object in the render's place, and `this` inside its methods is the element:
 
-A module that exports a component for a loader to register (a Bootstrapp app autoloads `views/*.js`) wraps it in `defineComponent`, which returns the same object and types `this` the same way: a bare `export default { ... }` types `this` as the literal itself. `View.createClass(tag, definition)` builds without registering. A definition is an object; a function in its place is refused with an error naming the tag.
+```js
+View.define("my-menu", { open: false }, {
+  mixins: [withEscapeKey],
+  close() { this.open = false; },
+  render() { return html`...${this.open}`; },
+});
+```
 
-## Properties
+`View.define(tag, definition)` and `View.define(definition)` take a definition that carries its own `props` (and, in the second form, its `tag`); a function in the definition's place is its `render`. Every form types what it hands you: `el` in a render function and `this` in a method see the declared props, the mixins' props and members, the engine's members and a typed `$emit` from the `events` block, and a method sees the sibling methods too. Reading a name the component does not declare is a type error, except on a component that `extends` a tag: its base is known only by that tag, so other members read as `unknown`. The call answers the class; a component that `extends` a tag not yet defined is registered once that tag is, so a page may define its components in any order, and the call answers a promise of the class instead. Defining a tag again with the same definition is a no-op; with another definition it throws, and so does a definition still spelling the props block `properties`.
 
-A `properties` entry is a default, and its type is read off the value: `count: 0` is a number, `label: "Count"` a string, `open: false` a boolean, `items: []` an array, an object an object, a function a function, `null` anything. Strings, numbers and booleans read and reflect their attribute; arrays, objects and functions do not.
+A module that exports a component for a loader to register (a Bootstrapp app autoloads `views/*.js`) wraps it in `defineComponent`, which returns the same object and types `this` the same way: a bare `export default { ... }` types `this` as the literal itself. `View.createClass(tag, definition)` builds without registering, and refuses a function in the definition's place.
+
+## Props
+
+A `props` entry is a default, and its type is read off the value: `count: 0` is a number, `label: "Count"` a string, `open: false` a boolean, `items: []` an array, an object an object, a function a function, `null` anything. Strings, numbers and booleans read and reflect their attribute; arrays, objects and functions do not.
 
 An entry that needs an option is a descriptor built by `T` (`import T from "@bootstrapp/light/types"`). Each factory takes an options object or a bare default (`T.string("hi")` is `T.string({ defaultValue: "hi" })`). A descriptor is any object with `$type`, which is what `T.*` returns, so an object default is the one value that cannot carry that key.
 
@@ -104,7 +100,7 @@ Shared behaviour is a definition fragment, declared with `defineMixin` and liste
 
 ```js
 const withEscapeKey = defineMixin({
-  properties: { closeOnEscape: true },
+  props: { closeOnEscape: true },
   connected() {
     const onKey = (event) => event.key === "Escape" && this.closeOnEscape && this.close();
     document.addEventListener("keydown", onKey);
@@ -112,15 +108,14 @@ const withEscapeKey = defineMixin({
   },
 });
 
-View.define({
-  tag: "my-menu",
+View.define("my-menu", { open: false }, {
   mixins: [withEscapeKey],
   close() { this.open = false; },
   render() { ... },
 });
 ```
 
-Fragments merge in order, then the component's own keys: properties, events and members union, the component wins a collision, lifecycle hooks chain mixin-first. A fragment may list `mixins` of its own, and a whole component definition may be listed as one. A fragment that takes options is a function returning a `defineMixin`.
+Fragments merge in order, then the component's own keys: props, events and members union, the component wins a collision, lifecycle hooks chain mixin-first. A fragment may list `mixins` of its own, and a whole component definition may be listed as one. A fragment that takes options is a function returning a `defineMixin`.
 
 ## Slots
 
@@ -139,7 +134,7 @@ View.use({
   name: "my-plugin",
   keys: ["flavor"],
   hooks: ["ripened"],
-  properties: (properties, definition) => properties,
+  props: (props, definition) => props,
   test: ({ component, definition }) => true,
   init: ({ View, component, definition, tag }) => {},
   events: { connected(detail) {}, updated(detail) {} },
@@ -150,7 +145,7 @@ View.use({
 |---|---|
 | `keys` | Definition keys the plugin reads. They never land on the element. |
 | `hooks` | Lifecycle hooks the plugin adds. They chain across mixins and `extends` and run through `$runHook(name, detail)`. |
-| `properties` | Rewrites a class's merged property declarations when the class is built. |
+| `props` | Rewrites a class's merged property declarations when the class is built. |
 | `test` | Keeps the plugin's `events` and `init` off classes it answers false for. |
 | `init` | Runs once per class, when it is defined. |
 | `events` | Called on each instance's lifecycle, before the definition's own hooks. |

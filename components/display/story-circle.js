@@ -6,7 +6,7 @@ import { navigation } from "@bootstrapp/light/navigation";
 export default defineComponent({
   tag: "lc-story-circle",
   style: true,
-  properties: {
+  props: {
     src: "",
     name: "",
     seed: "",

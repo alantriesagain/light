@@ -32,7 +32,7 @@ const categoryOf = (path) => path.split("/")[2] ?? "";
 export default defineComponent({
   tag: "template-shell",
   style: true,
-  properties: {
+  props: {
     component: T.object(),
     skin: T.string({ sync: "catalogue", defaultValue: "" }),
     skins: /** @type {Prop<SkinOption[]>} */ (T.array({ sync: "catalogue", defaultValue: [] })),

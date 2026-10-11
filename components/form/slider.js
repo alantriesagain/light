@@ -7,7 +7,7 @@ import { lcText } from "../utils/text.js";
 export default defineComponent({
   mixins: [withFormControl],
   tag: "lc-slider",
-  properties: {
+  props: {
     _dragging: T.boolean({ reactive: false, defaultValue: false }),
     value: 50,
     min: 0,

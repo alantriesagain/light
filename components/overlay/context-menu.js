@@ -22,7 +22,7 @@ export default defineComponent({
   mixins: [withPopover, withClickOutside({ events: ["contextmenu"] })],
   tag: "lc-context-menu",
   style: true,
-  properties: {
+  props: {
     items: /** @type {Prop<ContextMenuItem[]>} */ (T.array({ defaultValue: [] })),
     target: T.any(null),
     offset: 0,

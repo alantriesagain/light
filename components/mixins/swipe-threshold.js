@@ -34,7 +34,7 @@ import { defineMixin } from "@bootstrapp/light";
  */
 export const withSwipeThreshold = ({ axis = "x", axisProp, threshold = 60, ratio = 1, enabled, pointerTypes } = {}) =>
   defineMixin({
-    properties: {
+    props: {
       _swipe: /** @type {Prop<SwipeStart | null>} */ (T.object({ reactive: false, defaultValue: null })),
     },
 

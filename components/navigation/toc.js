@@ -25,7 +25,7 @@ const TAG = "lc-toc";
 export default defineComponent({
   tag: "lc-toc",
   style: true,
-  properties: {
+  props: {
     items: /** @type {Prop<TocItem[]>} */ (T.array({ attribute: false, defaultValue: [] })),
     title: "",
     active: "",

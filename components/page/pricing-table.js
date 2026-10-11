@@ -14,7 +14,7 @@ export default defineComponent({
     spacing: ["lg", "xl", "3xl", "4xl"],
     radius: ["full"],
   },
-  properties: {
+  props: {
     eyebrow: "",
     headline: "",
     subheadline: "",
@@ -28,7 +28,7 @@ export default defineComponent({
         description: T.string(),
         features: T.array({ itemType: T.string() }),
         cta: T.object({
-          properties: {
+          props: {
             label: T.string(),
             href: T.string(),
           },

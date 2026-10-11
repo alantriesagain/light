@@ -24,7 +24,7 @@ export default defineComponent({
   mixins: [withPointerDrag({ handle: TOP, capture: true })],
   tag: "lc-swipe-deck",
   style: true,
-  properties: {
+  props: {
     items: /** @type {Prop<unknown[]>} */ (T.array({ defaultValue: [], attribute: false })),
     index: 0,
     card: /** @type {Prop<SwipeDeckRenderer | null>} */ (T.function()),

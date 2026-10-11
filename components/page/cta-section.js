@@ -14,7 +14,7 @@ export default defineComponent({
     radius: ["full"],
     shadow: ["sm"],
   },
-  properties: {
+  props: {
     variant: T.string({
       defaultValue: "dark",
       enum: ["light", "dark"],

@@ -47,7 +47,7 @@ import { defineMixin } from "@bootstrapp/light";
  */
 export const withPointerDrag = ({ handle, enabled, capture = true, touchFallback = false, mouse = true } = {}) =>
   defineMixin({
-    properties: {
+    props: {
       _drag: /** @type {Prop<DragState | null>} */ (T.object({ reactive: false, defaultValue: null })),
       _dragRaf: T.number({ reactive: false, defaultValue: 0 }),
     },

@@ -55,7 +55,7 @@ export const createBase64Style = (url, className) => {
 export default defineComponent({
   tag: "lc-image",
   class: "bg-cover bg-center",
-  properties: {
+  props: {
     src: T.string(),
     alt: "",
   },

@@ -16,7 +16,7 @@ export default defineComponent({
     radius: ["full", "panel"],
     shadow: ["card", "card-hover", "lg", "xl"],
   },
-  properties: {
+  props: {
     name: "",
     price: "",
     period: "",
@@ -29,7 +29,7 @@ export default defineComponent({
     cta: /** @type {Prop<PricingCta>} */ (T.object({
       attribute: false,
       defaultValue: {},
-      properties: {
+      props: {
         label: T.string(),
         href: T.string(),
       },

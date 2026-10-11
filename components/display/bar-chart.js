@@ -9,7 +9,7 @@ export default defineComponent({
   tag: "lc-bar-chart",
   style: true,
 
-  properties: {
+  props: {
     data: /** @type {Prop<BarChartDatum[]>} */ (T.array({ defaultValue: [] })),
     height: 200,
     variant: T.string({

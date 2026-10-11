@@ -1,6 +1,6 @@
 /**
  * @bootstrapp/light/types: the property descriptor `T` builds, and the
- * shorthand a `properties` block may use in its place.
+ * shorthand a `props` block may use in its place.
  */
 
 /** The fields the view engine reads from a descriptor. A host adds its own (`sync`, `required`, ...) through the index signature. */
@@ -13,7 +13,7 @@ export interface TypeDefinitionFields {
   reactive?: boolean;
   defaultValue?: unknown;
   /** Descriptors of an object's keys; their defaults fill missing keys when an attribute is parsed. */
-  properties?: Record<string, PropertyDeclaration>;
+  props?: Record<string, PropertyDeclaration>;
   /** An array's items: one descriptor for every item, or descriptors of an object item's keys (parsed from an attribute). */
   itemType?: TypeDefinition | Record<string, PropertyDeclaration>;
   getter?: () => unknown;
@@ -24,7 +24,7 @@ export interface TypeDefinitionFields {
 /**
  * The phantom `T` never exists at runtime: it carries the type a property
  * declared with this descriptor holds, so `defineComponent` can type `this`
- * from a `properties: { x: T.string() }` block.
+ * from a `props: { x: T.string() }` block.
  */
 export type TypeDefinition<T = unknown> = TypeDefinitionFields & Record<string, unknown> & {
   readonly __tsType?: T;
@@ -46,7 +46,7 @@ export type PropertyShorthand =
   | Record<string, unknown>
   | ((...args: unknown[]) => unknown);
 
-/** What a `properties` entry may be: a descriptor, or a default the engine reads one off. */
+/** What a `props` entry may be: a descriptor, or a default the engine reads one off. */
 export type PropertyDeclaration = TypeDefinition | PropertyShorthand;
 
 export type TypeOptions = Partial<Omit<TypeDefinitionFields, "$type">> & Record<string, unknown>;

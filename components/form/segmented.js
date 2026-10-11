@@ -6,7 +6,7 @@ import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
   tag: "lc-segmented",
-  properties: {
+  props: {
     options: /** @type {Prop<(string | SegmentedOption)[]>} */ (T.array({ defaultValue: [] })),
     value: "",
     values: /** @type {Prop<string[]>} */ (T.array({ defaultValue: [] })),

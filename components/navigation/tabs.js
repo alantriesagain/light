@@ -6,7 +6,7 @@ import { nextIndex } from "../utils/roving.js";
 
 export default defineComponent({
   tag: "lc-tabs",
-  properties: {
+  props: {
     _tabsBaseId: T.string({ reactive: false, defaultValue: "" }),
     _raf: T.number({ reactive: false, defaultValue: 0 }),
     activeTab: 0,

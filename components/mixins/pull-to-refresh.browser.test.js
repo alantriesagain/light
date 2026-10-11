@@ -15,7 +15,7 @@ const defineHost = (options) => {
   View.define(tag, defineComponent({
     mixins: [withPullToRefresh({ mouse: true, ...options })],
     tag,
-    properties: {
+    props: {
       armed: true,
       calls: T.number({ reactive: false, defaultValue: 0 }),
       _release: /** @type {import("../types.ts").Prop<((v?: unknown) => void) | null>} */ (T.object({ reactive: false, defaultValue: null })),
@@ -185,7 +185,7 @@ describe("@bootstrapp/light - withPullToRefresh", () => {
     View.define(tag, defineComponent({
       mixins: [withPullToRefresh({ threshold: 40 })],
       tag,
-      properties: { calls: T.number({ reactive: false, defaultValue: 0 }) },
+      props: { calls: T.number({ reactive: false, defaultValue: 0 }) },
       onRefresh() { this.calls++; },
     }));
     const host = await mount(tag);

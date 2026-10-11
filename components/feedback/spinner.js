@@ -53,7 +53,7 @@ import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
   tag: "lc-spinner",
-  properties: {
+  props: {
     variant: T.string({
       defaultValue: "circular",
       enum: ["circular", "dots", "bars"],

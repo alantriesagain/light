@@ -59,7 +59,7 @@ export default defineComponent({
   tag: "lc-form",
   style: true,
 
-  properties: {
+  props: {
     fields: /** @type {Prop<FormField[]>} */ (T.array({ defaultValue: [] })),
     data: /** @type {Prop<Record<string, unknown>>} */ (T.object({ defaultValue: {} })),
     loading: false,

@@ -5,7 +5,7 @@ export default defineComponent({
   style: true,
   class:
     "inline-block align-middle box-border w-4 h-4 rounded-full border-1 border-solid border-dim",
-  properties: {
+  props: {
     solid: false,
   },
 });

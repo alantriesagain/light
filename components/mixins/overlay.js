@@ -22,7 +22,7 @@ import { overlays } from "../overlay/stack.js";
  *   export default defineComponent({
  *     mixins: [withOverlay({ lockScroll: true })],
  *     tag: "lc-drawer",
- *     properties: { open: false },
+ *     props: { open: false },
  *     onEscape() { this.close(); },
  *   });
  *
@@ -34,7 +34,7 @@ import { overlays } from "../overlay/stack.js";
  */
 export const withOverlay = ({ prop = "open", lockScroll = false, restoreFocus = true, dismissible } = {}) =>
   defineMixin({
-    properties: {
+    props: {
       _overlayId: /** @type {Prop<string | null>} */ (T.string({ attribute: false, defaultValue: null })),
     },
 

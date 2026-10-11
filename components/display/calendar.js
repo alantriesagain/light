@@ -261,7 +261,7 @@ export const getDaysInMonth = (year, month, events) => {
 export default defineComponent({
   tag: "lc-calendar",
   style: true,
-  properties: {
+  props: {
 
     events: /** @type {Prop<CalendarEvent[]>} */ (T.array({ defaultValue: [] })),
 

@@ -21,7 +21,7 @@ const TAG = /** @type {const} */ ("lc-data-table");
 export default defineComponent({
   tag: "lc-data-table",
   style: true,
-  properties: {
+  props: {
     columns: /** @type {Prop<(string | TableColumn)[]>} */ (T.array({ defaultValue: [] })),
     rows: /** @type {Prop<TableRow[]>} */ (T.array({ defaultValue: [] })),
     query: /** @type {Prop<DataTableQuery | null>} */ (T.object({ attribute: false, defaultValue: null })),

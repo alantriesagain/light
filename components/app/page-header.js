@@ -7,7 +7,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-page-header",
   style: true,
-  properties: {
+  props: {
     crumbs: /** @type {Prop<PageHeaderCrumb[]>} */ (T.array({ defaultValue: [] })),
     title: T.string(),
     subtitle: T.string(),

@@ -8,7 +8,7 @@ const TAG = /** @type {const} */ ("lc-auth-form");
 export default defineComponent({
   tag: "lc-auth-form",
   style: true,
-  properties: {
+  props: {
 
     mode: T.string({ defaultValue: "register", enum: ["login", "register"] }),
 

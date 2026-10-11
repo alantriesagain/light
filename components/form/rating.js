@@ -7,7 +7,7 @@ export default defineComponent({
   mixins: [withFormControl],
   tag: "lc-rating",
   style: true,
-  properties: {
+  props: {
     value: 0,
     max: 5,
     change: T.function(),

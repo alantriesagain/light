@@ -22,7 +22,7 @@ const parseJSON = (value) => {
 };
 
 /**
- * Whether a value in a `properties` block is a descriptor (what `T.*()`
+ * Whether a value in a `props` block is a descriptor (what `T.*()`
  * returns, or any object carrying `$type`) rather than a default.
  * @param {unknown} value
  * @returns {value is TypeDefinition}
@@ -64,9 +64,9 @@ export const parsers = {
   object: (input, prop) => {
     if (input === null) return null;
     const value = typeof input === "string" ? parseJSON(input) : input;
-    if (prop?.properties && value && typeof value === "object") {
+    if (prop?.props && value && typeof value === "object") {
       const target = /** @type {Record<string, unknown>} */ (value);
-      for (const [key, def] of Object.entries(prop.properties)) {
+      for (const [key, def] of Object.entries(prop.props)) {
         const { defaultValue } = normalizeProperty(def);
         if (defaultValue !== undefined && target[key] === undefined) target[key] = defaultValue;
       }
@@ -110,8 +110,8 @@ export const createType = (type, options) => {
 };
 
 /**
- * The descriptor a `properties` entry declares: a descriptor as it is, with
- * its nested `properties` and `itemType` normalised the same way; any other
+ * The descriptor a `props` entry declares: a descriptor as it is, with
+ * its nested `props` and `itemType` normalised the same way; any other
  * value as a default whose type is read off the value (a number, a string, a
  * boolean, an array, a function, an object, or `null` as `any`).
  * @param {PropertyDeclaration} value
@@ -119,7 +119,8 @@ export const createType = (type, options) => {
  */
 export const normalizeProperty = (value) => {
   if (isDescriptor(value)) {
-    const nested = value.properties ? { properties: normalizeProperties(value.properties) } : null;
+    if ("properties" in value) throw new Error(`T.${value.$type}: "properties" is "props" now; declare the nested shape under "props"`);
+    const nested = value.props ? { props: normalizeProperties(value.props) } : null;
     const items = value.itemType
       ? { itemType: isDescriptor(value.itemType) ? normalizeProperty(value.itemType) : normalizeProperties(value.itemType) }
       : null;
@@ -140,7 +141,7 @@ export const normalizeProperty = (value) => {
 };
 
 /**
- * A whole `properties` block as descriptors.
+ * A whole `props` block as descriptors.
  * @param {Record<string, PropertyDeclaration>} block
  * @returns {Record<string, TypeDefinition>}
  */

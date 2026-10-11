@@ -4,7 +4,7 @@ import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
   tag: "lc-skeleton",
-  properties: {
+  props: {
     variant: T.string({
       defaultValue: "text",
       enum: ["text", "circle", "rect", "rounded"],

@@ -13,7 +13,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-text",
   style: true,
-  properties: {
+  props: {
     size: T.string({
       enum: ["xs", "sm", "base", "lg", "xl", "2xl", "3xl", "4xl"],
     }),

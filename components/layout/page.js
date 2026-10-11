@@ -34,7 +34,7 @@ const renderSection = (section) => {
 export default defineComponent({
   tag: "lc-page",
   style: true,
-  properties: {
+  props: {
     theme: /** @type {Prop<Record<string, unknown> | null>} */ (
       T.object({ attribute: false, defaultValue: null })
     ),

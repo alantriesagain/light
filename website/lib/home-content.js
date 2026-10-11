@@ -33,7 +33,7 @@ export const PRINCIPLES = [
 
 /** @type {Array<{ key: string, icon: string, title: string, card: string, lede: string, language: string }>} */
 export const PAIRS = [
-  { key: "counter", icon: "box", title: "View engine", card: "View.define, mixins, lifecycle hooks, $own for cleanup, plugins. One render per element per frame.", lede: "A component is an object: its properties, its template, its hooks. Light makes it a custom element.", language: "js" },
+  { key: "counter", icon: "box", title: "View engine", card: "View.define with the props beside the tag, mixins, lifecycle hooks, $own for cleanup, plugins. One render per element per frame.", lede: "A component is an object: its properties, its template, its hooks. Light makes it a custom element.", language: "js" },
   { key: "templates", icon: "code", title: "html", card: "Tagged templates with keyed lists, element bindings and slots in the light DOM. Prerendered markup is adopted, not replaced.", lede: "Templates are tagged template literals. Lists stay keyed, children slot in, served markup is reused.", language: "js" },
   { key: "signals", icon: "activity", title: "Signals", card: "signal, computed, effect and batch. A component's state is a store of them.", lede: "State is signals. A computed follows what it reads; an effect runs when that changes.", language: "js" },
   { key: "attributes", icon: "braces", title: "Properties", card: "A property is its default: a number, a string, a boolean, an array, an object. It reads and reflects its attribute; T.* adds an option.", lede: "A property is its default, and reads its attribute. T.* is there when it needs an option.", language: "js" },
@@ -48,17 +48,9 @@ export const SNIPPETS = {
   counter: `import View from "${LIGHT}";
 import { html } from "${LIGHT}/html";
 
-View.define({
-  tag: "my-counter",
-  properties: { count: 0 },
-  render() {
-    return html\`
-      <button @click=\${() => this.count++}>
-        Clicks: \${this.count}
-      </button>
-    \`;
-  },
-});`,
+View.define("my-counter", { count: 0, label: "Clicks" }, (el) => html\`
+  <button @click=\${() => el.count++}>\${el.label}: \${el.count}</button>
+\`);`,
   templates: `render() {
   return html\`
     <ul>\${this.items.map((item) => key(item.id, html\`<li>\${item.text}</li>\`))}</ul>
@@ -74,11 +66,7 @@ const total = computed(() => qty() * price());
 
 effect(() => { output.textContent = total().toFixed(2); });
 qty.set(3); // output reads 28.50`,
-  attributes: `properties: {
-  label: "Clicks",
-  count: 0,
-  big: false,
-},
+  attributes: `View.define("my-counter", { label: "Clicks", count: 0, big: false }, (el) => html\`...\`);
 
 // in the page
 <my-counter></my-counter>

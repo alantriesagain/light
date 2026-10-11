@@ -9,7 +9,7 @@ const TAG = /** @type {const} */ ("lc-pagination");
 
 export default defineComponent({
   tag: "lc-pagination",
-  properties: {
+  props: {
     current: 1,
     total: 1,
     siblings: 1,

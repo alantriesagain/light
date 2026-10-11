@@ -19,7 +19,7 @@ const say = (key, params) => lcText(TAG, key, params);
 export default defineComponent({
   tag: "lc-week-hours",
   style: true,
-  properties: {
+  props: {
     value: /** @type {Prop<WeekHoursEntry[]>} */ (T.array({ defaultValue: [] })),
     name: "",
     label: "",

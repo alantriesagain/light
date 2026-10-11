@@ -117,7 +117,7 @@ describe("@bootstrapp/light - lc-icon", () => {
   it("draws every icon of a list that mounts in one commit", async () => {
     const hostTag = uniqueTag("icon-host");
     View.define(hostTag, {
-      properties: { names: { $type: "array", defaultValue: [] } },
+      props: { names: { $type: "array", defaultValue: [] } },
       render() {
         return html`${this.names.map((name) => html`<lc-icon name=${name}></lc-icon>`)}`;
       },

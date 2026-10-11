@@ -11,7 +11,7 @@ export default defineComponent({
   tag: "lc-tooltip",
   style: true,
 
-  properties: {
+  props: {
     _parent: /** @type {Prop<HTMLElement | null>} */ (T.object({ reactive: false, defaultValue: null })),
     _showTimer: /** @type {Prop<ReturnType<typeof setTimeout> | null>} */ (T.object({ reactive: false, defaultValue: null })),
     position: T.string({

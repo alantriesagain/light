@@ -6,7 +6,7 @@ import { navigation } from "@bootstrapp/light/navigation";
 
 export default defineComponent({
   tag: "lc-nav-item",
-  properties: {
+  props: {
     icon: "",
     solid: false,
     bold: false,

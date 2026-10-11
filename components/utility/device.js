@@ -5,7 +5,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-device",
 
-  properties: {
+  props: {
     device: T.string({
       defaultValue: "iphone",
       enum: ["iphone", "android", "ipad", "desktop"],

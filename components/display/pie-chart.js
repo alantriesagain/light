@@ -8,7 +8,7 @@ export default defineComponent({
 	tag: "lc-pie-chart",
 	style: true,
 
-	properties: {
+	props: {
 		data: /** @type {Prop<PieChartDatum[]>} */ (T.array({ defaultValue: [] })),
 		size: 200,
 		donut: false,

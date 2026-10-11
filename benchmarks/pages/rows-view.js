@@ -6,7 +6,7 @@ import { register, rowSteps } from "./bench.js";
 let renderedAt = 0;
 
 View.define("bench-table", {
-  properties: {
+  props: {
     rows: T.array({ defaultValue: [], attribute: false }),
     selected: T.number({ defaultValue: 0, attribute: false }),
   },

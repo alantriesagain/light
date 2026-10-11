@@ -183,7 +183,7 @@ const observeForSlots = (target) => {
   slotObserver.observe(target, SLOT_OBSERVE);
 };
 
-const KNOWN_DEFINITION_KEYS = ["mixins", "properties", "events", "extends", "icons", "formAssociated", "style", "class", "role", "tag"];
+const KNOWN_DEFINITION_KEYS = ["mixins", "props", "events", "extends", "icons", "formAssociated", "style", "class", "role", "tag"];
 
 /**
  * @param {ViewConstructor} base
@@ -198,6 +198,61 @@ const pluginsFor = (base) => [...new Map([...View.plugins, ...base.plugins].map(
 const hooksOf = (plugins) => [...LIFECYCLE_HOOKS, ...plugins.flatMap((plugin) => plugin.hooks ?? [])];
 
 const BaseElement = /** @type {typeof HTMLElement} */ (globalThis.HTMLElement ?? class {});
+
+/** @typedef {(el: any) => unknown} RenderFn */
+
+/** @type {WeakMap<object, ComponentDefinition>} */
+const composedDefinitions = new WeakMap();
+
+/**
+ * The definition a `View.define` argument stands for: a function is a render,
+ * the same function answering the same object every time so a repeated call
+ * is the no-op it is for an object.
+ * @param {ComponentDefinition | RenderFn} value
+ * @returns {ComponentDefinition}
+ */
+const asDefinition = (value) => {
+  if (typeof value !== "function") return value;
+  let wrapped = composedDefinitions.get(value);
+  if (!wrapped) composedDefinitions.set(value, (wrapped = { render: value }));
+  return wrapped;
+};
+
+/** @type {WeakMap<object, { props: unknown, raw: ComponentDefinition }>} */
+const withPropsCache = new WeakMap();
+
+/**
+ * @param {string | ComponentDefinition} tagOrDefinition
+ * @param {ComponentDefinition | import("./types.ts").PropertyDeclarations | RenderFn} [propsOrDefinition]
+ * @param {ComponentDefinition | RenderFn} [definition]
+ * @returns {ViewConstructor | Promise<ViewConstructor>}
+ */
+const define = (tagOrDefinition, propsOrDefinition, definition) => {
+  if (typeof tagOrDefinition !== "string") {
+    const raw = asDefinition(tagOrDefinition);
+    if (!raw.tag) throw new Error("[View.define] the definition has no tag; pass one or add tag to the definition");
+    return View._define(raw.tag, raw);
+  }
+  if (definition === undefined) return View._define(tagOrDefinition, asDefinition(/** @type {ComponentDefinition | RenderFn} */ (propsOrDefinition)));
+  const body = asDefinition(definition);
+  if ("props" in body) throw new Error(`[View.define] <${tagOrDefinition}>: the props go in the second argument, not inside the definition`);
+  return View._define(tagOrDefinition, withProps(/** @type {import("./types.ts").PropertyDeclarations} */ (propsOrDefinition), body));
+};
+
+/**
+ * `{ props, ...body }` with the body's property descriptors kept (a getter is
+ * not read at define time), the same object again for the same pair.
+ * @param {import("./types.ts").PropertyDeclarations} props
+ * @param {ComponentDefinition} body
+ * @returns {ComponentDefinition}
+ */
+const withProps = (props, body) => {
+  const hit = withPropsCache.get(body);
+  if (hit && hit.props === props) return hit.raw;
+  const raw = /** @type {ComponentDefinition} */ (Object.defineProperties({ props }, Object.getOwnPropertyDescriptors(body)));
+  withPropsCache.set(body, { props, raw });
+  return raw;
+};
 
 class View extends BaseElement {
   /** @type {PropertiesSchema} */
@@ -293,7 +348,7 @@ class View extends BaseElement {
     assertDefinitionKeys(def, `[view] <${tag}>`, consumed);
 
     const { icons, formAssociated = false, style = false, class: klass, role } = def;
-    const properties = normalizeProperties(def.properties ?? {});
+    const properties = normalizeProperties(def.props ?? {});
 
     /** @type {Record<string, unknown>} */
     const prototypeMethods = {};
@@ -365,12 +420,12 @@ class View extends BaseElement {
 
           const config = properties[key];
           const inherited = merged[key];
-          const nested = config.$type === "object" && config.properties && inherited?.properties
-            ? { properties: { ...inherited.properties, ...config.properties } }
+          const nested = config.$type === "object" && config.props && inherited?.props
+            ? { props: { ...inherited.props, ...config.props } }
             : null;
           merged[key] = /** @type {TypeDefinition} */ ({ ...inherited, ...config, ...nested });
         }
-        return plugins.reduce((current, plugin) => plugin.properties?.(current, def) ?? current, merged);
+        return plugins.reduce((current, plugin) => plugin.props?.(current, def) ?? current, merged);
       })();
     };
 
@@ -454,32 +509,12 @@ class View extends BaseElement {
     return /** @type {ViewConstructor} */ (component);
   }
 
-  /**
-   * Build the class and register the tag: `View.define(definition)` takes the
-   * tag from `definition.tag`, `View.define(tag, definition)` names it. A
-   * definition that `extends` a tag not yet defined is registered once that
-   * tag is, so a page may define its components in any order. Defining a tag
-   * again with the same definition is a no-op; with another one it throws.
-   * Types `this` inside the definition the way `defineComponent` does.
-   *
-   * @template {Record<string, unknown>} D
-   * @template {readonly Record<string, unknown>[]} [M=[]]
-   * @template {Record<string, import("../types/types.ts").PropertyDeclaration>} [P={}]
-   * @template {Record<string, import("../types/types.ts").TypeDefinition<unknown>>} [E={}]
-   * @param {string | import("./types.ts").Definition<D, M, P, E>} tagOrDefinition
-   * @param {import("./types.ts").Definition<D, M, P, E>} [definitionWithTag]
-   * @returns {void}
-   */
-  static define(tagOrDefinition, definitionWithTag) {
-    const raw = /** @type {ComponentDefinition} */ (typeof tagOrDefinition === "string" ? definitionWithTag : tagOrDefinition);
-    const tag = typeof tagOrDefinition === "string" ? tagOrDefinition : raw.tag;
-    if (!tag) throw new Error("[View.define] the definition has no tag; pass one or add tag to the definition");
-    View._define(tag, raw);
-  }
+  static define = /** @type {import("./types.ts").Define} */ (/** @type {unknown} */ (define));
 
   /**
    * @param {string} tag
    * @param {ComponentDefinition} raw
+   * @returns {ViewConstructor | Promise<ViewConstructor>}
    */
   static _define(tag, raw) {
     const registered = View.components.get(tag);
@@ -488,7 +523,7 @@ class View extends BaseElement {
       if (registered?.definition && registered.definition !== raw)
         throw new Error(`[View.define] <${tag}> is already defined with another definition`);
       if (!registered?.definition) View.components.set(tag, { ...registered, _constructor: existing, definition: raw });
-      return;
+      return existing;
     }
     const definition = composeDefinition(raw, hooksOf(View.plugins));
     const extendsTag = typeof definition?.extends === "string" ? definition.extends : null;
@@ -497,13 +532,15 @@ class View extends BaseElement {
       : undefined;
     if (extendsTag && !BaseClass) {
       View.components.set(tag, { ...registered, definition: raw });
-      config.wrap(customElements.whenDefined(extendsTag).then(() => View._define(tag, raw)), `view:${tag}:extends`);
-      return;
+      const pending = customElements.whenDefined(extendsTag).then(() => View._define(tag, raw));
+      config.wrap(pending, `view:${tag}:extends`);
+      return pending;
     }
     const component = View.createClass(tag, definition, BaseClass);
     config.wrap(View.initPlugins(component, definition, tag), `view:${tag}:init`);
     customElements.define(tag, component);
     View.components.set(tag, { ...registered, _constructor: component, definition: raw });
+    return component;
   }
 
   /**
@@ -829,12 +866,15 @@ class View extends BaseElement {
       w.__PRERENDERED__ === true &&
       !hasRootPart(container) &&
       container.childNodes.length > 0;
-    this.$root = render(this.render(), container, adopt ? { host: this, adopt: "bind", settle: config.settle } : { host: this });
+    this.$root = render(this.render(this), container, adopt ? { host: this, adopt: "bind", settle: config.settle } : { host: this });
     this.$project();
   }
 
-  /** @returns {unknown} */
-  render() {
+  /**
+   * @param {this} [_el] the element itself, for a render written as an arrow
+   * @returns {unknown}
+   */
+  render(_el) {
     return null;
   }
 
@@ -957,7 +997,7 @@ export default View;
  * @template {Record<string, import("../types/types.ts").PropertyDeclaration>} [P={}]
  * @template {Record<string, import("../types/types.ts").TypeDefinition<unknown>>} [E={}]
  * @param {import("./types.ts").Definition<D, M, P, E>} def
- * @returns {D & { properties?: P, events?: E, mixins?: M }}
+ * @returns {D & { props?: P, events?: E, mixins?: M }}
  */
 export const defineComponent = (def) => def;
 
@@ -970,7 +1010,7 @@ export const defineComponent = (def) => def;
  * function returning one of these.
  *
  *   export const withFormControl = defineMixin({
- *     properties: { value: T.any(""), disabled: false },
+ *     props: { value: T.any(""), disabled: false },
  *     events: { change: T.object({ value: T.any() }) },
  *     syncFormValue() { ... },
  *   });
@@ -978,14 +1018,14 @@ export const defineComponent = (def) => def;
  *   export default defineComponent({
  *     mixins: [withFormControl],
  *     tag: "lc-input",
- *     properties: { type: T.string({ defaultValue: "text" }) },
+ *     props: { type: T.string({ defaultValue: "text" }) },
  *     render() { ... },
  *   });
  *
  * @template {Record<string, import("../types/types.ts").PropertyDeclaration>} P
  * @template {Record<string, import("../types/types.ts").TypeDefinition<unknown>>} E
  * @template {Record<string, unknown>} D
- * @param {D & { properties?: P, events?: E } & ThisType<import("./types.ts").PropsToThis<P> & Omit<D, keyof P | import("./types.ts").DefinitionKey> & Omit<View, "$emit"> & { $emit: import("./types.ts").TypedEmit<E> } & { [k: `_${string}`]: any } & Record<string, any>>} def
- * @returns {D & { properties?: P, events?: E }}
+ * @param {D & { props?: P, events?: E } & ThisType<import("./types.ts").PropsToThis<P> & Omit<D, keyof P | import("./types.ts").DefinitionKey> & Omit<View, "$emit"> & { $emit: import("./types.ts").TypedEmit<E> } & { [k: `_${string}`]: any } & Record<string, any>>} def
+ * @returns {D & { props?: P, events?: E }}
  */
 export const defineMixin = (def) => def;

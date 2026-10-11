@@ -100,17 +100,14 @@
     import { html } from '@bootstrapp/light/html';
     import T from '@bootstrapp/light/types';
 
-    View.define({
-      tag: 'user-form',
-      properties: {
-        name: '',
-        email: '',
-        role: 'user',
-        newsletter: false,
-        submitted: false,
-        submittedData: T.object({ defaultValue: null })
-      },
-
+    View.define('user-form', {
+      name: '',
+      email: '',
+      role: 'user',
+      newsletter: false,
+      submitted: false,
+      submittedData: T.object({ defaultValue: null }),
+    }, {
       handleInput(field, e) {
         this[field] = e.target.value;
       },

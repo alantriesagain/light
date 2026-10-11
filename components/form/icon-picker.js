@@ -390,7 +390,7 @@ export default defineComponent({
     "wallet", "wifi", "wrench", "x", "zap",
   ],
   style: true,
-  properties: {
+  props: {
     value: "",
     tab: "icon",
     search: "",

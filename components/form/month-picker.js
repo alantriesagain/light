@@ -75,7 +75,7 @@ export const monthDays = ({ month, locale = "", today = "", dots = [], min = "",
 export default defineComponent({
   tag: "lc-month-picker",
   style: true,
-  properties: {
+  props: {
     month: "",
     value: "",
     from: "",

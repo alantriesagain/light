@@ -6,7 +6,7 @@ import { register } from "./bench.js";
 let leafAt = 0;
 
 View.define("bench-node", {
-  properties: {
+  props: {
     depth: T.number({ defaultValue: 0, attribute: false }),
     value: T.string({ defaultValue: "", attribute: false }),
   },

@@ -5,7 +5,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-sidebar",
   style: true,
-  properties: {
+  props: {
     position: T.string({
       defaultValue: "left",
       enum: ["left", "right"],

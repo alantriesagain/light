@@ -9,7 +9,7 @@ export default defineComponent({
   mixins: [withPointerDrag({ enabled: "resizable" })],
   tag: "lc-divider",
   style: true,
-  properties: {
+  props: {
     label: T.string(),
     vertical: T.boolean(),
     resizable: false,

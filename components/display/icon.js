@@ -55,7 +55,7 @@ const drawIcon = async (name, solid, bold) => {
 export default defineComponent({
   tag: "lc-icon",
   style: true,
-  properties: {
+  props: {
     name: T.string(),
     solid: T.boolean(),
     bold: T.boolean(),

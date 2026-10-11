@@ -11,7 +11,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-list",
   style: true,
-  properties: {
+  props: {
     spacing: T.string({
       defaultValue: "sm",
       enum: ["none", "xs", "sm", "md", "lg", "xl"],

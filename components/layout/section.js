@@ -4,7 +4,7 @@ import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
   tag: "lc-section",
-  properties: {
+  props: {
     padding: T.string({
       defaultValue: "md",
       enum: ["none", "sm", "md", "lg", "xl"],

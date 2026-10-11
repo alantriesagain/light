@@ -8,7 +8,7 @@ import { lcText } from "../utils/text.js";
 export default defineComponent({
   tag: "lc-scroller",
   style: true,
-  properties: {
+  props: {
     gap: "0.75rem",
     pad: "0",
     chevrons: T.string({ defaultValue: "auto", enum: ["auto", "always", "never"] }),

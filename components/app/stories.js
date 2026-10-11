@@ -16,7 +16,7 @@ export default defineComponent({
   tag: "lc-stories",
   class: "block",
   style: true,
-  properties: {
+  props: {
     items: /** @type {Prop<unknown[]>} */ (T.array({ defaultValue: [], attribute: false })),
     index: 0,
     open: false,

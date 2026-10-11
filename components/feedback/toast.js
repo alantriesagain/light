@@ -9,7 +9,7 @@ import { toasts } from "./toasts.js";
 export default defineComponent({
   tag: "lc-toast",
   icons: ["circle-check", "circle-x", "triangle-alert", "info", "bell"],
-  properties: {
+  props: {
     position: T.string({
       defaultValue: "top-right",
       enum: [

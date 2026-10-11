@@ -19,12 +19,12 @@ export default defineComponent({
     radius: ["full"],
     shadow: ["sm", "lg"],
   },
-  properties: {
+  props: {
     eyebrow: /** @type {Prop<HeroEyebrow>} */ (
       T.object({
         attribute: false,
         defaultValue: {},
-        properties: {
+        props: {
           badge: T.string(),
           label: T.string(),
           meta: T.string(),

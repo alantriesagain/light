@@ -9,7 +9,7 @@ export type DefinitionFragment = Record<string, unknown> & { mixins?: readonly D
 export type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
 
 type MixinOf<M> = M extends readonly (infer X)[] ? X : never;
-type PropsOf<X> = X extends { properties?: infer P } ? (P extends undefined ? {} : P) : {};
+type PropsOf<X> = X extends { props?: infer P } ? (P extends undefined ? {} : P) : {};
 type EventsOf<X> = X extends { events?: infer E } ? (E extends undefined ? {} : E) : {};
 type NestedOf<X> = X extends { mixins?: infer N } ? (N extends undefined ? never : N) : never;
 type MembersOf<X, K extends PropertyKey> = Omit<X, K>;

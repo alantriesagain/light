@@ -5,7 +5,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-accordion",
   style: true,
-  properties: {
+  props: {
     _initialized: T.boolean({ reactive: false, defaultValue: false }),
     variant: T.string({
       defaultValue: "default",

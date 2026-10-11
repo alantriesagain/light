@@ -6,7 +6,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-draggable",
   style: true,
-  properties: {
+  props: {
     "dragged-id": T.string(),
     handle: "",
     target: T.string(),

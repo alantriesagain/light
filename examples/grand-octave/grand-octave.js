@@ -20,9 +20,7 @@ const OCTAVE = [
 const naturals = OCTAVE.filter((tone) => tone.slot === 0);
 const sharps = OCTAVE.filter((tone) => tone.slot > 0);
 
-View.define({
-  tag: "grand-octave",
-
+View.define("grand-octave", {
   connected() {
     this._down = new Map(OCTAVE.map((tone) => [tone.note, signal(false)]));
     this._last = signal(null);

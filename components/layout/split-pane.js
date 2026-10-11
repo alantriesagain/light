@@ -8,7 +8,7 @@ import { withPointerDrag } from "../mixins/pointer-drag.js";
 export default defineComponent({
   mixins: [withPointerDrag({ handle: "[part~=lc-split-pane-divider]", enabled: "resizable" })],
   tag: "lc-split-pane",
-  properties: {
+  props: {
     direction: "horizontal",
     initialSize: "50%",
     minSize: T.string(),

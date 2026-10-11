@@ -15,7 +15,7 @@ const TAG = "lc-app-shell";
 export default defineComponent({
   tag: "lc-app-shell",
   icons: ["menu"],
-  properties: {
+  props: {
     layout: T.string({
       defaultValue: "auto",
       enum: ["auto", "mobile", "desktop"],

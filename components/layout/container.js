@@ -8,7 +8,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-container",
   style: true,
-  properties: {
+  props: {
     padding: T.string({
       defaultValue: "md",
       enum: ["none", "sm", "md", "lg"],

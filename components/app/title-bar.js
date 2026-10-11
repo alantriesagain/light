@@ -5,7 +5,7 @@ import { lcText } from "../utils/text.js";
 
 export default defineComponent({
   tag: "lc-title-bar",
-  properties: {
+  props: {
     title: "",
     variant: T.string({
       defaultValue: "default",

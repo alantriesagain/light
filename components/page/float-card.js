@@ -5,7 +5,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-float-card",
   style: true,
-  properties: {
+  props: {
     animation: T.string({
       defaultValue: "none",
       enum: ["none", "slow", "delayed", "fast"],

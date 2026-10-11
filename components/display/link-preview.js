@@ -22,7 +22,7 @@ const isExternal = (url) => {
 export default defineComponent({
   tag: "lc-link-preview",
   style: true,
-  properties: {
+  props: {
     url: "",
     title: "",
     description: "",

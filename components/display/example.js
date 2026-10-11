@@ -27,7 +27,7 @@ const VIEW_OPTIONS = ["preview", "code"];
 export default defineComponent({
   tag: "lc-example",
   style: true,
-  properties: {
+  props: {
     preview: /** @type {Prop<(() => import("@bootstrapp/light/html").TemplateValue) | null>} */ (T.function()),
     code: "",
     language: "html",

@@ -5,7 +5,7 @@ import { lcText } from "../utils/text.js";
 
 export default defineComponent({
   tag: "lc-tag",
-  properties: {
+  props: {
     variant: T.string({
       defaultValue: "default",
       enum: [

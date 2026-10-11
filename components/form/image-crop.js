@@ -24,7 +24,7 @@ import { boundsOf, coverRect, keyIntent, panRect, pinchRect, rectAtZoom, wheelFa
 export default defineComponent({
   tag: "lc-image-crop",
   style: true,
-  properties: {
+  props: {
     src: "",
     accept: "image/*",
     capture: "",

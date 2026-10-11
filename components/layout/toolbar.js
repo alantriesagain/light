@@ -4,7 +4,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-toolbar",
   style: true,
-  properties: {
+  props: {
     size: T.string({ defaultValue: "sm", enum: ["xs", "sm", "md"] }),
     variant: T.string({ defaultValue: "default", enum: ["default", "floating", "ghost"] }),
     align: T.string({ defaultValue: "start", enum: ["start", "center", "end", "between"] }),

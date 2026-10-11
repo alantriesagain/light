@@ -4,7 +4,7 @@ import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
   tag: "lc-label",
-  properties: {
+  props: {
     for: T.string(),
     text: T.string(),
     required: false,

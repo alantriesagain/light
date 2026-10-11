@@ -40,7 +40,7 @@ const markedLines = (text) => {
 export default defineComponent({
   tag: "lc-code-block",
   style: true,
-  properties: {
+  props: {
     code: "",
     language: "html",
     title: "",

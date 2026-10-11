@@ -14,7 +14,7 @@ export default defineComponent({
     radius: ["full", "card"],
     shadow: ["card"],
   },
-  properties: {
+  props: {
     eyebrow: "",
     headline: "",
     subheadline: "",

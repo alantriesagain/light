@@ -7,7 +7,7 @@ import { lcText } from "../utils/text.js";
 
 export default defineComponent({
   tag: "lc-breadcrumbs",
-  properties: {
+  props: {
     separator: T.string({
       defaultValue: "/",
       enum: ["/", ">", "→", "·", "|"],

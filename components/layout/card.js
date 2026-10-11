@@ -6,7 +6,7 @@ export default defineComponent({
   tag: "lc-card",
   extends: "lc-container",
   style: true,
-  properties: {
+  props: {
     padding: T.string({
       defaultValue: "sm",
       enum: ["none", "xs", "sm", "md", "lg"],

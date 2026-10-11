@@ -5,7 +5,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-sidebar-section",
   style: true,
-  properties: {
+  props: {
     label: "",
     count: T.number({ defaultValue: null }),
     collapsed: false,

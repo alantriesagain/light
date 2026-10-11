@@ -7,7 +7,7 @@ import { env } from "@bootstrapp/light/env";
 
 export default defineComponent({
   tag: "lc-app-container",
-  properties: {
+  props: {
     layout: T.string({
       defaultValue: "auto",
       enum: ["auto", "mobile", "desktop"],

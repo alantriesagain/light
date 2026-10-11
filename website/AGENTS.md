@@ -8,7 +8,7 @@ through the ordinary boot with nothing set up by hand.
 ## Where things come from
 
 - The nine categories and their order: `@bootstrapp/showcase/lib/categories.js`.
-- A component's page is drawn from two things and nothing else: its `properties` block
+- A component's page is drawn from two things and nothing else: its `props` block
   and the `<component>.demo.js` beside it in the package. `@bootstrapp/showcase/lib/demos.js`
   loads one; the snippet under an example is `render.toString()`.
 - The skins: `@bootstrapp/theme/presets.js`. A skin dresses the stages only, through

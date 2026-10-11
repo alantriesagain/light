@@ -10,7 +10,7 @@ export default defineComponent({
   mixins: [withOverlay({ dismissible: false, restoreFocus: false })],
   tag: "lc-alert-dialog",
   icons: ["circle-check", "circle-x", "triangle-alert", "info"],
-  properties: {
+  props: {
     open: false,
     title: "",
     message: "",

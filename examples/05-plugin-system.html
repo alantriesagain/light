@@ -142,7 +142,7 @@
       <h4>Plugin Structure</h4>
       <pre><code>View.use({
   name: 'my-plugin',
-  test: ({ component }) => true,  // Optional: filter which components
+  test: ({ component }) => true, // Optional: filter which components
   events: {
     connected: function() { /* this = component instance */ },
     disconnected: function() { /* ... */ },
@@ -295,14 +295,7 @@
     View.use(analyticsPlugin);
     View.use(validatorPlugin);
 
-    View.define({
-      tag: 'plugin-demo',
-      properties: {
-        name: 'Unnamed',
-        clicks: 0,
-        requiredField: ''
-      },
-
+    View.define('plugin-demo', { name: 'Unnamed', clicks: 0, requiredField: '' }, {
       handleClick() {
         this.clicks++;
         window.log('analytics', `Button clicked in "${this.name}" - total clicks: ${this.clicks}`);

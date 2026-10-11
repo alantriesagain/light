@@ -9,7 +9,7 @@ export default defineComponent({
 	tag: "lc-line-chart",
 	style: true,
 
-	properties: {
+	props: {
 		data: /** @type {Prop<ChartDataPoint[]>} */ (T.array({ defaultValue: [] })),
 		height: 200,
 		variant: T.string({

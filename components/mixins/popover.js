@@ -32,7 +32,7 @@ import { env } from "@bootstrapp/light/env";
 export const withPopover = defineMixin({
   mixins: [withClickOutside(), withOverlay()],
 
-  properties: {
+  props: {
     position: "bottom-left",
     open: false,
     offset: 4,

@@ -172,13 +172,7 @@
 
     window.lifecycleLog = log;
 
-    View.define({
-      tag: 'lifecycle-demo',
-      properties: {
-        counter: 0,
-        name: 'Demo Component'
-      },
-
+    View.define('lifecycle-demo', { counter: 0, name: 'Demo Component' }, {
       connected() {
         window.lifecycleLog('connected', `Component "${this.name}" added to DOM`);
       },

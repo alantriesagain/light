@@ -25,13 +25,10 @@ const saveTodos = (todos) => {
 
 let nextId = Date.now();
 
-View.define({
-  tag: "todo-app",
-  properties: {
-    todos: /** @type {TypeDefinition<Todo[]>} */ (T.array({ defaultValue: [], attribute: false })),
-    filter: "all",
-  },
-
+View.define("todo-app", {
+  todos: /** @type {TypeDefinition<Todo[]>} */ (T.array({ defaultValue: [], attribute: false })),
+  filter: "all",
+}, {
   connected() {
     this.todos = loadTodos();
     window.addEventListener("hashchange", () => this.updateFilter());
@@ -200,12 +197,10 @@ View.define({
   },
 });
 
-View.define({
-  tag: "todo-item",
-  properties: {
-    todo: /** @type {TypeDefinition<Todo>} */ (T.object({ defaultValue: {}, attribute: false })),
-    editing: false,
-  },
+View.define("todo-item", {
+  todo: /** @type {TypeDefinition<Todo>} */ (T.object({ defaultValue: {}, attribute: false })),
+  editing: false,
+}, {
   events: {
     toggle: T.object(),
     destroy: T.object(),

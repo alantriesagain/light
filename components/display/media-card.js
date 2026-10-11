@@ -5,7 +5,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-media-card",
   style: true,
-  properties: {
+  props: {
     src: T.string(),
     alt: T.string(),
     aspect: "4/5",

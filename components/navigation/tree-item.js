@@ -6,7 +6,7 @@ const isGlyph = (/** @type {string} */ value) => /[^\x00-\x7F]/.test(value);
 
 export default defineComponent({
   tag: "lc-tree-item",
-  properties: {
+  props: {
     label: "",
     icon: "",
     expanded: T.boolean(),

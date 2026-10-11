@@ -8,7 +8,7 @@ import T from "@bootstrapp/light/types";
 export default defineComponent({
   mixins: [withFormControl],
   tag: "lc-radio",
-  properties: {
+  props: {
     checked: false,
     variant: T.string({
       defaultValue: "primary",

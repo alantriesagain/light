@@ -15,7 +15,7 @@ export default defineComponent({
   mixins: [withOverlay(), withClickOutside()],
   tag: "lc-search",
   style: true,
-  properties: {
+  props: {
     placeholder: "",
     query: "",
     open: false,

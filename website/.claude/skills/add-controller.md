@@ -12,8 +12,8 @@ Logic lives in controllers; views render and dispatch. Every `$APP.Model` write,
 
 ## Steps
 
-1. **Scaffold**: `bootstrapp new:controller <name> --properties "count:number"` writes `controllers/<name>.js`. Registration is automatic: `$APP.<name>.<member>` works everywhere, created on first use. Read `$APP` inside the function that uses it, never into a module-scope binding.
-2. **Declare every instance field in `properties`**: reactive state with `T.*`, handles (an interval id, a `modelQuery` resource, an audio engine) with `reactive: false` (`controller/declare-instance-surface`).
+1. **Scaffold**: `bootstrapp new:controller <name> --props "count:number"` writes `controllers/<name>.js`. Registration is automatic: `$APP.<name>.<member>` works everywhere, created on first use. Read `$APP` inside the function that uses it, never into a module-scope binding.
+2. **Declare every instance field in `props`**: reactive state with `T.*`, handles (an interval id, a `modelQuery` resource, an audio engine) with `reactive: false` (`controller/declare-instance-surface`).
 3. **Own the teardown**: every subscription or disposable made in `connected()` goes through `this.$own(...)`; `connected()` may be async and returns the work it starts.
 4. **Write the browser test in the same commit**: `tests/app-<name>.browser.test.js` booting the real app (`controller/controller-has-test`).
 5. `bootstrapp types` so `$APP.<name>` is typed from the JSDoc on the methods.
@@ -28,7 +28,7 @@ import T from "bootstrapp/types";
 export default defineController({
   name: "tasks",
   adapter: true,
-  properties: {
+  props: {
     filter: T.string({ defaultValue: "all", sync: "local" }),
     rows: [],
     _rows: T.object({ reactive: false, defaultValue: null }),
@@ -50,7 +50,7 @@ export default defineController({
 
 - Framework members are `$`-prefixed (`$name`, `$config`, `$state`, `$sync`, `$own`, `$attach`, `$ready`, `$dispose`); a `$`-prefixed property or member throws at define time. Every plain name is free, `state`, `config`, `ready`, `connected` and `name` included.
 - `adapter: true` makes the controller a `sync:` target for views (`sync: "tasks"`, property names must match).
-- A controller too large for one literal is composed: `mixins: [withUndo, withAutosave({ delay })]`, each a `defineMixin({ properties, methods })` from `bootstrapp/controller` imported from the module that defines it. Fragments fold in first, the definition wins a collision, hooks chain mixin-first, and the generated `$APP.<name>` type carries every fragment's members.
+- A controller too large for one literal is composed: `mixins: [withUndo, withAutosave({ delay })]`, each a `defineMixin({ props, methods })` from `bootstrapp/controller` imported from the module that defines it. Fragments fold in first, the definition wins a collision, hooks chain mixin-first, and the generated `$APP.<name>` type carries every fragment's members.
 - Rows a controller mirrors come from `modelQuery` (live, no refresh after writes); other async goes through `resource()`.
 - Small persisted state is `T.*({ sync: "local" })` on the controller; strings are stored raw, everything else as JSON.
 - A timer uses `Date.now()` as its time source and keeps the resumable handle in a `sync: "local"` object so a reload rebuilds it; the interval id is a `reactive: false` property stopped in `this.$own(() => ...)`.

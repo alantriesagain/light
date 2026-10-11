@@ -32,7 +32,7 @@ const markerOf = (state, number, vertical) => {
 export default defineComponent({
   tag: "lc-stepper",
   style: true,
-  properties: {
+  props: {
     steps: /** @type {Prop<StepperStep[]>} */ (T.array({ defaultValue: [] })),
     current: "",
     state: T.string({ defaultValue: "idle", enum: ["idle", "running", "done", "failed"] }),

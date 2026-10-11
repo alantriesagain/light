@@ -5,7 +5,7 @@ import { lcText } from "../utils/text.js";
 
 export default defineComponent({
   tag: "lc-app-header",
-  properties: {
+  props: {
     title: "",
     fixed: T.boolean(),
     transparent: false,

@@ -20,7 +20,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-kbd",
   style: true,
-  properties: {
+  props: {
     size: T.string({ defaultValue: "sm", enum: ["xs", "sm", "md"] }),
   },
 });

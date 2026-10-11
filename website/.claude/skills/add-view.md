@@ -34,7 +34,7 @@ import T from "bootstrapp/types";
 
 export default {
   tag: "docs-task-list",
-  properties: {
+  props: {
     rows: T.array({ defaultValue: [], sync: "tasks" }),
     draft: "",
   },
@@ -51,7 +51,7 @@ export default {
 ## Rules
 
 - Plain object literal; `defineComponent` from `@bootstrapp/light` only when typed `this` is wanted.
-- `properties` entries are reactive render state: a bare default (`draft: ""`, `open: false`, `rows: []`) or `T.*(options)` when an option is needed; mutate them, never `_vars` plus manual updates. Small persisted state is `T.*({ sync: "local" })` on a controller, not localStorage.
+- `props` entries are reactive render state: a bare default (`draft: ""`, `open: false`, `rows: []`) or `T.*(options)` when an option is needed; mutate them, never `_vars` plus manual updates. Small persisted state is `T.*({ sync: "local" })` on a controller, not localStorage.
 - A listener or subscription made in `connected()` is wrapped in `this.$own(...)`.
 - Multi-word attributes are kebab-case (`use-system-preference`); a boolean prop (`open: false` or `T.boolean(...)`) binds as `?kebab-attr=${v}`, never `.prop=`.
 - Framework members are `$`-prefixed (`$state`, `$emit`, `$own`, `$on`, `$off`, `$requestUpdate`, `$hasUpdated`, `$`, `$$`); a `$`-prefixed property or member is refused at define time, and so is a method named after a DOM method (`remove`, `append`, `click`, `focus`, `blur`, `closest`, `matches`): the view's methods land on the element's prototype. Every plain name is free, `state`, `connected`, `updated`, `ready` and `config` included; a property may share a lifecycle hook's name.

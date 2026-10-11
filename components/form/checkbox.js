@@ -6,7 +6,7 @@ import T from "@bootstrapp/light/types";
 export default defineComponent({
   mixins: [withFormControl],
   tag: "lc-checkbox",
-  properties: {
+  props: {
     checked: false,
     indeterminate: false,
     variant: T.string({

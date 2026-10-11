@@ -46,7 +46,7 @@ export const withPullToRefresh = ({ threshold = 64, resistance = 0.5, max = 96, 
   defineMixin({
     mixins: [withPointerDrag({ capture: false, touchFallback: true, enabled, mouse })],
 
-    properties: {
+    props: {
       pullY: T.number({ defaultValue: 0, attribute: false }),
       refreshing: T.boolean({ defaultValue: false, attribute: false }),
       _armed: T.boolean({ reactive: false, defaultValue: false }),

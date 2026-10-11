@@ -4,7 +4,7 @@ import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
   tag: "lc-button",
-  properties: {
+  props: {
     variant: T.string(),
     primary: T.boolean(),
     secondary: T.boolean(),

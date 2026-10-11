@@ -6,7 +6,7 @@ import T from "@bootstrapp/light/types";
 export default defineComponent({
   mixins: [withFormControl],
   tag: "lc-textarea",
-  properties: {
+  props: {
     rows: 4,
     cols: 50,
     maxlength: T.number({ defaultValue: null }),

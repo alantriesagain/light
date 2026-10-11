@@ -6,7 +6,7 @@ import { lcText } from "../utils/text.js";
 export default defineComponent({
   tag: "lc-wizard",
   style: true,
-  properties: {
+  props: {
 
     currentStep: 1,
     totalSteps: 1,

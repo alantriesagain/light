@@ -32,7 +32,7 @@ export default defineComponent({
   tag: "lc-command-palette",
   icons: ["search"],
   style: true,
-  properties: {
+  props: {
     docs: /** @type {Prop<SearchDoc[]>} */ (T.array({ attribute: false, defaultValue: [] })),
     suggestions: /** @type {Prop<SearchDoc[]>} */ (T.array({ attribute: false, defaultValue: [] })),
     groups: /** @type {Prop<string[]>} */ (T.array({ defaultValue: [] })),

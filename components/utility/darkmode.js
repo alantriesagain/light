@@ -8,7 +8,7 @@ export default defineComponent({
   tag: "lc-darkmode",
   icons: ["moon", "sun"],
   style: true,
-  properties: {
+  props: {
     width: "fit",
     compact: T.boolean(),
     inverted: T.boolean(),

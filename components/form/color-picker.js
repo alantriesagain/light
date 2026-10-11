@@ -11,7 +11,7 @@ export default defineComponent({
   mixins: [withFormControl],
   tag: "lc-color-picker",
   style: true,
-  properties: {
+  props: {
     value: "",
     alpha: false,
     swatches: /** @type {Prop<string[]>} */ (T.array({ defaultValue: [] })),

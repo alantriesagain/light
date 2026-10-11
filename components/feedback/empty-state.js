@@ -34,7 +34,7 @@ export default defineComponent({
   tag: "lc-empty-state",
   style: true,
 
-  properties: {
+  props: {
     icon: "",
     title: "",
     description: "",

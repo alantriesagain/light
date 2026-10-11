@@ -6,7 +6,7 @@ import { navigation } from "@bootstrapp/light/navigation";
 export default defineComponent({
   tag: "lc-list-row",
   style: true,
-  properties: {
+  props: {
     href: "",
     icon: "",
     iconSize: "18",

@@ -9,7 +9,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-flex",
   style: true,
-  properties: {
+  props: {
     direction: T.string({
       defaultValue: "row",
       enum: ["row", "column", "row-reverse", "column-reverse"],

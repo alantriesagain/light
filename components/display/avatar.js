@@ -7,7 +7,7 @@ const SWATCH_COUNT = 8;
 
 export default defineComponent({
   tag: "lc-avatar",
-  properties: {
+  props: {
     src: T.string(),
     name: T.string(),
     seed: T.string(),

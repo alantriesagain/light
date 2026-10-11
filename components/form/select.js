@@ -12,7 +12,7 @@ export default defineComponent({
   mixins: [withFormControl, withClickOutside()],
   tag: "lc-select",
   style: true,
-  properties: {
+  props: {
     _defaultValue: /** @type {Prop<string | string[]>} */ (T.any({ reactive: false, defaultValue: "" })),
     options: /** @type {Prop<SelectOption[]>} */ (T.array({ defaultValue: [] })),
     multiple: T.boolean(),

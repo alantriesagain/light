@@ -13,7 +13,7 @@ import { navigation } from "@bootstrapp/light/navigation";
 export default defineComponent({
   tag: "lc-link",
   style: true,
-  properties: {
+  props: {
     content: T.object(),
     external: T.boolean(),
     skipRoute: T.boolean(),

@@ -7,7 +7,7 @@ const ASPECTS = ["1/1", "9/16", "16/9", "4/5", "auto"];
 export default defineComponent({
   tag: "lc-tile",
   style: true,
-  properties: {
+  props: {
     src: "",
     alt: "",
     icon: "",

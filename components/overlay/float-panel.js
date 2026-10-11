@@ -12,7 +12,7 @@ export default defineComponent({
   mixins: [withPointerDrag({ handle: "[data-float-handle]" })],
   tag: "lc-float-panel",
   style: true,
-  properties: {
+  props: {
     storageKey: "",
     panelWidth: 380,
     panelHeight: 500,

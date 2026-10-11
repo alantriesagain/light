@@ -8,7 +8,7 @@ import T from "@bootstrapp/light/types";
 export default defineComponent({
   mixins: [withFormControl],
   tag: "lc-input",
-  properties: {
+  props: {
     type: T.string({
       defaultValue: "text",
       enum: ["text", "email", "tel", "url", "search", "password", "number", "date", "datetime-local", "time", "month", "week", "color"],

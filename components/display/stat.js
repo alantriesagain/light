@@ -6,7 +6,7 @@ import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
   tag: "lc-stat",
-  properties: {
+  props: {
     title: "",
     value: /** @type {Prop<Renderable>} */ (T.any("")),
     desc: "",

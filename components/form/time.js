@@ -9,7 +9,7 @@ const formatTime = (timestamp) => new Date(timestamp).toLocaleTimeString();
 
 export default defineComponent({
   tag: "lc-time",
-  properties: {
+  props: {
     timestamp: /** @type {Prop<number | null>} */ (T.number({ defaultValue: null })),
   },
   render() {

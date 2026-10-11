@@ -13,11 +13,11 @@ export default defineComponent({
     radius: ["full"],
     shadow: ["nav", "sm"],
   },
-  properties: {
+  props: {
     brand: /** @type {Prop<SiteHeaderBrand>} */ (T.object({
       attribute: false,
       defaultValue: {},
-      properties: {
+      props: {
         name: T.string(),
         logo: T.string(),
         href: T.string(),

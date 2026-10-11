@@ -28,7 +28,7 @@ export default defineComponent({
   tag: "lc-nav-tree",
   icons: ["chevron-right"],
   style: true,
-  properties: {
+  props: {
     groups: /** @type {Prop<NavTreeGroup[]>} */ (T.array({ attribute: false, defaultValue: [] })),
     open: /** @type {Prop<string[]>} */ (T.array({ defaultValue: [] })),
     collapseAt: 0,

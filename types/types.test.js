@@ -54,8 +54,8 @@ describe("light/types: the shorthand", () => {
   it("keeps a descriptor as it is, nested blocks normalised", () => {
     const plain = T.number({ defaultValue: 1, sync: "local" });
     assert.equal(normalizeProperty(plain), plain);
-    const nested = normalizeProperty(T.object({ properties: { count: 0, inner: T.string("x") } }));
-    assert.deepEqual(nested.properties, { count: T.number(0), inner: T.string("x") });
+    const nested = normalizeProperty(T.object({ props: { count: 0, inner: T.string("x") } }));
+    assert.deepEqual(nested.props, { count: T.number(0), inner: T.string("x") });
     const items = normalizeProperty(T.array({ itemType: { id: 0, label: "" } }));
     assert.deepEqual(items.itemType, { id: T.number(0), label: T.string("") });
     const single = normalizeProperty(T.array({ itemType: T.number() }));
@@ -75,7 +75,7 @@ describe("light/types: parse", () => {
     assert.equal(parse("null", T.string()), null);
     assert.deepEqual(parse("[1,2]", T.array()), [1, 2]);
     assert.deepEqual(parse("nope", T.array()), []);
-    assert.deepEqual(parse('{"a":1}', T.object({ properties: { b: T.number(2) } })), { a: 1, b: 2 });
+    assert.deepEqual(parse('{"a":1}', T.object({ props: { b: T.number(2) } })), { a: 1, b: 2 });
   });
 
   it("coerces an array's object items by their declared keys", () => {

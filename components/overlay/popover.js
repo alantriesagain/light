@@ -5,7 +5,7 @@ export default defineComponent({
   mixins: [withPopover],
   tag: "lc-popover",
   style: true,
-  properties: {
+  props: {
     arrow: true,
   },
 });

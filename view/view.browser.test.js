@@ -24,7 +24,7 @@ describe("light - View.createClass()", () => {
     it("should merge properties from definition", () => {
       const tag = getUniqueTag("merge-props");
       const component = View.createClass(tag, {
-        properties: {
+        props: {
           count: { $type: "number", defaultValue: 0 },
           name: { $type: "string", defaultValue: "" },
         },
@@ -58,7 +58,7 @@ describe("light - View.createClass()", () => {
     it("should set up observedAttributes from properties", () => {
       const tag = getUniqueTag("observed-attrs");
       const component = View.createClass(tag, {
-        properties: {
+        props: {
           visible: { $type: "boolean", defaultValue: true },
           label: { $type: "string", defaultValue: "" },
           data: { $type: "object", attribute: false },
@@ -78,7 +78,7 @@ describe("light - View.createClass()", () => {
     it("should inherit properties from base class", () => {
       const baseTag = getUniqueTag("base-inherit");
       const BaseComponent = View.createClass(baseTag, {
-        properties: {
+        props: {
           baseValue: { $type: "string", defaultValue: "base" },
         },
         render() {
@@ -90,7 +90,7 @@ describe("light - View.createClass()", () => {
       const ChildComponent = View.createClass(
         childTag,
         {
-          properties: {
+          props: {
             childValue: { $type: "number", defaultValue: 0 },
           },
           render() {
@@ -112,21 +112,21 @@ describe("light - framework member names", () => {
   });
 
   it("refuses a $-prefixed property or member: the prefix belongs to the framework", () => {
-    assert.throws(() => View.define(getUniqueTag("dollar-prop"), { properties: { $state: T.string() } }), /\$ prefix/);
+    assert.throws(() => View.define(getUniqueTag("dollar-prop"), { props: { $state: T.string() } }), /\$ prefix/);
     assert.throws(() => View.define(getUniqueTag("dollar-method"), { $emit() {} }), /\$ prefix/);
     assert.throws(() => View.define(getUniqueTag("dollar-own"), { $helper: 1 }), /\$ prefix/);
   });
 
   it("refuses a property or method that redefines a View base member, render excepted", () => {
     assert.throws(() => View.define(getUniqueTag("base-cb"), { connectedCallback() {} }), /framework member/);
-    assert.throws(() => View.define(getUniqueTag("base-prop"), { properties: { render: T.string() } }), /framework member/);
+    assert.throws(() => View.define(getUniqueTag("base-prop"), { props: { render: T.string() } }), /framework member/);
     View.define(getUniqueTag("base-render"), { render() { return null; } });
   });
 
   it("leaves the whole _ namespace to the component, since the engine takes only $", () => {
     const tag = getUniqueTag("underscore-names");
     View.define(tag, {
-      properties: { _teardowns: "mine" },
+      props: { _teardowns: "mine" },
       _update() { return "mine"; },
       _ctor() { return "mine"; },
       _runHook() { return "mine"; },
@@ -142,7 +142,7 @@ describe("light - framework member names", () => {
 
   it("refuses a name declared as both a property and a member", () => {
     assert.throws(
-      () => View.define(getUniqueTag("both"), { properties: { total: T.number() }, total() {} }),
+      () => View.define(getUniqueTag("both"), { props: { total: T.number() }, total() {} }),
       /both a property and a member/,
     );
   });
@@ -150,7 +150,7 @@ describe("light - framework member names", () => {
   it("frees the old engine names as properties: state, emit, own, ready, config, update, get, keys", async () => {
     const tag = getUniqueTag("freed-names");
     View.define(tag, {
-      properties: {
+      props: {
         state: "idle",
         emit: false,
         own: 1,
@@ -188,7 +188,7 @@ describe("light - framework member names", () => {
     const tag = getUniqueTag("hook-named-props");
     const seen = [];
     View.define(tag, {
-      properties: {
+      props: {
         connected: false,
         updated: 0,
         disconnected: false,
@@ -266,7 +266,7 @@ describe("light - framework member names", () => {
       render() { return html`child`; },
     });
     View.define(tag, {
-      properties: {
+      props: {
         showChild: true,
         label: "here",
       },
@@ -287,7 +287,7 @@ describe("light - framework member names", () => {
 describe("light - renderless light-DOM components", () => {
   it("keep the children their parent gave them on a prerendered page", async () => {
     const tag = getUniqueTag("renderless");
-    View.define(tag, { properties: {} });
+    View.define(tag, { props: {} });
     const w = /** @type {Window & { __PRERENDERED__?: boolean }} */ (window);
     const previous = w.__PRERENDERED__;
     w.__PRERENDERED__ = true;
@@ -355,7 +355,7 @@ describe("light - Property System", () => {
   beforeEach(() => {
     tag = getUniqueTag("prop-sys");
     View.define(tag, {
-      properties: {
+      props: {
         count: { $type: "number", defaultValue: 0 },
         name: { $type: "string", defaultValue: "" },
         active: { $type: "boolean", defaultValue: false },
@@ -391,7 +391,7 @@ describe("light - Property System", () => {
     it("should parse number attributes", () => {
       const numTag = getUniqueTag("num-attr");
       View.define(numTag, {
-        properties: {
+        props: {
           value: { $type: "number", defaultValue: 0 },
         },
         render() {
@@ -408,7 +408,7 @@ describe("light - Property System", () => {
     it("should parse boolean attributes (empty string = true)", () => {
       const boolTag = getUniqueTag("bool-attr");
       View.define(boolTag, {
-        properties: {
+        props: {
           enabled: { $type: "boolean", defaultValue: false },
         },
         render() {
@@ -425,7 +425,7 @@ describe("light - Property System", () => {
     it("should parse array attributes from JSON", () => {
       const arrTag = getUniqueTag("arr-attr");
       View.define(arrTag, {
-        properties: {
+        props: {
           data: { $type: "array", defaultValue: [] },
         },
         render() {
@@ -442,7 +442,7 @@ describe("light - Property System", () => {
     it("should parse object attributes from JSON", () => {
       const objTag = getUniqueTag("obj-attr");
       View.define(objTag, {
-        properties: {
+        props: {
           options: { $type: "object", defaultValue: {} },
         },
         render() {
@@ -496,7 +496,7 @@ describe("light - Property System", () => {
     beforeEach(() => {
       kebabTag = getUniqueTag("kebab-attrs");
       View.define(kebabTag, {
-        properties: {
+        props: {
           useSystemPreference: { $type: "boolean", defaultValue: false, attribute: true },
           maxCount: { $type: "number", defaultValue: 0, attribute: true },
         },
@@ -724,7 +724,7 @@ describe("light - Lifecycle Hooks", () => {
       let firstUpdatedCount = 0;
       const tag = getUniqueTag("lifecycle-first");
       View.define(tag, {
-        properties: {
+        props: {
           value: { $type: "number", defaultValue: 0 },
         },
         firstUpdated() {
@@ -751,7 +751,7 @@ describe("light - Lifecycle Hooks", () => {
       let updatedCount = 0;
       const tag = getUniqueTag("lifecycle-upd");
       View.define(tag, {
-        properties: {
+        props: {
           value: { $type: "number", defaultValue: 0 },
         },
         updated() {
@@ -954,7 +954,7 @@ describe("light - Plugin System", () => {
       name: "declares",
       keys: ["flavor"],
       hooks: ["ripened"],
-      properties: (properties, definition) => (definition.flavor ? { ...properties, ripe: T.boolean({ defaultValue: false }) } : properties),
+      props: (props, definition) => (definition.flavor ? { ...props, ripe: T.boolean({ defaultValue: false }) } : props),
     });
     const tag = getUniqueTag("plugin-declares");
     View.define(tag, {
@@ -1031,7 +1031,7 @@ describe("light - Getters and Setters", () => {
     it("should support custom getter in definition", () => {
       const tag = getUniqueTag("custom-getter");
       View.define(tag, {
-        properties: {
+        props: {
           value: { $type: "number", defaultValue: 10 },
         },
         get doubled() {
@@ -1064,7 +1064,7 @@ describe("light - Adoption", () => {
 
   const defineLabeled = (tag, hooks = {}) => {
     View.define(tag, {
-      properties: {
+      props: {
         label: { $type: "string", defaultValue: "baked" },
       },
       ...hooks,
@@ -1091,7 +1091,7 @@ describe("light - Adoption", () => {
       const parentTag = getUniqueTag("adopt-slot-parent");
       View.define(childTag, { render() { return html`<a><slot></slot></a>`; } });
       View.define(parentTag, {
-        properties: { label: { $type: "string", defaultValue: "baked" } },
+        props: { label: { $type: "string", defaultValue: "baked" } },
         render() { return element(childTag, {}, this.label); },
       });
       window.__PRERENDERED__ = false;
@@ -1247,20 +1247,20 @@ describe("light - Adoption", () => {
 describe("light - defineComponent", () => {
   describe("identity + field preservation", () => {
     it("returns the same object verbatim (runtime identity)", () => {
-      const def = { tag: "x", properties: { y: { $type: "number" } } };
+      const def = { tag: "x", props: { y: { $type: "number" } } };
       assert.equal(defineComponent(def), def);
     });
 
     it("preserves all definition fields", () => {
       const def = defineComponent({
-        tag: "x", properties: { count: { $type: "number" } },
+        tag: "x", props: { count: { $type: "number" } },
         events: { change: { $type: "object" } },
         style: true,
         render() { return null; },
         connected() {},
       });
       assert.equal(def.tag, "x");
-      assert.equal(def.properties.count.$type, "number");
+      assert.equal(def.props.count.$type, "number");
       assert.equal(def.events.change.$type, "object");
       assert.equal(def.style, true);
       assert.equal(typeof def.render, "function");
@@ -1273,20 +1273,20 @@ describe("light - mixins", () => {
   describe("property merging", () => {
     it("unions properties across all mixins + component", () => {
       const def = composeDefinition({
-        mixins: [{ properties: { a: 1 } }, { properties: { b: 2 } }],
+        mixins: [{ props: { a: 1 } }, { props: { b: 2 } }],
         tag: "x",
-        properties: { c: 3 },
+        props: { c: 3 },
       });
-      assert.deepEqual(Object.keys(def.properties).sort(), ["a", "b", "c"]);
+      assert.deepEqual(Object.keys(def.props).sort(), ["a", "b", "c"]);
     });
 
     it("component wins on property collision", () => {
-      const def = composeDefinition({ mixins: [{ properties: { value: "mixin" } }], tag: "x", properties: { value: "component" } });
-      assert.equal(def.properties.value, "component");
+      const def = composeDefinition({ mixins: [{ props: { value: "mixin" } }], tag: "x", props: { value: "component" } });
+      assert.equal(def.props.value, "component");
     });
 
     it("keeps accessors as accessors instead of reading them at compose time", () => {
-      const fragment = { get doc() { return this._state.doc; }, properties: { a: 1 } };
+      const fragment = { get doc() { return this._state.doc; }, props: { a: 1 } };
       const def = composeDefinition({ mixins: [fragment], tag: "x", get own() { return this._state.own; } });
       const desc = Object.getOwnPropertyDescriptor(def, "doc");
       assert.equal(typeof desc.get, "function");
@@ -1295,11 +1295,11 @@ describe("light - mixins", () => {
     });
 
     it("a mixin's own mixins are folded in first", () => {
-      const inner = { properties: { a: 1 }, connected() { order.push("inner"); } };
-      const outer = { mixins: [inner], properties: { b: 2 }, connected() { order.push("outer"); } };
+      const inner = { props: { a: 1 }, connected() { order.push("inner"); } };
+      const outer = { mixins: [inner], props: { b: 2 }, connected() { order.push("outer"); } };
       const order = [];
-      const def = composeDefinition({ mixins: [outer], tag: "x", properties: { c: 3 }, connected() { order.push("own"); } });
-      assert.deepEqual(Object.keys(def.properties).sort(), ["a", "b", "c"]);
+      const def = composeDefinition({ mixins: [outer], tag: "x", props: { c: 3 }, connected() { order.push("own"); } });
+      assert.deepEqual(Object.keys(def.props).sort(), ["a", "b", "c"]);
       def.connected.call({});
       assert.deepEqual(order, ["inner", "outer", "own"]);
       assert.equal("mixins" in def, false);
@@ -1394,7 +1394,7 @@ describe("light - mixins", () => {
 
   describe("no mixins", () => {
     it("returns the definition itself when it lists none", () => {
-      const def = { tag: "x", properties: { a: 1 } };
+      const def = { tag: "x", props: { a: 1 } };
       assert.equal(composeDefinition(def), def);
       assert.equal(composeDefinition({ ...def, mixins: [] }).tag, "x");
     });
@@ -1402,9 +1402,9 @@ describe("light - mixins", () => {
     it("a defined element composes its mixins", async () => {
       const tag = `mx-composed-${Date.now()}`;
       View.define(tag, defineComponent({
-        mixins: [defineMixin({ properties: { fromMixin: "m" }, mixinMethod() { return `hello ${this.fromMixin}`; } })],
+        mixins: [defineMixin({ props: { fromMixin: "m" }, mixinMethod() { return `hello ${this.fromMixin}`; } })],
         tag,
-        properties: { own: "o" },
+        props: { own: "o" },
         render() { return html`${this.mixinMethod()} ${this.own}`; },
       }));
       const el = document.createElement(tag);
@@ -1423,7 +1423,7 @@ describe("light - reactive: false properties", () => {
   beforeEach(() => {
     tag = getUniqueTag("reactive-false");
     View.define(tag, {
-      properties: {
+      props: {
         count: 0,
         handle: T.object({ reactive: false, defaultValue: () => new Map() }),
       },
@@ -1660,7 +1660,7 @@ describe("light - light-DOM slots", () => {
     const childTag = defineHost(() => html`<b><slot name="a"></slot></b>`);
     const parentTag = getUniqueTag("slot-parent");
     View.define(parentTag, {
-      properties: { n: 1 },
+      props: { n: 1 },
       render() {
         return element(childTag, {}, html`<span slot="a">${this.n}</span>`);
       },
@@ -1681,7 +1681,7 @@ describe("light - light-DOM slots", () => {
     const childTag = defineHost(() => html`<ul><slot name="a"></slot></ul>`);
     const parentTag = getUniqueTag("slot-parent");
     View.define(parentTag, {
-      properties: { items: ["x", "y", "z"] },
+      props: { items: ["x", "y", "z"] },
       render() {
         return element(childTag, {}, this.items.map((item) => key(item, html`<li slot="a">${item}</li>`)));
       },
@@ -1705,7 +1705,7 @@ describe("light - light-DOM slots", () => {
       function () {
         return this.link ? html`<a><slot></slot></a>` : html`<button><slot></slot></button>`;
       },
-      { properties: { link: false } },
+      { props: { link: false } },
     );
     const el = await mount(tag, "<i>x</i>");
     const i = el.querySelector("i");
@@ -1786,7 +1786,7 @@ describe("light - light-DOM slots", () => {
       function () {
         return this.extra ? html`<slot name="a"></slot><slot name="nope"></slot>` : html`<slot name="a"></slot>`;
       },
-      { properties: { extra: false } },
+      { props: { extra: false } },
     );
     const el = await mount(tag, '<i slot="nope">x</i>');
     const i = el.querySelector("i");
@@ -1831,7 +1831,7 @@ describe("light - light-DOM slots", () => {
       let renders = 0;
       const childTag = getUniqueTag("slot-host");
       View.define(childTag, {
-        properties: { label: "a" },
+        props: { label: "a" },
         connected() { connected++; },
         disconnected() { disconnected++; },
         render() {
@@ -1897,7 +1897,7 @@ describe("light - light-DOM slots", () => {
       function () {
         return html`<slot name=${this.which}></slot>`;
       },
-      { properties: { which: "a" } },
+      { props: { which: "a" } },
     );
     const el = await mount(tag, '<i slot="a">x</i>');
     const i = el.querySelector("i");
@@ -1933,7 +1933,7 @@ describe("light - update scheduling", () => {
   const defineChain = () => {
     const tag = getUniqueTag("chain");
     View.define(tag, {
-      properties: { depth: 0, value: "" },
+      props: { depth: 0, value: "" },
       render() {
         if (this.depth > 0) return element(tag, { ".depth": this.depth - 1, ".value": this.value });
         return html`<span>${this.value}</span>`;
@@ -1960,14 +1960,14 @@ describe("light - update scheduling", () => {
     const parentTag = getUniqueTag("order-parent");
     let childRenders = 0;
     View.define(childTag, {
-      properties: { label: "" },
+      props: { label: "" },
       render() {
         childRenders++;
         return html`<i>${this.label}</i>`;
       },
     });
     View.define(parentTag, {
-      properties: { label: "x" },
+      props: { label: "x" },
       render() { return element(childTag, { ".label": this.label }); },
     });
     const parent = document.createElement(parentTag);
@@ -1988,7 +1988,7 @@ describe("light - update scheduling", () => {
   it("skips the update of an element removed before its turn, and updates it when it returns", async () => {
     const tag = getUniqueTag("detached");
     let renders = 0;
-    View.define(tag, { properties: { n: 0 }, render() { renders++; return html`${this.n}`; } });
+    View.define(tag, { props: { n: 0 }, render() { renders++; return html`${this.n}`; } });
     const el = document.createElement(tag);
     document.body.appendChild(el);
     el.remove();
@@ -2003,7 +2003,7 @@ describe("light - update scheduling", () => {
   it("keeps updating after a render throws, and reports the error", async () => {
     const tag = getUniqueTag("throws-once");
     View.define(tag, {
-      properties: { n: 0, fail: false },
+      props: { n: 0, fail: false },
       render() {
         if (this.fail) throw new Error("render failed");
         return html`<span>${this.n}</span>`;
@@ -2033,7 +2033,7 @@ describe("light - update scheduling", () => {
     const tag = getUniqueTag("throws-in-will-update");
     let attempts = 0;
     View.define(tag, {
-      properties: { n: 0, fail: false },
+      props: { n: 0, fail: false },
       willUpdate() {
         if (!this.fail) return;
         attempts++;
@@ -2067,7 +2067,7 @@ describe("light - update scheduling", () => {
     let renders = 0;
     const seen = [];
     View.define(tag, {
-      properties: { items: [], filtered: [] },
+      props: { items: [], filtered: [] },
       willUpdate() { this.filtered = this.items.filter((x) => x > 1); },
       updated({ changedProps }) { seen.push([...changedProps.keys()].sort().join(",")); },
       render() {
@@ -2093,7 +2093,7 @@ describe("light - update scheduling", () => {
   it("drops a reflected attribute when its string property is emptied or unset", async () => {
     const tag = getUniqueTag("reflect-empty");
     View.define(tag, {
-      properties: { variant: "primary" },
+      props: { variant: "primary" },
       render() { return null; },
     });
     const el = document.createElement(tag);
@@ -2113,19 +2113,98 @@ describe("light - update scheduling", () => {
 describe("light - definitions stay the author's", () => {
   it("leaves a definition's object property untouched when merging it over a base", () => {
     const base = View.createClass(getUniqueTag("merge-base"), {
-      properties: { theme: T.object({ properties: { a: T.string() } }) },
+      props: { theme: T.object({ props: { a: T.string() } }) },
       render() { return null; },
     });
-    const own = { theme: T.object({ properties: { c: T.string() } }) };
-    const inner = own.theme.properties;
-    const child = View.createClass(getUniqueTag("merge-child"), { properties: own, render() { return null; } }, base);
-    assert.deepEqual(Object.keys(child.properties.theme.properties).sort(), ["a", "c"]);
-    assert.equal(own.theme.properties, inner);
-    assert.deepEqual(Object.keys(own.theme.properties), ["c"]);
+    const own = { theme: T.object({ props: { c: T.string() } }) };
+    const inner = own.theme.props;
+    const child = View.createClass(getUniqueTag("merge-child"), { props: own, render() { return null; } }, base);
+    assert.deepEqual(Object.keys(child.properties.theme.props).sort(), ["a", "c"]);
+    assert.equal(own.theme.props, inner);
+    assert.deepEqual(Object.keys(own.theme.props), ["c"]);
   });
 
   it("refuses a function where a definition belongs, naming the tag", () => {
     const tag = getUniqueTag("function-def");
     assert.throws(() => View.createClass(tag, () => ({ render() { return null; } })), new RegExp(tag));
+  });
+});
+
+describe("light - View.define's shapes", () => {
+  const nextFrame = () => new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+
+  it("answers the class for a tag it registers in the call", () => {
+    const tag = getUniqueTag("shape-class");
+    const C = View.define(tag, { render() { return null; } });
+    assert.equal(customElements.get(tag), C);
+    assert.equal(View.define(tag, View.components.get(tag).definition), C, "the same definition again answers the same class");
+  });
+
+  it("keeps the props beside the tag, typed on this and reflected from attributes", async () => {
+    const tag = getUniqueTag("shape-props");
+    View.define(tag, { count: 0, label: "Count" }, {
+      bump() { this.count += 2; },
+      render() { return html`<b>${this.label}: ${this.count}</b>`; },
+    });
+    const el = document.createElement(tag);
+    el.setAttribute("count", "3");
+    document.body.append(el);
+    await nextFrame();
+    assert.equal(el.querySelector("b").textContent, "Count: 3");
+    el.bump();
+    await nextFrame();
+    assert.equal(el.count, 5);
+    el.remove();
+  });
+
+  it("takes a function as the render, called with the element", async () => {
+    const tag = getUniqueTag("shape-fn");
+    const seen = [];
+    View.define(tag, { count: 1 }, (el) => { seen.push(el); return html`<i>${el.count}</i>`; });
+    const el = document.createElement(tag);
+    document.body.append(el);
+    await nextFrame();
+    assert.equal(el.querySelector("i").textContent, "1");
+    assert.equal(seen[0], el);
+    const bare = getUniqueTag("shape-bare");
+    View.define(bare, (host) => html`<u>${host.tagName.toLowerCase()}</u>`);
+    const other = document.createElement(bare);
+    document.body.append(other);
+    await nextFrame();
+    assert.equal(other.querySelector("u").textContent, bare);
+    el.remove();
+    other.remove();
+  });
+
+  it("hands a method render the element too", async () => {
+    const tag = getUniqueTag("shape-arg");
+    View.define(tag, { n: 4 }, { render(el) { return html`<s>${el.n}${this.n}</s>`; } });
+    const el = document.createElement(tag);
+    document.body.append(el);
+    await nextFrame();
+    assert.equal(el.querySelector("s").textContent, "44");
+    el.remove();
+  });
+
+  it("refuses props inside the definition when they come as an argument", () => {
+    assert.throws(() => View.define(getUniqueTag("shape-twice"), { a: 1 }, { props: { b: 2 }, render() { return null; } }), /second argument/);
+  });
+
+  it("refuses the key's old name on a definition, a mixin and a descriptor", () => {
+    assert.throws(() => View.define(getUniqueTag("shape-old"), { properties: { a: 1 }, render() { return null; } }), /"properties" is not a definition key.*"props"/);
+    assert.throws(() => View.define(getUniqueTag("shape-old-mixin"), { mixins: [{ properties: { a: 1 } }], render() { return null; } }), /"props"/);
+    assert.throws(() => T.object({ properties: { a: T.string() } }) && View.createClass(getUniqueTag("shape-old-desc"), { props: { o: T.object({ properties: { a: T.string() } }) } }), /"props"/);
+  });
+
+  it("answers a promise of the class while the base is awaited", async () => {
+    const base = getUniqueTag("shape-base");
+    const child = getUniqueTag("shape-child");
+    const pending = View.define(child, { extends: base, render() { return html`<em>child</em>`; } });
+    assert.equal(typeof pending.then, "function");
+    assert.equal(customElements.get(child), undefined);
+    const B = View.define(base, { render() { return null; } });
+    const C = await pending;
+    assert.equal(customElements.get(child), C);
+    assert.equal(Object.getPrototypeOf(C), B);
   });
 });

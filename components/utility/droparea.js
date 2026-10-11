@@ -6,7 +6,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-droparea",
   style: true,
-  properties: {
+  props: {
     _dropIndex: T.number({ reactive: false, defaultValue: -1 }),
     onDropped: /** @type {Prop<((info: DropInfo) => void) | null>} */ (T.function()),
     "droparea-id": T.string(),

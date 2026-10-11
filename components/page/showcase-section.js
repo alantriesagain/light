@@ -14,7 +14,7 @@ export default defineComponent({
     radius: ["full", "panel"],
     shadow: ["card"],
   },
-  properties: {
+  props: {
     align: T.string({
       defaultValue: "left",
       enum: ["left", "right"],
@@ -27,7 +27,7 @@ export default defineComponent({
       T.object({
         attribute: false,
         defaultValue: {},
-        properties: {
+        props: {
           src: T.string(),
           alt: T.string(),
         },

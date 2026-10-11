@@ -11,7 +11,7 @@ export default defineComponent({
   ],
   tag: "lc-drawer",
   style: true,
-  properties: {
+  props: {
     open: false,
     position: T.string({
       defaultValue: "right",
@@ -175,7 +175,7 @@ export default defineComponent({
  *
  * export default {
  *   tag: 'my-app',
- *   properties: {
+ *   props: {
  *     drawerOpen: false,
  *   },
  *

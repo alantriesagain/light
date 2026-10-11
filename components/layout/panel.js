@@ -4,7 +4,7 @@ import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
   tag: "lc-panel",
-  properties: {
+  props: {
     variant: T.string({
       defaultValue: "default",
       enum: ["default", "bordered", "elevated"],

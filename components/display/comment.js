@@ -25,7 +25,7 @@ const fullDate = (iso, locale) => {
 export default defineComponent({
   tag: "lc-comment",
   style: true,
-  properties: {
+  props: {
     author: "",
     avatar: "",
     at: "",

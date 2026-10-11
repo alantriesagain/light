@@ -92,7 +92,7 @@ const loadMarked = () => {
 export default defineComponent({
   tag: "lc-markdown",
   style: true,
-  properties: {
+  props: {
     content: T.string(),
     anchors: T.boolean(),
     onWikiLink: T.function(),

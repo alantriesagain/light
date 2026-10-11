@@ -19,7 +19,7 @@ export default defineComponent({
     radius: ["full", "lg"],
     shadow: ["sm", "lg"],
   },
-  properties: {
+  props: {
     eyebrow: "",
     eyebrowIcon: "",
     headline: "",
@@ -38,7 +38,7 @@ export default defineComponent({
         mockupGradientFrom: T.string(),
         mockupGradientTo: T.string(),
         cta: T.object({
-          properties: {
+          props: {
             label: T.string(),
             href: T.string(),
           },
@@ -50,7 +50,7 @@ export default defineComponent({
     footerCta: /** @type {Prop<FooterCta | null>} */ (T.object({
       attribute: false,
       defaultValue: null,
-      properties: {
+      props: {
         label: T.string(),
         href: T.string(),
         icon: T.string(),

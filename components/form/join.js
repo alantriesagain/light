@@ -3,7 +3,7 @@ import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
   tag: "lc-join",
-  properties: {
+  props: {
     orientation: T.string({
       defaultValue: "horizontal",
       enum: ["horizontal", "vertical"],

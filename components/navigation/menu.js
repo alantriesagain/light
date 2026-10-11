@@ -3,7 +3,7 @@ import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
   tag: "lc-menu",
-  properties: {
+  props: {
     size: T.string({
       defaultValue: "md",
       enum: ["sm", "md", "lg"],

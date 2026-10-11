@@ -1,7 +1,7 @@
 /**
  * @bootstrapp/light/view/definition.js: definition composition
  * The one merge primitive for definition-shaped citizens (components,
- * controllers, extensions): properties union (incoming wins), lifecycle hooks
+ * controllers, extensions): props union (incoming wins), lifecycle hooks
  * chain (existing runs first, an async hook on either side is awaited),
  * everything else copies property descriptors
  * (NOT spread): definitions legitimately declare getters and spread would
@@ -28,16 +28,18 @@ export const isFrameworkKey = (key) => key.startsWith("$");
  * The one define-time guard shared by views, controllers and extensions: no
  * `$`-prefixed property or member, and no name declared as both a property and
  * a member. `definitionKeys` names the keys the engine consumes from the
- * definition itself (lifecycle hooks, `properties`, `tag`, ...); a property may
- * share one of those names because they never land on the instance.
+ * definition itself (lifecycle hooks, `props`, `tag`, ...); a property may
+ * share one of those names because they never land on the instance. A
+ * definition still carrying `properties`, the key's old name, is refused.
  * @param {Record<string, any>} definition
  * @param {string} label
  * @param {Iterable<string>} definitionKeys
  */
 export const assertDefinitionKeys = (definition, label, definitionKeys) => {
+  if ("properties" in definition) throw new Error(`${label}: "properties" is not a definition key; declare reactive properties under "props"`);
   const consumed = new Set(definitionKeys);
-  const properties = definition.properties ?? {};
-  for (const key of Object.keys(properties)) {
+  const props = definition.props ?? {};
+  for (const key of Object.keys(props)) {
     if (isFrameworkKey(key)) throw new Error(`${label}: property "${key}" uses the framework's $ prefix; rename it`);
     if (key in definition && !consumed.has(key)) throw new Error(`${label}: "${key}" is declared as both a property and a member`);
   }
@@ -60,8 +62,8 @@ export const mergeDefinitions = (current, incoming, hooks = LIFECYCLE_HOOKS) => 
       if (desc) Object.defineProperty(merged, key, desc);
     }
   }
-  if (current.properties || incoming.properties)
-    merged.properties = { ...current.properties, ...incoming.properties };
+  if (current.props || incoming.props)
+    merged.props = { ...current.props, ...incoming.props };
   if (current.events || incoming.events)
     merged.events = { ...current.events, ...incoming.events };
   for (const hook of hooks)
@@ -79,7 +81,7 @@ export const mergeDefinitions = (current, incoming, hooks = LIFECYCLE_HOOKS) => 
 /**
  * Fold a definition's `mixins` into it: each fragment (recursively composed
  * when it carries mixins of its own) is merged in order, then the
- * definition's own keys. Properties, events and members union, the later
+ * definition's own keys. Props, events and members union, the later
  * side wins a collision, lifecycle hooks chain in order and an async hook on
  * either side is awaited by the chained hook. A definition without mixins is
  * returned as is.

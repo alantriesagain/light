@@ -8,11 +8,11 @@ import type View from "./index.js";
 /** A class's merged property descriptors, every entry normalised. */
 export type PropertiesSchema = Record<string, TypeDefinition>;
 
-/** A definition's `properties` block as the author writes it: descriptors, or defaults standing in for them. */
+/** A definition's `props` block as the author writes it: descriptors, or defaults standing in for them. */
 export type PropertyDeclarations = Record<string, PropertyDeclaration>;
 
 /**
- * Map a `properties: { x: T.string(), count: 0 }` block into the TS shape
+ * Map a `props: { x: T.string(), count: 0 }` block into the TS shape
  * that ends up on `this` inside `render()` / lifecycle hooks (`this.x: string`,
  * `this.count: number`); see `PropertyValue`.
  */
@@ -21,7 +21,7 @@ export type PropsToThis<P> = {
 };
 
 /**
- * The value type a `properties` entry declares: a descriptor's phantom type;
+ * The value type a `props` entry declares: a descriptor's phantom type;
  * for a default, its widened type (`false` is `boolean`, `0` is `number`,
  * `""` is `string`), an empty array literal as `unknown[]`, `null` as `any`.
  */
@@ -49,8 +49,47 @@ export type ComponentThis<D, M, P, E> = PropsToThis<P & Omit<MixinProps<M>, keyo
   { [k: `_${string}`]: any } &
   (D extends { extends: string } ? Record<string, unknown> : unknown);
 
+/**
+ * The element as a render function sees it: the props, the mixins' props and
+ * members, the engine's members and the narrowed `$emit`. There are no own
+ * members, since a render passed as a function has no definition object.
+ */
+export type ElementOf<M, P, E> = ComponentThis<{}, M, P, E>;
+
 /** A component definition as `defineComponent` and `View.define` accept it, `this` typed inside its methods. */
-export type Definition<D, M, P, E> = D & { properties?: P; events?: E; mixins?: M } & ThisType<ComponentThis<D, M, P, E>>;
+export type Definition<D, M, P, E> = D & { props?: P; events?: E; mixins?: M } & ThisType<ComponentThis<D, M, P, E>>;
+
+/** What `View.define` answers: the class, or a promise of it when the definition `extends` a tag that may not be defined yet. */
+export type Defined<D> = D extends { extends: string } ? ViewConstructor | Promise<ViewConstructor> : ViewConstructor;
+
+/** A render written as a function of the element: what `View.define(tag, props, fn)` and `View.define(tag, fn)` take. */
+export type RenderOf<M, P, E> = (el: ElementOf<M, P, E>) => unknown;
+
+/**
+ * `View.define`'s shapes. A function where a definition is expected is its
+ * `render`, with `el` typed from the props beside it; inside a definition
+ * object `render` is a method and reads `this`, typed like every other
+ * member. (A contextual signature for a `render` member would be
+ * instantiated before the literal's own members are inferred, and `this`
+ * inside it would lose them.) With the props as their own argument a
+ * definition may not carry `props` of its own.
+ */
+export interface Define {
+  <P extends PropertyDeclarations>(tag: string, props: P, render: RenderOf<[], P, {}>): ViewConstructor;
+  (tag: string, render: RenderOf<[], {}, {}>): ViewConstructor;
+  <P extends PropertyDeclarations, D extends Record<string, unknown>, M extends readonly Record<string, unknown>[] = [], E extends Record<string, TypeDefinition> = {}>(
+    tag: string,
+    props: P,
+    definition: Definition<D, M, P, E> & { props?: never },
+  ): Defined<D>;
+  <D extends Record<string, unknown>, M extends readonly Record<string, unknown>[] = [], P extends PropertyDeclarations = {}, E extends Record<string, TypeDefinition> = {}>(
+    tag: string,
+    definition: Definition<D, M, P, E>,
+  ): Defined<D>;
+  <D extends Record<string, unknown>, M extends readonly Record<string, unknown>[] = [], P extends PropertyDeclarations = {}, E extends Record<string, TypeDefinition> = {}>(
+    definition: Definition<D, M, P, E> & { tag: string },
+  ): Defined<D>;
+}
 
 /**
  * Map an `events: { change: T.object(...) }` block into the typed `this.emit`
@@ -142,7 +181,7 @@ export interface ViewPlugin {
   /** Lifecycle hooks the plugin adds: chained across mixins and `extends`, run through `$runHook`. */
   hooks?: string[];
   /** Rewrites a class's merged property declarations when the class is built. */
-  properties?: (properties: PropertiesSchema, definition: ComponentDefinition) => PropertiesSchema | void;
+  props?: (props: PropertiesSchema, definition: ComponentDefinition) => PropertiesSchema | void;
   events?: ViewPluginEvents;
   test?: (ctx: { component: ViewConstructor; definition: ComponentDefinition }) => boolean;
   init?: (ctx: {
@@ -157,12 +196,12 @@ export interface ComponentDefinition {
   tag?: string;
   extends?: string;
   /**
-   * Definition fragments merged under this one, in order: their properties,
+   * Definition fragments merged under this one, in order: their props,
    * events and members union, the component wins a collision, lifecycle
    * hooks chain mixin-first. A fragment may carry `mixins` of its own.
    */
   mixins?: readonly MixinDefinition[];
-  properties?: PropertyDeclarations;
+  props?: PropertyDeclarations;
   /**
    * Optional declaration of events this component emits. Each entry maps
    * an event name to a `T.*()` factory describing the payload shape. Used
@@ -196,11 +235,12 @@ export interface ComponentDefinition {
    * theme collector can gather what its descriptors need.
    */
   themeTokens?: Record<string, string[]>;
-  render?: () => unknown;
+  /** Method syntax on purpose: the parameter compares bivariantly, so a typed `Definition` whose render takes the narrower element passes. */
+  render?(el: View): unknown;
 }
 
 /**
- * The definition keys the engine consumes (`tag`, `properties`, the lifecycle
+ * The definition keys the engine consumes (`tag`, `props`, the lifecycle
  * hooks, `render`, ...). None of them lands on the element, so `this` inside
  * a definition omits them and a property may share a hook's name.
  */

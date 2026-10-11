@@ -3,7 +3,7 @@ import T from "@bootstrapp/light/types";
 import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-editable",
-  properties: {
+  props: {
     isEditing: false,
     value: T.string(),
     editingValue: T.string(),

@@ -9,7 +9,7 @@ export default defineComponent({
 	tag: "lc-sparkline",
 	style: true,
 
-	properties: {
+	props: {
 		data: /** @type {Prop<SparklineDatum[]>} */ (T.array({ defaultValue: [] })),
 		width: 80,
 		height: 24,

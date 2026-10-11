@@ -9,7 +9,7 @@ import { lcText } from "../utils/text.js";
 export default defineComponent({
   mixins: [withOverlay({ dismissible: false, restoreFocus: false })],
   tag: "lc-modal",
-  properties: {
+  props: {
     open: false,
     closeOnEscape: true,
     closeOnBackdropClick: true,

@@ -7,7 +7,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-palette",
   style: true,
-  properties: {
+  props: {
     colors: /** @type {Prop<string[]>} */ (T.array({ defaultValue: [] })),
     label: "",
     meta: "",

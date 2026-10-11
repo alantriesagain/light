@@ -6,7 +6,7 @@ import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
   tag: "lc-switch",
-  properties: {
+  props: {
     _internals: /** @type {Prop<ElementInternals | null>} */ (T.object({ reactive: false, defaultValue: null })),
     checked: false,
     disabled: false,

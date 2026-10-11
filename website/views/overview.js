@@ -5,7 +5,7 @@ import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
   tag: "docs-overview",
-  properties: {
+  props: {
     search: T.string({ sync: "catalogue", defaultValue: "" }),
     skin: T.string({ sync: "catalogue", defaultValue: "" }),
   },

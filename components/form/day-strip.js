@@ -51,7 +51,7 @@ export const stripDays = ({ from, days, locale = "", today = "", dots = [] }) =>
 export default defineComponent({
   tag: "lc-day-strip",
   style: true,
-  properties: {
+  props: {
     value: "",
     from: "",
     days: 7,

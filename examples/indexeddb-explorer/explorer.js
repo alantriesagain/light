@@ -13,11 +13,8 @@ import View from "@bootstrapp/light";
  */
 const errorMessage = (error) => (error instanceof Error ? error.message : String(error));
 
-View.define({
-  tag: "example-indexeddb-explorer",
-
-  properties: {
-
+View.define("example-indexeddb-explorer", {
+  props: {
     selectedDatabase: "",
     selectedStore: "",
 

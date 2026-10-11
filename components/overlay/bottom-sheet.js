@@ -20,7 +20,7 @@ export default defineComponent({
   ],
   tag: "lc-bottom-sheet",
   style: true,
-  properties: {
+  props: {
     open: false,
     detent: "",
     grabber: false,

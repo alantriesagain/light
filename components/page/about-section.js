@@ -12,7 +12,7 @@ export default defineComponent({
     spacing: ["xs", "md", "lg", "xl", "2xl", "3xl", "4xl"],
     radius: ["full"],
   },
-  properties: {
+  props: {
     variant: T.string({
       defaultValue: "prose",
       enum: ["prose", "split"],

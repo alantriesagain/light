@@ -27,7 +27,7 @@ const defineHost = (options) => {
   View.define(tag, defineComponent({
     mixins: [withPointerDrag(options)],
     tag,
-    properties: {
+    props: {
       resizable: false,
       log: /** @type {import("../types.ts").Prop<string[]>} */ (T.object({ reactive: false, defaultValue: null })),
     },

@@ -15,7 +15,7 @@ const TAG = /** @type {const} */ ("lc-pull-indicator");
 export default defineComponent({
   tag: "lc-pull-indicator",
   style: true,
-  properties: {
+  props: {
     pull: 0,
     threshold: 64,
     refreshing: false,

@@ -24,7 +24,7 @@ export default defineComponent({
   tag: "lc-clipboard",
   icons: ["copy", "check"],
   style: true,
-  properties: {
+  props: {
     text: "",
     label: "",
     copiedLabel: "",

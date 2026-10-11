@@ -9,7 +9,7 @@ const IMAGE_URL = /\.(png|jpe?g|gif|webp|avif|svg)(\?|#|$)/i;
 
 export default defineComponent({
   tag: "lc-file-upload",
-  properties: {
+  props: {
     _internals: /** @type {Prop<ElementInternals | null>} */ (T.object({ reactive: false, defaultValue: null })),
     name: "",
     accept: "",

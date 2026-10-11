@@ -3,7 +3,7 @@ import { defineComponent } from "@bootstrapp/light";
 
 export default defineComponent({
   tag: "lc-bottom-nav",
-  properties: {
+  props: {
     variant: T.string({
       defaultValue: "default",
       enum: ["default", "floating", "filled", "pill", "dock"],

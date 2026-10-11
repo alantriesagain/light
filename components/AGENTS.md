@@ -83,7 +83,7 @@ comments saying so.
 
 A fragment that takes options is a function returning `defineMixin({...})`; one that does not is
 the object itself. Do not annotate a mixin method with `@this`: `defineMixin` already types `this`
-from the fragment's own `properties` and everything else as `any`, and an annotation replaces that,
+from the fragment's own `props` and everything else as `any`, and an annotation replaces that,
 losing the properties.
 
 ## Libs
@@ -123,7 +123,7 @@ declaring anything. Anything that raises a toast imports `toasts`.
 
 ## Instance surface
 
-Every `_`-prefixed field is a declared `properties` entry, `reactive: false` for a plain handle. A
+Every `_`-prefixed field is a declared `props` entry, `reactive: false` for a plain handle. A
 field first assigned in a hook is not a declaration.
 
 Every name the engine puts on the instance is `$`-prefixed, so the whole `_` namespace is yours
@@ -149,7 +149,7 @@ The catalogue, each component's documentation page and the theme editor are
 around it and the IDE opens the same pages as tabs. What this package owns is the demo beside
 each component.
 
-**A component page is drawn from two things and nothing else**: its `properties` block, and the
+**A component page is drawn from two things and nothing else**: its `props` block, and the
 `<component>.demo.js` beside it. A demo is a `description`, a `preview` (a zero-argument arrow
 returning the miniature the catalogue's card shows, sized for a 100px box, with `previewWidth`
 when it needs more room and the card scales it), an `examples` array of

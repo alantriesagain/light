@@ -13,7 +13,7 @@ export default defineComponent({
     spacing: ["sm", "lg", "xl", "2xl", "3xl", "4xl"],
     radius: ["full", "panel", "md"],
   },
-  properties: {
+  props: {
     variant: T.string({
       defaultValue: "light",
       enum: ["light", "dark"],

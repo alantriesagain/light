@@ -4,7 +4,7 @@ import { defineComponent } from "@bootstrapp/light";
 export default defineComponent({
   tag: "lc-pattern",
   style: true,
-  properties: {
+  props: {
     pattern: T.string(),
     random: false,
   },

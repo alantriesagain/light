@@ -10,7 +10,7 @@ import { applySkin, clearSkin } from "@bootstrapp/showcase/lib/skins.js";
 export default defineComponent({
   tag: "docs-skins",
   style: true,
-  properties: {
+  props: {
     ready: false,
   },
 

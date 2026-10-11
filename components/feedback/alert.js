@@ -57,7 +57,7 @@ export default defineComponent({
 	icons: ["circle-check", "circle-x", "triangle-alert", "info", "sticky-note", "lightbulb"],
 	style: true,
 
-	properties: {
+	props: {
 		variant: T.string({
 			defaultValue: "default",
 			enum: ["default", "success", "warning", "error", "info", "note", "tip"],

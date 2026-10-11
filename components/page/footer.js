@@ -13,11 +13,11 @@ export default defineComponent({
     font: ["bold", "medium"],
     spacing: ["lg", "xl", "2xl"],
   },
-  properties: {
+  props: {
     brand: /** @type {Prop<FooterBrand>} */ (T.object({
       attribute: false,
       defaultValue: {},
-      properties: {
+      props: {
         name: T.string(),
         logo: T.string(),
         href: T.string(),

@@ -8,7 +8,7 @@ const ID_PREFIX = "lc-form-";
 
 export const withFormControl = defineMixin({
   formAssociated: true,
-  properties: {
+  props: {
     label: T.string(),
     name: T.string(),
     id: T.string(),

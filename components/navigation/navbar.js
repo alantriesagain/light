@@ -5,7 +5,7 @@ import { lcText } from "../utils/text.js";
 
 export default defineComponent({
   tag: "lc-navbar",
-  properties: {
+  props: {
     fixed: T.string({
       defaultValue: "none",
       enum: ["none", "top", "bottom"],

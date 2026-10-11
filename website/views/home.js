@@ -29,7 +29,7 @@ const envLabel = () => `${env.width}×${env.height} · ${env.breakpoint} · ${en
 export default defineComponent({
   tag: "docs-home",
   style: true,
-  properties: {
+  props: {
     phone: false,
     tabs: /** @type {Prop<Record<string, string>>} */ (T.object({ defaultValue: () => ({}) })),
     qty: 2,

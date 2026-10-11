@@ -36,18 +36,33 @@
       "types": "./theme/types.ts",
       "default": "./theme/index.js"
     },
+    "./check": {
+      "types": "./check/types.ts",
+      "default": "./check/define.js"
+    },
     "./*": "./*"
   },
   "scripts": {
     "pack": "node scripts/pack.js",
     "bench": "node benchmarks/run.js",
-    "test": "node --test navigation/*.test.js signals/*.test.js theme/variant-rules.test.js types/*.test.js test/*.test.js $(find components -name \"*.test.js\" -not -name \"*.browser.test.js\") && node bin/light.js test env/*.browser.test.js html/*.browser.test.js theme/*.browser.test.js view/*.browser.test.js components/*/*.browser.test.js"
+    "typecheck": "tsc --noEmit",
+    "check": "node bin/light.js check",
+    "test": "node --test check/*.test.js check/parse/*.test.js check/rules/*.test.js navigation/*.test.js signals/*.test.js theme/variant-rules.test.js types/*.test.js test/*.test.js $(find components -name \"*.test.js\" -not -name \"*.browser.test.js\") && node bin/light.js test env/*.browser.test.js html/*.browser.test.js theme/*.browser.test.js view/*.browser.test.js components/*/*.browser.test.js",
+    "verify": "npm run typecheck && npm run check && npm test"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
     "marked": "^18.1.0",
     "playwright": "^1.58.2",
     "typescript": "^5.7.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.7.0"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
   },
   "bootstrapp": {
     "components": {

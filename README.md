@@ -163,11 +163,15 @@ A component library needs a few things from the page it runs on. Light holds the
 
 ## The repository
 
-This repository is the package: `pnpm install` once, `pnpm test` runs the node tests and then `light test` over the browser ones. `components/` is the component library, `locales/` the words it draws, `examples/` whole pages built on light alone, and `website/` the catalogue site (a Bootstrapp app, left out of the published package). The Bootstrapp monorepo consumes this repository in place: its `light/` is a symlink to a checkout beside it, and its `projects/light` one to `website/`.
+This repository is the package: `pnpm install` once, `pnpm test` runs the node tests and then `light test` over the browser ones, `pnpm verify` runs the typecheck, `light check` and the tests, and passes only at zero. `components/` is the component library, `locales/` the words it draws, `examples/` whole pages built on light alone, and `website/` the catalogue site (a Bootstrapp app, left out of the published package). The Bootstrapp monorepo consumes this repository in place: its `light/` is a symlink to a checkout beside it, and its `projects/light` one to `website/`.
 
 ## Testing
 
 Tests are written against `node:test` and `node:assert/strict`. One that needs no DOM runs under `node --test`; one that does runs in a real browser with `npx light test <files...>`, where the same two specifiers resolve to light's browser implementation of them ([test/README.md](test/README.md)).
+
+## Checking
+
+`npx light check [dir]` reads every component definition in a project and holds it to light's conventions: a definition goes through `defineComponent`, a property is declared under `props`, a boolean binds as `?attr`, a part is named by its tag, a hook has the engine's name, a method does not shadow a DOM method, a stylesheet scopes through the component's tag. The project is the nearest directory up from `dir` with a `package.json` (or `--root <dir>`); a `dir` inside it narrows the pass to that directory and reads it as a directory of components. The rules are light's own (`check/rules/`, ids `light/<name>`) and the project's `check/rules/`; `--rule <id>` runs one, `--json` prints the result, the exit code is 1 at any error. Reading a definition takes the TypeScript compiler, so the project installs it (`npm i -D typescript`). Inside a Bootstrapp app the same rules run through `bootstrapp check`, discovered from `node_modules/@bootstrapp/light`.
 
 ## Files
 
@@ -180,6 +184,7 @@ Tests are written against `node:test` and `node:assert/strict`. One that needs n
 | `components/` | The component library, one directory per category, a `.css` and a `.demo.js` beside each component |
 | `locales/` | The words the components draw, keyed by tag, one file per language |
 | `test/` | `node:test` and `node:assert` for the browser, the runner page, the loop and `light test` |
+| `check/` | The convention checker: the rule contract, the parsers of a definition and its templates, the project context, the engine, `light check`, and light's own rules under `check/rules/` |
 | `html/` | The renderer |
 | `signals/index.js` | The signals |
 | `signals/store.js` | The keyed reactive store behind `$state` |

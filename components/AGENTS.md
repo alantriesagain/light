@@ -137,7 +137,7 @@ upgraded. DOM method names (`remove`, `click`, `focus`, `closest`) are still ref
 `connected()` runs on every mount and the `$own` registry is drained and cleared before it runs
 again, so a listener added there without a matching removal is added again on every remount, and an
 anonymous handler cannot be removed afterwards even deliberately. Name the handler, add it,
-`$own` the removal. `view/host-listener-removed` fails the package otherwise.
+`$own` the removal. `light/host-listener-removed` fails the package otherwise.
 
 A listener added in `firstUpdated()` is different: that hook runs once per element, not once per
 mount, so it neither doubles nor wants a teardown.

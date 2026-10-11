@@ -18,6 +18,9 @@ const walk = (dir) =>
 /**
  * Copy the sources into `dist`, generate their `.d.ts`, and leave the `.js`
  * and `.d.ts` files with a package.json whose exports name the declarations.
+ * The manifest is written before tsc runs, so a bare `@bootstrapp/light/...`
+ * import in a source resolves to its copy in `dist` and not to the
+ * repository beside it.
  * @returns {{ dir: string, manifest: { name: string, exports: Record<string, string | { types: string, default: string }> } }}
  */
 export const stage = () => {
@@ -44,15 +47,18 @@ export const stage = () => {
     include: ["**/*.js", "**/*.ts"],
     exclude: sources.filter((file) => file.endsWith(".js") && sources.includes(file.replace(/\.js$/, ".d.ts"))),
   }));
+  const { bootstrapp, scripts: _, devDependencies: __, ...manifest } = JSON.parse(readFileSync(join(LIGHT, "package.json"), "utf8"));
+  manifest.bootstrapp = { components: bootstrapp.components };
+  const files = ["**/*.js", "**/*.d.ts", "**/*.css"];
+  writeFileSync(join(DIST, "package.json"), `${JSON.stringify({ ...manifest, files }, null, 2)}\n`);
   execFileSync(join(LIGHT, "node_modules/.bin/tsc"), ["-p", DIST], { stdio: "inherit" });
   for (const file of walk(DIST))
     if (file.endsWith(".d.ts")) writeFileSync(file, readFileSync(file, "utf8").replace(/(["'])(\.{1,2}\/[^"']+)\.ts\1/g, "$1$2.js$1"));
     else if (file.endsWith(".ts") || relative(DIST, file) === "tsconfig.json") rmSync(file);
 
-  const { bootstrapp: _, scripts: __, devDependencies: ___, ...manifest } = JSON.parse(readFileSync(join(LIGHT, "package.json"), "utf8"));
   manifest.exports = Object.fromEntries(Object.entries(manifest.exports).map(([key, target]) =>
     [key, typeof target === "string" ? target : { ...target, types: target.types.replace(/\.ts$/, ".d.ts") }]));
-  writeFileSync(join(DIST, "package.json"), `${JSON.stringify({ ...manifest, files: ["**/*.js", "**/*.d.ts", "**/*.css"] }, null, 2)}\n`);
+  writeFileSync(join(DIST, "package.json"), `${JSON.stringify({ ...manifest, files }, null, 2)}\n`);
   return { dir: DIST, manifest };
 };
 

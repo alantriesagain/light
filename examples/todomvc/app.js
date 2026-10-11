@@ -28,7 +28,7 @@ let nextId = Date.now();
 const todoApp = defineComponent({
   properties: {
     todos: /** @type {TypeDefinition<Todo[]>} */ (T.array({ defaultValue: [], attribute: false })),
-    filter: T.string({ defaultValue: "all" }),
+    filter: "all",
   },
 
   connected() {
@@ -202,7 +202,7 @@ const todoApp = defineComponent({
 const todoItem = defineComponent({
   properties: {
     todo: /** @type {TypeDefinition<Todo>} */ (T.object({ defaultValue: {}, attribute: false })),
-    editing: T.boolean({ defaultValue: false }),
+    editing: false,
   },
   events: {
     toggle: T.object(),

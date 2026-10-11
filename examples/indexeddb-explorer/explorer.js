@@ -18,11 +18,11 @@ export default defineComponent({
 
   properties: {
 
-    selectedDatabase: T.string(""),
-    selectedStore: T.string(""),
+    selectedDatabase: "",
+    selectedStore: "",
 
-    activeTab: T.number(0),
-    searchQuery: T.string(""),
+    activeTab: 0,
+    searchQuery: "",
 
     databases: /** @type {Prop<LabeledOption[]>} */ (T.array({ defaultValue: [] })),
     stores: /** @type {Prop<LabeledOption[]>} */ (T.array({ defaultValue: [] })),
@@ -30,21 +30,21 @@ export default defineComponent({
     selectedRecords: /** @type {Prop<IdbRecord[]>} */ (T.array({ defaultValue: [] })),
     schema: /** @type {Prop<IdbSchema | null>} */ (T.object({ defaultValue: null })),
 
-    queryIndex: T.string(""),
-    queryOperator: T.string("equals"),
-    queryValue: T.string(""),
+    queryIndex: "",
+    queryOperator: "equals",
+    queryValue: "",
     queryResults: /** @type {Prop<IdbRecord[]>} */ (T.array({ defaultValue: [] })),
 
-    showRecordModal: T.boolean(false),
-    showDeleteModal: T.boolean(false),
-    showSchemaModal: T.boolean(false),
+    showRecordModal: false,
+    showDeleteModal: false,
+    showSchemaModal: false,
     editingRecord: /** @type {Prop<IdbRecord | null>} */ (T.object({ defaultValue: null })),
 
-    newDbName: T.string(""),
-    newStoreName: T.string(""),
-    newStoreKeyPath: T.string("id"),
-    newIndexName: T.string(""),
-    newIndexKeyPath: T.string(""),
+    newDbName: "",
+    newStoreName: "",
+    newStoreKeyPath: "id",
+    newIndexName: "",
+    newIndexKeyPath: "",
   },
 
   style: true,

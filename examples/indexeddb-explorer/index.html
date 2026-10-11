@@ -37,7 +37,7 @@
     const components = [
       "display/badge", "display/button", "display/data-table", "display/icon", "display/link", "display/list",
       "display/list-item", "display/table", "display/text", "feedback/toast", "form/checkbox", "form/input",
-      "form/select", "layout/card", "layout/flex", "layout/split-pane", "navigation/accordion", "navigation/menu",
+      "form/select", "layout/card", "layout/container", "layout/flex", "layout/split-pane", "navigation/accordion", "navigation/menu",
       "navigation/nav-item", "navigation/tabs", "overlay/alert-dialog", "overlay/modal",
     ];
     for (const path of components) View.define((await import(`@bootstrapp/light/components/${path}.js`)).default);

@@ -52,7 +52,11 @@ View.define({
   tag: "my-counter",
   properties: { count: 0 },
   render() {
-    return html\`<button @click=\${() => this.count++}>Clicks: \${this.count}</button>\`;
+    return html\`
+      <button @click=\${() => this.count++}>
+        Clicks: \${this.count}
+      </button>
+    \`;
   },
 });`,
   templates: `render() {

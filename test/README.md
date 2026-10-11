@@ -2,15 +2,15 @@
 
 One test API, node's. A test file is written against `node:test` and `node:assert/strict`, and runs under `node --test` when it needs no DOM, or in a real browser when it does. In the browser those two specifiers resolve, through the runner page's importmap, to the modules in this folder: an implementation of `node:test` and `node:assert` for the browser.
 
+A component module registers its own tag with `View.define`, so a test imports it and uses the tag:
+
 ```js
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import View from "@bootstrapp/light";
-import counter from "./counter.js";
+import "./counter.js";
 
 describe("my-counter", () => {
   it("counts", async () => {
-    View.define(counter);
     const el = document.createElement("my-counter");
     document.body.append(el);
     el.querySelector("button").click();

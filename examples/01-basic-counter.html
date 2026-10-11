@@ -86,12 +86,12 @@
   <script type="module">
     import View from '@bootstrapp/light';
     import { html } from '@bootstrapp/light/html';
-    import T from '@bootstrapp/light/types';
 
-    View.define('my-counter', {
+    View.define({
+      tag: 'my-counter',
       properties: {
-        count: T.number({ defaultValue: 0 }),
-        label: T.string({ defaultValue: 'Counter' })
+        count: 0,
+        label: 'Counter'
       },
 
       increment() {

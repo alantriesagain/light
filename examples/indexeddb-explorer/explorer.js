@@ -2,7 +2,7 @@ import Dexie from "https://esm.sh/dexie@4.0.11";
 import { html } from "@bootstrapp/light/html";
 import { toasts } from "@bootstrapp/light/components/feedback/toasts.js";
 import T from "@bootstrapp/light/types";
-import { defineComponent } from "@bootstrapp/light";
+import View from "@bootstrapp/light";
 
 /** @import { Prop, LabeledOption, IdbRecord, DexieTableLike, DexieIndexSpec, IdbSchema, IdbSchemaTable, IdbSchemaIndex } from "./types.ts" */
 
@@ -13,7 +13,7 @@ import { defineComponent } from "@bootstrapp/light";
  */
 const errorMessage = (error) => (error instanceof Error ? error.message : String(error));
 
-export default defineComponent({
+View.define({
   tag: "example-indexeddb-explorer",
 
   properties: {

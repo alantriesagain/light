@@ -1,6 +1,6 @@
 import { html } from "@bootstrapp/light/html";
 import T from "@bootstrapp/light/types";
-import View, { defineComponent } from "@bootstrapp/light";
+import View from "@bootstrapp/light";
 
 /**
  * @import { TypeDefinition } from "@bootstrapp/light/types"
@@ -25,7 +25,8 @@ const saveTodos = (todos) => {
 
 let nextId = Date.now();
 
-const todoApp = defineComponent({
+View.define({
+  tag: "todo-app",
   properties: {
     todos: /** @type {TypeDefinition<Todo[]>} */ (T.array({ defaultValue: [], attribute: false })),
     filter: "all",
@@ -199,7 +200,8 @@ const todoApp = defineComponent({
   },
 });
 
-const todoItem = defineComponent({
+View.define({
+  tag: "todo-item",
   properties: {
     todo: /** @type {TypeDefinition<Todo>} */ (T.object({ defaultValue: {}, attribute: false })),
     editing: false,
@@ -266,6 +268,3 @@ const todoItem = defineComponent({
     `;
   },
 });
-
-View.define("todo-app", todoApp);
-View.define("todo-item", todoItem);

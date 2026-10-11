@@ -44,7 +44,8 @@
     import { html } from "@bootstrapp/light/html";
     import View from "@bootstrapp/light";
 
-    View.define("demo-card", {
+    View.define({
+      tag: "demo-card",
       render() {
         return html`
           <div part="demo-card-header"><slot name="header">No header given</slot></div>

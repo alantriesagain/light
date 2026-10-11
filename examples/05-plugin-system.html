@@ -229,7 +229,6 @@
   <script type="module">
     import View from '@bootstrapp/light';
     import { html } from '@bootstrapp/light/html';
-    import T from '@bootstrapp/light/types';
 
     const consoleOutput = document.getElementById('consoleOutput');
 
@@ -296,11 +295,12 @@
     View.use(analyticsPlugin);
     View.use(validatorPlugin);
 
-    View.define('plugin-demo', {
+    View.define({
+      tag: 'plugin-demo',
       properties: {
-        name: T.string({ defaultValue: 'Unnamed' }),
-        clicks: T.number({ defaultValue: 0 }),
-        requiredField: T.string({ defaultValue: '' })
+        name: 'Unnamed',
+        clicks: 0,
+        requiredField: ''
       },
 
       handleClick() {

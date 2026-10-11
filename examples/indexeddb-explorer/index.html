@@ -29,7 +29,7 @@
     import { applyTheme } from "@bootstrapp/light/theme";
     import { loadPreset } from "@bootstrapp/light/theme/presets.js";
     import { configureIcons, iconify } from "@bootstrapp/light/theme/icons.js";
-    import explorer from "./explorer.js";
+    import "./explorer.js";
 
     configureIcons({ load: iconify("lucide") });
     applyTheme(await loadPreset("default"));
@@ -41,7 +41,6 @@
       "navigation/nav-item", "navigation/tabs", "overlay/alert-dialog", "overlay/modal",
     ];
     for (const path of components) View.define((await import(`@bootstrapp/light/components/${path}.js`)).default);
-    View.define(explorer);
   </script>
 </body>
 </html>

@@ -158,7 +158,6 @@
   <script type="module">
     import View from '@bootstrapp/light';
     import { html } from '@bootstrapp/light/html';
-    import T from '@bootstrapp/light/types';
 
     const logContainer = document.getElementById('logContainer');
 
@@ -173,10 +172,11 @@
 
     window.lifecycleLog = log;
 
-    View.define('lifecycle-demo', {
+    View.define({
+      tag: 'lifecycle-demo',
       properties: {
-        counter: T.number({ defaultValue: 0 }),
-        name: T.string({ defaultValue: 'Demo Component' })
+        counter: 0,
+        name: 'Demo Component'
       },
 
       connected() {

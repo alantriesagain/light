@@ -29,7 +29,11 @@ View.define({
     this.count++;
   },
   render() {
-    return html`<button @click=${() => this.increment()}>${this.label}: ${this.count}</button>`;
+    return html`
+      <button @click=${() => this.increment()}>
+        ${this.label}: ${this.count}
+      </button>
+    `;
   },
 });
 ```
@@ -108,7 +112,7 @@ const withEscapeKey = defineMixin({
   },
 });
 
-defineComponent({
+View.define({
   tag: "my-menu",
   mixins: [withEscapeKey],
   close() { this.open = false; },

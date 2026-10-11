@@ -1,6 +1,6 @@
 import { html, nothing } from "@bootstrapp/light/html";
 import { signal } from "@bootstrapp/light/signals";
-import { defineComponent } from "@bootstrapp/light";
+import View from "@bootstrapp/light";
 
 const OCTAVE = [
   { note: "C", freq: 261.63, key: "a", slot: 0 },
@@ -20,7 +20,7 @@ const OCTAVE = [
 const naturals = OCTAVE.filter((tone) => tone.slot === 0);
 const sharps = OCTAVE.filter((tone) => tone.slot > 0);
 
-export default defineComponent({
+View.define({
   tag: "grand-octave",
 
   connected() {

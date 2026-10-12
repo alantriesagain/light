@@ -145,3 +145,11 @@ export default {
   assert.equal(findings.length, 1);
   assert.match(findings[0].message, /dead-event/);
 });
+
+test("a quoted value holding a tag does not hide the element the listener sits on", async () => {
+  const findings = await runRuleOn(rule, {
+    "views/list.js": 'export default { tag: "fx-list", render() { return null; } };',
+    "views/page.js": 'import { html } from "@bootstrapp/light/html";\nexport default { tag: "fx-page", render() { return html`<fx-list title="a <i> b" @row-click=${this.pick}></fx-list>`; } };',
+  });
+  assert.deepEqual(findings.map((f) => f.message), ['@row-click on <fx-list>: the component neither declares nor dispatches "row-click"; this handler can never run']);
+});

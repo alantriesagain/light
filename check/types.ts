@@ -87,7 +87,43 @@ export interface View extends ParsedComponent {
 }
 
 export interface Template { content: string; start: number }
+/**
+ * A `class` value: the static text (an expression inside it stands as `${}`),
+ * or with `template` the source of the one expression the whole value is.
+ */
 export interface ClassAttr { value: string; offset: number; template: boolean }
+
+/** A template's markup as a tree; every offset is the file's own. */
+export interface ParsedTemplate { start: number; content: string; children: MarkupNode[] }
+export interface MarkupElement {
+  kind: "element";
+  tag: string;
+  offset: number;
+  end: number;
+  attrs: MarkupAttribute[];
+  children: MarkupNode[];
+  parent: MarkupElement | null;
+}
+/**
+ * An attribute as written: the prefix decides the kind and is stripped from
+ * `name`; `value` is the static value, null once an expression is in it;
+ * `valueOffset` is where the value's text starts in the file, null for a bare
+ * attribute.
+ */
+export interface MarkupAttribute {
+  name: string;
+  kind: "attr" | "bool" | "event" | "prop";
+  statics: string[];
+  expressions: Array<{ offset: number; end: number }>;
+  offset: number;
+  value: string | null;
+  valueOffset: number | null;
+}
+/** A text run between tags, its expressions blanked to spaces so offsets hold. */
+export interface MarkupText { kind: "text"; text: string; offset: number }
+/** A `${...}` in content position. */
+export interface MarkupExpression { kind: "expression"; offset: number; end: number }
+export type MarkupNode = MarkupElement | MarkupText | MarkupExpression;
 
 export type PackageJson = Record<string, any> & {
   name?: string;
@@ -170,6 +206,8 @@ export interface ProjectModel {
   componentFiles(): string[];
   componentIndex(): ComponentIndex;
   templates(rel: string): Template[];
+  /** The file's templates as trees, one per `html` or `svg` template. */
+  markup(rel: string): ParsedTemplate[];
   imports(rel: string): ParsedImport[];
   classAttrs(rel: string): ClassAttr[];
   assetFiles(dir: string): string[];

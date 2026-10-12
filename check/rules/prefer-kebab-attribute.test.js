@@ -52,3 +52,11 @@ View.define("fx-b", {}, (el) => html\`<i></i>\`);
   const findings = await runRuleOn(rule, { "views/pair.js": src, "views/target.js": 'export default { tag: "fx-target", props: { useSystem: false } };' });
   assert.equal(findings.length, 1);
 });
+
+test("a name inside an expression is not an attribute", async () => {
+  const findings = await runRuleOn(rule, {
+    "views/target.js": 'export default { tag: "fx-target", props: { useSystem: false } };',
+    "views/page.js": 'import { html } from "@bootstrapp/light/html";\nexport default { tag: "fx-page", render() { return html`<fx-target title=${this.a ? usesystem : "b"} alt="usesystem x"></fx-target>`; } };',
+  });
+  assert.deepEqual(findings, []);
+});

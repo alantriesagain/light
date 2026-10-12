@@ -140,3 +140,11 @@ test("an expression with an arrow before the binding does not break tag resoluti
   });
   assert.equal(findings.length, 1);
 });
+
+test("a quoted value holding a tag does not hide the element the binding sits on", async () => {
+  const findings = await runRuleOn(rule, {
+    "views/target.js": 'export default { tag: "fx-target", props: { open: false } };',
+    "views/page.js": 'import { html } from "@bootstrapp/light/html";\nexport default { tag: "fx-page", render() { return html`<fx-target title="a <i> b" .open=${this.o}></fx-target>`; } };',
+  });
+  assert.deepEqual(findings.map((f) => f.message), [".open on <fx-target>: open is a T.boolean property; bind it as ?open=${...}"]);
+});

@@ -18,7 +18,7 @@ export const blank = (text) => text.replace(/[^\n]/g, " ");
  * @returns {string}
  */
 export const stripComments = (source) =>
-  source.replace(/\/\*[\s\S]*?\*\//g, blank).replace(/^(\s*)\/\/.*$/gm, blank);
+  source.replace(/\/\*[\s\S]*?\*\//g, blank).replace(/^[^\S\n]*\/\/.*$/gm, blank);
 
 /**
  * Blank block comments in CSS.

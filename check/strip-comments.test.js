@@ -21,3 +21,13 @@ test("stripCssComments blanks only block comments", () => {
   assert.ok(!out.includes("note"));
   assert.equal(out.indexOf(".b"), css.indexOf(".b"));
 });
+
+test("stripComments stays linear on a long run of blank lines", () => {
+  const source = `${" \n".repeat(200000)}  // tail\nconst x = 1;\n`;
+  const started = performance.now();
+  const out = stripComments(source);
+  assert.ok(performance.now() - started < 1000);
+  assert.equal(out.length, source.length);
+  assert.ok(!out.includes("tail"));
+  assert.ok(out.includes("const x = 1;"));
+});

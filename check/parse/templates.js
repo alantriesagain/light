@@ -1,6 +1,6 @@
-/** `html\`...\`` template extents and `class` attribute values in a source text. */
+/** `html\`...\`` and `svg\`...\`` template extents in a source text. */
 
-/** @import { ClassAttr, Template } from "../types.ts" */
+/** @import { Template } from "../types.ts" */
 
 /**
  * Index of the backtick closing the template literal whose body starts at
@@ -35,59 +35,24 @@ export const scanTemplateEnd = (src, pos) => {
   return -1;
 };
 
+const TAGGED = /(?<![\w$.])(?:html|svg)`/g;
+
 /**
- * Every `html\`` template in the source, outermost extents only.
+ * Every `html\`` and `svg\`` template in the source, outermost extents only.
  * @param {string} source
  * @returns {Template[]}
  */
 export const htmlTemplates = (source) => {
+  /** @type {Template[]} */
   const out = [];
-  let i = 0;
-  while ((i = source.indexOf("html`", i)) !== -1) {
-    if (i > 0 && /[\w$.]/.test(source[i - 1])) {
-      i += 5;
-      continue;
-    }
-    const start = i + 5;
+  TAGGED.lastIndex = 0;
+  let m;
+  while ((m = TAGGED.exec(source)) !== null) {
+    const start = m.index + m[0].length;
     const end = scanTemplateEnd(source, start);
     if (end === -1) break;
     out.push({ content: source.slice(start, end), start });
-    i = end + 1;
-  }
-  return out;
-};
-
-/**
- * Literal `class="..."` / `class: "..."` values and the expression of every
- * `class=${...}` binding.
- * @param {string} source
- * @returns {ClassAttr[]}
- */
-export const classAttrs = (source) => {
-  /** @type {ClassAttr[]} */
-  const out = [];
-  for (const re of [/class="([^"]*)"/g, /class:\s*"([^"]*)"/g]) {
-    re.lastIndex = 0;
-    let m;
-    while ((m = re.exec(source)) !== null) out.push({ value: m[1], offset: m.index, template: false });
-  }
-  const exprRe = /class=\$\{/g;
-  let m;
-  while ((m = exprRe.exec(source)) !== null) {
-    const start = m.index + m[0].length;
-    let depth = 1;
-    let pos = start;
-    for (; pos < source.length && depth > 0; pos++) {
-      const ch = source[pos];
-      if (ch === "{") depth++;
-      else if (ch === "}") depth--;
-      else if (ch === "`") {
-        const end = scanTemplateEnd(source, pos + 1);
-        if (end === -1) break;
-        pos = end;
-      }
-    }
-    out.push({ value: source.slice(start, pos - 1), offset: m.index, template: true });
+    TAGGED.lastIndex = end + 1;
   }
   return out;
 };

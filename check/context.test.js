@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { contextFromFiles } from "./test-utils.js";
 import { createContext } from "./context.js";
+import { elements } from "./parse/markup.js";
 
 const VIEW = `import { html } from "@bootstrapp/light/html";
 import T from "@bootstrapp/light/types";
@@ -120,11 +121,32 @@ test("imports() ignores a specifier quoted inside a comment", () => {
   assert.deepEqual(ctx.imports("views/a.js").map((i) => [i.spec, i.kind]), [["@bootstrapp/light/types", "default"], ["@bootstrapp/anim", "dynamic"]]);
 });
 
-test("classAttrs() captures literal and template class values", () => {
-  const src = 'html`<div class="a b"><span class=${done ? "x" : "y"}></span></div>`; export default { class: "host" };';
+test("classAttrs() captures literal, mixed, bound and object-key class values, from templates only", () => {
+  const src = '/* <i class="gone"></i> */\nhtml`<div class="a b"><span class=${done ? "x" : "y"}></span><em class="c ${d} e"></em></div>`; export default { class: "host" };';
   const ctx = contextFromFiles({ "views/x.js": src });
   const attrs = ctx.classAttrs("views/x.js");
-  assert.deepEqual(attrs.map((a) => a.value), ["a b", "host", 'done ? "x" : "y"']);
+  assert.deepEqual(attrs.map((a) => [a.value, a.template]), [["a b", false], ['done ? "x" : "y"', true], ["c ${} e", false], ["host", false]]);
+  assert.equal(attrs[0].offset, src.indexOf('class="a b"'));
+  const page = contextFromFiles({ "index.html": '<div class="hero"></div>\n<script type="module">\nimport View from "@bootstrapp/light";\nimport { html } from "@bootstrapp/light/html";\nView.define("fx-a", {}, (el) => html`<b class="inner"></b>`);\n</script>\n' });
+  assert.deepEqual(page.classAttrs("index.html").map((a) => a.value), ["inner"]);
+});
+
+test("markup() answers each template as a tree, cached until the file is invalidated", () => {
+  const map = {
+    "package.json": JSON.stringify({ name: "fixture", bootstrapp: { components: { fx: "views/" } } }),
+    "views/x.js": 'import { html, svg } from "@bootstrapp/light/html";\nexport default { tag: "fx-x", render() { return html`<lc-y ?open=${this.o}><i part="fx-x-dot"></i></lc-y>`; }, icon() { return svg`<circle r="1"></circle>`; } };',
+  };
+  const ctx = createContext({ projectDir: "/fixture", fileMap: map });
+  const [first, second] = ctx.markup("views/x.js");
+  const [y, i] = elements(first);
+  assert.deepEqual([y.tag, i.tag, i.parent?.tag], ["lc-y", "i", "lc-y"]);
+  assert.deepEqual(y.attrs.map((a) => [a.name, a.kind]), [["open", "bool"]]);
+  assert.equal(ctx.lineAt("views/x.js", i.offset).line, 2);
+  assert.deepEqual([...elements(second)].map((el) => el.tag), ["circle"]);
+  assert.equal(ctx.markup("views/x.js"), ctx.markup("views/x.js"));
+  map["views/x.js"] = 'import { html } from "@bootstrapp/light/html";\nexport default { tag: "fx-x", render() { return html`<p></p>`; } };';
+  ctx.invalidate("views/x.js");
+  assert.deepEqual([...elements(ctx.markup("views/x.js")[0])].map((el) => el.tag), ["p"]);
 });
 
 test("deps merge the manifest's dependency blocks and the check.from names; hasDep reads them", () => {
@@ -264,7 +286,7 @@ View.define("fx-hero", { title: "" }, (el) => html\`<h1 part="fx-hero-title">\${
   assert.deepEqual(ctx.imports("index.html").map((i) => i.spec), ["@bootstrapp/light", "@bootstrapp/light/html"]);
   assert.ok(!(ctx.code("index.html") || "").includes("importmap"));
   assert.ok(ctx.templates("index.html")[0].content.includes("fx-hero-title"));
-  assert.deepEqual(ctx.classAttrs("index.html").map((a) => a.value), ["hero"]);
+  assert.deepEqual(ctx.classAttrs("index.html"), []);
   assert.equal(ctx.componentIndex().has("fx-hero"), true);
 });
 

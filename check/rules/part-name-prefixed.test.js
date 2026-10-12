@@ -53,3 +53,8 @@ View.define("fx-b", {}, (el) => html\`<div part="fx-b-body"><i part="chip"></i><
   assert.equal(findings.length, 1);
   assert.match(findings[0].message, /part="chip"/);
 });
+
+test("a single-quoted or unquoted static part is read too", async () => {
+  const findings = await runRuleOn(rule, { "views/card.js": component("<div part='body'><i part=fx-card-dot></i></div>") });
+  assert.deepEqual(findings.map((f) => f.message.startsWith('part="body"')), [true]);
+});

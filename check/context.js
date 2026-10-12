@@ -16,10 +16,11 @@ import { stripComments } from "./strip-comments.js";
 import { parseImports } from "./parse/imports.js";
 import { parseComponentSources } from "./parse/component.js";
 import { moduleScripts } from "./parse/html.js";
-import { classAttrs as classAttrsIn, htmlTemplates } from "./parse/templates.js";
+import { htmlTemplates } from "./parse/templates.js";
+import { elements, parseTemplates } from "./parse/markup.js";
 import { createComponentIndex } from "./component-index.js";
 
-/** @import { HostOptions, PackageJson, ParsedComponent, ProjectContext, View } from "./types.ts" */
+/** @import { ClassAttr, HostOptions, PackageJson, ParsedComponent, ParsedTemplate, ProjectContext, View } from "./types.ts" */
 
 export const DEFAULT_IGNORED_DIRS = ["node_modules", ".git", "dist", "build", "coverage"];
 export const TEXT_EXTENSIONS = [".js", ".mjs", ".ts", ".css", ".json", ".html", ".md"];
@@ -36,10 +37,14 @@ export function createContext({ projectDir, fileMap = null, pkg: givenPkg = null
   const readCache = new Map();
   /** @type {Map<string, string | null>} */
   const codeCache = new Map();
+  /** @type {Map<string, string | null>} */
+  const scriptCache = new Map();
   /** @type {Map<string, number[]>} */
   const lineIndexCache = new Map();
   /** @type {Map<string, View[]>} */
   const viewCache = new Map();
+  /** @type {Map<string, ParsedTemplate[]>} */
+  const markupCache = new Map();
   /** @type {string[] | null} */
   let filesCache = null;
   /** @type {string[] | null} */
@@ -60,8 +65,12 @@ export function createContext({ projectDir, fileMap = null, pkg: givenPkg = null
   };
 
   const script = (/** @type {string} */ rel) => {
+    if (!rel.endsWith(".html")) return read(rel);
+    if (scriptCache.has(rel)) return /** @type {string | null} */ (scriptCache.get(rel));
     const raw = read(rel);
-    return raw != null && rel.endsWith(".html") ? moduleScripts(raw) : raw;
+    const js = raw == null ? null : moduleScripts(raw);
+    scriptCache.set(rel, js);
+    return js;
   };
 
   const code = (/** @type {string} */ rel) => {
@@ -165,17 +174,40 @@ export function createContext({ projectDir, fileMap = null, pkg: givenPkg = null
     return views;
   };
 
+  /** @type {View[] | null} */
+  let viewsCache = null;
   const views = () =>
-    files().flatMap((f) => {
+    (viewsCache ??= files().flatMap((f) => {
       if (isScript(f) && componentDirs().some((d) => f.startsWith(d))) return viewsIn(f);
       if ((isScript(f) || f.endsWith(".html")) && DEFINES.test(script(f) ?? "")) return viewsIn(f).filter((v) => v.defined);
       return [];
-    });
+    }));
   const componentFiles = () => [...new Set(views().map((v) => v.file))];
 
   const templates = (/** @type {string} */ rel) => htmlTemplates(code(rel) || "");
+  const markup = (/** @type {string} */ rel) => {
+    const cached = markupCache.get(rel);
+    if (cached) return cached;
+    const parsed = templates(rel).flatMap((template) => parseTemplates(template.content, template.start));
+    markupCache.set(rel, parsed);
+    return parsed;
+  };
   const imports = (/** @type {string} */ rel) => parseImports(script(rel) || "");
-  const classAttrs = (/** @type {string} */ rel) => classAttrsIn(read(rel) || "");
+  const classAttrs = (/** @type {string} */ rel) => {
+    const source = code(rel) || "";
+    /** @type {ClassAttr[]} */
+    const out = [];
+    for (const template of markup(rel))
+      for (const el of elements(template))
+        for (const attr of el.attrs) {
+          if (attr.name !== "class" || attr.kind !== "attr") continue;
+          const [only] = attr.expressions;
+          if (attr.expressions.length === 1 && attr.statics.every((s) => !s)) out.push({ value: source.slice(only.offset + 2, only.end - 1), offset: attr.offset, template: true });
+          else out.push({ value: attr.value ?? attr.statics.join("${}"), offset: attr.offset, template: false });
+        }
+    for (const m of source.matchAll(/class:\s*"([^"]*)"/g)) out.push({ value: m[1], offset: m.index, template: false });
+    return out;
+  };
 
   const relOf = (/** @type {string} */ abs) => {
     const rel = toRel(projectDir, abs);
@@ -230,7 +262,10 @@ export function createContext({ projectDir, fileMap = null, pkg: givenPkg = null
   const invalidate = (/** @type {string} */ rel) => {
     readCache.delete(rel);
     codeCache.delete(rel);
+    scriptCache.delete(rel);
+    viewsCache = null;
     lineIndexCache.delete(rel);
+    markupCache.delete(rel);
     if (viewCache.delete(rel) || componentDirs().some((d) => rel.startsWith(d)) || DEFINES.test(script(rel) ?? "")) index.clear();
     const known = filesCache?.includes(rel) ?? false;
     const present = fileMap ? rel in fileMap : existsSync(path.join(projectDir, rel));
@@ -263,6 +298,7 @@ export function createContext({ projectDir, fileMap = null, pkg: givenPkg = null
     componentFiles,
     componentIndex,
     templates,
+    markup,
     imports,
     classAttrs,
     assetFiles,

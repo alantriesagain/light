@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { runRules } from "./engine.js";
+import { runRules, runRulesSync } from "./engine.js";
 import { contextFromFiles } from "./test-utils.js";
 
 /** @param {string} id @param {import("./types.ts").CheckRule} rule */
@@ -101,4 +101,26 @@ test("a rule filter runs only that rule, even when overridden off, and names an 
   assert.equal(result.rules.find((r) => r.id === "fake/error-rule").reason, "filtered");
   const unknown = await runRules({ context, rules, ruleFilter: "fake/nope" });
   assert.ok(unknown.configWarnings.includes('unknown rule id "fake/nope"'));
+});
+
+test("runRulesSync answers what runRules answers for synchronous rules", async () => {
+  const context = contextFromFiles({ "views/a.js": "" }, { pkgJson: { name: "my-proj" } });
+  const sync = runRulesSync({ context, rules });
+  const awaited = await runRules({ context, rules });
+  assert.deepEqual({ ...sync, stats: { ...sync.stats, durationMs: 0 } }, { ...awaited, stats: { ...awaited.stats, durationMs: 0 } });
+});
+
+test("runRulesSync skips a rule whose check is asynchronous, findings and all", () => {
+  const late = entry("fake/late", {
+    severity: "warn",
+    description: "reports after an await",
+    async check(ctx) {
+      ctx.report({ file: "package.json", line: 1, col: 1, message: "before" });
+      await Promise.resolve();
+      ctx.report({ file: "package.json", line: 1, col: 1, message: "after" });
+    },
+  });
+  const result = runRulesSync({ context: contextFromFiles({}), rules: [late, fires] });
+  assert.deepEqual(result.findings.map((f) => f.ruleId), ["fake/always-fires"]);
+  assert.ok(result.configWarnings.includes("rule fake/late is asynchronous and was skipped (synchronous run)"));
 });

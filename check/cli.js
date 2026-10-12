@@ -8,24 +8,11 @@
  * compiler, which the project installs.
  */
 
-import { existsSync, statSync } from "node:fs";
+import { statSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-/** @import { ComponentMap } from "./types.ts" */
 
 const USAGE = "Usage: light check [--root <dir>] [--rule <id>] [--json] [dir]";
 export const TYPESCRIPT_HINT = "light check reads component definitions with TypeScript.\n  Install it where you are running from:  npm i -D typescript";
-const LIGHT_ROOT = fileURLToPath(new URL("../", import.meta.url));
-
-/** @param {string} dir */
-const nearestPackageRoot = (dir) => {
-  for (let current = dir; ; current = path.dirname(current)) {
-    if (existsSync(path.join(current, "package.json"))) return current;
-    if (path.dirname(current) === current) return null;
-  }
-};
-
 /** @param {string} p */
 const isDir = (p) => {
   try {
@@ -64,26 +51,16 @@ export const check = async (argv) => {
     console.error(TYPESCRIPT_HINT);
     return false;
   }
-  const [{ createContext }, { runRules }, { loadRules, ownRuleSources, projectRuleSources }, { formatFinding, formatSummary }, { readPackageJson, toRel }] = await Promise.all([
-    import("./context.js"),
+  const [{ runRules }, { loadRules }, { formatFinding, formatSummary }, { openProject, projectRoot }] = await Promise.all([
     import("./engine.js"),
     import("./discover.js"),
     import("./format.js"),
-    import("./walk.js"),
+    import("./project.js"),
   ]);
-  root ??= nearestPackageRoot(dir) ?? dir;
-  const scope = dir === root ? null : `${toRel(root, dir)}/`;
-  /** @type {ComponentMap} */
-  const lightMap = { owner: "light", dir: LIGHT_ROOT, components: readPackageJson(LIGHT_ROOT)?.bootstrapp?.components ?? {} };
-  const rootPkg = readPackageJson(root) ?? {};
-  const { components: _, ...config } = rootPkg.bootstrapp ?? {};
-  const ctx = createContext({
-    projectDir: root,
-    pkg: scope ? { ...rootPkg, bootstrapp: config } : rootPkg,
-    host: { componentMaps: () => [lightMap], ...(scope ? { scope, componentDirs: () => [scope] } : {}) },
-  });
-  const { rules, warnings } = await loadRules([...ownRuleSources(), ...projectRuleSources(root, ctx.pkg)]);
-  const result = await runRules({ context: ctx, rules, ruleFilter: rule });
+  root ??= projectRoot(dir) ?? dir;
+  const { context, sources } = openProject(root, dir);
+  const { rules, warnings } = await loadRules(sources);
+  const result = await runRules({ context, rules, ruleFilter: rule });
   result.configWarnings.unshift(...warnings);
   if (json) {
     console.log(JSON.stringify(result, null, 2));

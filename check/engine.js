@@ -5,22 +5,26 @@
  * closure that resolves offsets to lines; a crash in a rule is a warning,
  * never the run's. An override naming a rule of an owner this run loaded
  * nothing from is left alone: it is for another host's pass over the same
- * project, not a typo.
+ * project, not a typo. `runRulesSync` is the same run for a caller that
+ * cannot wait, an eslint rule: a rule whose check answers a promise is
+ * skipped with a warning.
  */
 
 import { ruleApplies } from "./applies.js";
 import { resolveFinding } from "./report.js";
 
-/** @import { CatalogEntry, CheckResult, Finding, ProjectContext, ProjectModel, ReportedFinding, RuleEntry } from "./types.ts" */
+/** @import { CatalogEntry, CheckResult, Finding, ProjectModel, ReportedFinding, RuleEntry, RunOptions } from "./types.ts" */
 
 const LEVELS = new Set(["off", "warn", "error"]);
 
 /**
+ * The run laid out before any rule's check: the catalog, the gate and
+ * override warnings, and a job per rule that runs, reporting into a list of
+ * its own.
  * @template {ProjectModel} M
- * @param {{ context: ProjectContext<M>, rules: RuleEntry<M>[], ruleFilter?: string, overrides?: Record<string, string> }} opts
- * @returns {Promise<CheckResult>}
+ * @param {RunOptions<M>} opts
  */
-export async function runRules({ context: ctx, rules, ruleFilter, overrides = ctx.config.check?.rules ?? {} }) {
+const plan = ({ context: ctx, rules, ruleFilter, overrides = ctx.config.check?.rules ?? {} }) => {
   const started = Date.now();
   /** @type {string[]} */
   const configWarnings = [];
@@ -36,8 +40,8 @@ export async function runRules({ context: ctx, rules, ruleFilter, overrides = ct
 
   /** @type {CatalogEntry[]} */
   const catalog = [];
-  /** @type {ReportedFinding[]} */
-  const findings = [];
+  /** @type {Array<{ entry: RuleEntry<M>, found: ReportedFinding[], check: () => void | Promise<void> }>} */
+  const jobs = [];
   for (const entry of rules) {
     const declaredSeverity = entry.rule.severity;
     const override = LEVELS.has(overrides[entry.id]) ? /** @type {string} */ (overrides[entry.id]) : null;
@@ -70,26 +74,75 @@ export async function runRules({ context: ctx, rules, ruleFilter, overrides = ct
     if (status !== "active" && !forced) continue;
 
     const severity = /** @type {"error" | "warn"} */ (effectiveSeverity === "off" ? declaredSeverity : effectiveSeverity);
-    const report = (/** @type {Finding} */ finding) => findings.push({ ruleId: entry.id, severity, ...resolveFinding(finding, ctx.lineAt) });
-    try {
-      await entry.rule.check({ ...ctx, report });
-    } catch (e) {
-      configWarnings.push(`rule ${entry.id} crashed: ${e instanceof Error ? e.message : e}`);
-    }
+    /** @type {ReportedFinding[]} */
+    const found = [];
+    const report = (/** @type {Finding} */ finding) => found.push({ ruleId: entry.id, severity, ...resolveFinding(finding, ctx.lineAt) });
+    jobs.push({ entry, found, check: () => entry.rule.check({ ...ctx, report }) });
   }
 
-  findings.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.col - b.col);
-  const errors = findings.filter((f) => f.severity === "error").length;
   return {
-    rules: catalog,
-    findings,
-    configWarnings,
-    stats: {
-      files: ctx.files().length,
-      rules: catalog.filter((r) => r.status === "active").length,
-      errors,
-      warnings: findings.length - errors,
-      durationMs: Date.now() - started,
+    jobs,
+    /**
+     * @param {RuleEntry<M>} entry
+     * @param {unknown} e
+     */
+    crashed: (entry, e) => configWarnings.push(`rule ${entry.id} crashed: ${e instanceof Error ? e.message : e}`),
+    /** @param {RuleEntry<M>} entry */
+    skipped: (entry) => configWarnings.push(`rule ${entry.id} is asynchronous and was skipped (synchronous run)`),
+    /** @returns {CheckResult} */
+    finish: () => {
+      const findings = jobs.flatMap((job) => job.found);
+      findings.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.col - b.col);
+      const errors = findings.filter((f) => f.severity === "error").length;
+      return {
+        rules: catalog,
+        findings,
+        configWarnings,
+        stats: {
+          files: ctx.files().length,
+          rules: catalog.filter((r) => r.status === "active").length,
+          errors,
+          warnings: findings.length - errors,
+          durationMs: Date.now() - started,
+        },
+      };
     },
   };
+};
+
+/**
+ * @template {ProjectModel} M
+ * @param {RunOptions<M>} opts
+ * @returns {Promise<CheckResult>}
+ */
+export async function runRules(opts) {
+  const run = plan(opts);
+  for (const job of run.jobs)
+    try {
+      await job.check();
+    } catch (e) {
+      run.crashed(job.entry, e);
+    }
+  return run.finish();
+}
+
+/**
+ * @template {ProjectModel} M
+ * @param {RunOptions<M>} opts
+ * @returns {CheckResult}
+ */
+export function runRulesSync(opts) {
+  const run = plan(opts);
+  for (const job of run.jobs)
+    try {
+      const answer = job.check();
+      if (answer instanceof Promise) {
+        answer.catch(() => {});
+        job.found.length = 0;
+        run.skipped(job.entry);
+      }
+    } catch (e) {
+      run.crashed(job.entry, e);
+    }
+  return run.finish();
 }

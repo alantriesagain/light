@@ -216,10 +216,21 @@ export interface ProjectModel {
 /** The model plus what the runners need. */
 export type ProjectContext<M extends ProjectModel = ProjectModel> = M & {
   lineAt(rel: string, offset: number): { line: number; col: number };
-  invalidate(rel: string): void;
+  /** Drop what is cached of a file; `text` stands in for its content until it is invalidated without one. */
+  invalidate(rel: string, text?: string): void;
 };
 
 export interface RuleEntry<M extends ProjectModel = ProjectModel> { id: string; owner: string; file: string; rule: CheckRule<M> }
+
+/** A rule file and the owner its id is derived from. */
+export interface RuleSource { owner: string; file: string }
+
+export interface RunOptions<M extends ProjectModel = ProjectModel> {
+  context: ProjectContext<M>;
+  rules: RuleEntry<M>[];
+  ruleFilter?: string;
+  overrides?: Record<string, string>;
+}
 
 export interface ReportedFinding { ruleId: string; severity: "error" | "warn"; file: string; line: number; col: number; message: string }
 

@@ -49,17 +49,21 @@ export function createContext({ projectDir, fileMap = null, pkg: givenPkg = null
   let filesCache = null;
   /** @type {string[] | null} */
   let componentDirsCache = null;
+  /** @type {Map<string, string>} */
+  const overlay = new Map();
+
+  const fromSource = (/** @type {string} */ rel) => {
+    if (fileMap) return fileMap[rel] ?? null;
+    try {
+      return readFileSync(path.join(projectDir, rel), "utf-8");
+    } catch {
+      return null;
+    }
+  };
 
   const read = (/** @type {string} */ rel) => {
     if (readCache.has(rel)) return /** @type {string | null} */ (readCache.get(rel));
-    let content = null;
-    if (fileMap) content = fileMap[rel] ?? null;
-    else
-      try {
-        content = readFileSync(path.join(projectDir, rel), "utf-8");
-      } catch {
-        content = null;
-      }
+    const content = overlay.get(rel) ?? fromSource(rel);
     readCache.set(rel, content);
     return content;
   };
@@ -259,7 +263,9 @@ export function createContext({ projectDir, fileMap = null, pkg: givenPkg = null
     return walkFiles(path.join(projectDir, prefix), { extensions: [""], skipTests: false }).map((abs) => toRel(projectDir, abs)).sort();
   };
 
-  const invalidate = (/** @type {string} */ rel) => {
+  const invalidate = (/** @type {string} */ rel, /** @type {string | undefined} */ text) => {
+    if (text === undefined) overlay.delete(rel);
+    else overlay.set(rel, text);
     readCache.delete(rel);
     codeCache.delete(rel);
     scriptCache.delete(rel);

@@ -4,7 +4,7 @@ import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const LIGHT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const LEFT_OUT = new Set([".bootstrapp", "benchmarks", "dist", "examples", "fixtures", "node_modules", "scripts", "skills", "website"]);
+const LEFT_OUT = new Set([".bootstrapp", "benchmarks", "dist", "eslint.config.js", "examples", "fixtures", "node_modules", "scripts", "skills", "website"]);
 const SIDE_FILE = /\.(test|demo)\.js$/;
 
 /** Where the staged package lands. */
@@ -13,7 +13,7 @@ export const DIST = join(LIGHT, "dist");
 /** @param {string} dir @returns {string[]} */
 const walk = (dir) =>
   readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
-    entry.isDirectory() ? (LEFT_OUT.has(entry.name) ? [] : walk(join(dir, entry.name))) : [join(dir, entry.name)]);
+    LEFT_OUT.has(entry.name) ? [] : entry.isDirectory() ? walk(join(dir, entry.name)) : [join(dir, entry.name)]);
 
 /**
  * Copy the sources into `dist`, generate their `.d.ts`, and leave the `.js`

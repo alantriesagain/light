@@ -163,7 +163,7 @@ A component library needs a few things from the page it runs on. Light holds the
 
 ## The repository
 
-This repository is the package: `pnpm install` once, `pnpm test` runs the node tests and then `light test` over the browser ones, `pnpm verify` runs the typecheck, `light check` and the tests, and passes only at zero. `components/` is the component library, `locales/` the words it draws, `examples/` whole pages built on light alone, and `website/` the catalogue site (a Bootstrapp app, left out of the published package). The Bootstrapp monorepo consumes this repository in place: its `light/` is a symlink to a checkout beside it, and its `projects/light` one to `website/`.
+This repository is the package: `pnpm install` once, `pnpm test` runs the node tests and then `light test` over the browser ones, `pnpm verify` runs the lint, the typecheck, `light check` and the tests, and passes only at zero errors. `components/` is the component library, `locales/` the words it draws, `examples/` whole pages built on light alone, and `website/` the catalogue site (a Bootstrapp app, left out of the published package). The Bootstrapp monorepo consumes this repository in place: its `light/` is a symlink to a checkout beside it, and its `projects/light` one to `website/`.
 
 ## Testing
 
@@ -172,6 +172,16 @@ Tests are written against `node:test` and `node:assert/strict`. One that needs n
 ## Checking
 
 `npx light check [dir]` reads every component definition in a project and holds it to light's conventions: a definition goes through `defineComponent`, a property is declared under `props`, a boolean binds as `?attr`, a part is named by its tag, a hook has the engine's name, a method does not shadow a DOM method, a stylesheet scopes through the component's tag. A definition is a module's default export, or any `View.define(...)` call on light's default import, in its five shapes and several per file; a page's `<script type="module">` blocks are read as its JavaScript, at the page's own lines. A tag the parser cannot read (an expression rather than a string) is not a component. Templates are read as trees, so a rule sees elements, their attributes with the binding kind (`?attr`, `@event`, `.prop`, or a plain attribute), their text and their nesting, each at its offset in the file; a template nested in an expression is a tree of its own. The project is the nearest directory up from `dir` with a `package.json` (or `--root <dir>`); a `dir` inside it narrows the pass to that directory and reads it as a directory of components. The rules are light's own (`check/rules/`, ids `light/<name>`) and the project's `check/rules/`; `--rule <id>` runs one, `--json` prints the result, the exit code is 1 at any error. Reading a definition takes the TypeScript compiler, so the project installs it (`npm i -D typescript`). Inside a Bootstrapp app the same rules run through `bootstrapp check`, discovered from `node_modules/@bootstrapp/light`.
+
+## Linting
+
+`@bootstrapp/light/eslint` is an eslint plugin. `light/check-errors` and `light/check-warnings` are `light check` inside eslint: the findings of the file being linted, at their line and column with the checker's rule id after the message, so an eslint editor extension shows them as you type (an unsaved buffer stands in for the file). `light/no-non-jsdoc-comments` and `light/no-explicit-any-jsdoc` hold the code style light is written in. `@bootstrapp/light/eslint/recommended.js` is that style as one flat config, the plugin's rules with the core, stylistic and `eslint-plugin-lit` rules it goes with; it needs `eslint`, `@stylistic/eslint-plugin`, `eslint-plugin-lit` and `globals` installed, all optional peers of light. This repository lints itself with it (`eslint.config.js`).
+
+```js
+import recommended from "@bootstrapp/light/eslint/recommended.js";
+
+export default [recommended];
+```
 
 ## Files
 
@@ -184,6 +194,7 @@ Tests are written against `node:test` and `node:assert/strict`. One that needs n
 | `components/` | The component library, one directory per category, a `.css` and a `.demo.js` beside each component |
 | `locales/` | The words the components draw, keyed by tag, one file per language |
 | `test/` | `node:test` and `node:assert` for the browser, the runner page, the loop and `light test` |
+| `eslint/` | The eslint plugin: the checker as two rules, the two style rules, the recommended config |
 | `check/` | The convention checker: the rule contract, the parsers of a definition and its templates, the project context, the engine, `light check`, and light's own rules under `check/rules/` |
 | `html/` | The renderer |
 | `signals/index.js` | The signals |

@@ -301,3 +301,22 @@ test("invalidate() of a define file outside the component directories refreshes 
   ctx.invalidate("lib/page.js");
   assert.deepEqual([...ctx.componentIndex().propsOf("fx-page")], ["b"]);
 });
+
+test("invalidate(rel, text) stands the text in for the file until invalidated without it", () => {
+  const map = {
+    "package.json": JSON.stringify({ name: "fixture", bootstrapp: { components: { fx: "views/" } } }),
+    "views/card.js": 'export default { tag: "fx-card", props: { a: 1 } };',
+  };
+  const ctx = createContext({ projectDir: "/fixture", fileMap: map });
+  assert.deepEqual([...ctx.componentIndex().propsOf("fx-card")], ["a"]);
+  const edited = '/* x */\nexport default { tag: "fx-card", props: { b: 1 } };';
+  ctx.invalidate("views/card.js", edited);
+  assert.equal(ctx.read("views/card.js"), edited);
+  assert.ok(ctx.code("views/card.js").startsWith("       \n"));
+  assert.deepEqual(ctx.viewsIn("views/card.js")[0].propertyNames.map((p) => p.name), ["b"]);
+  assert.deepEqual([...ctx.componentIndex().propsOf("fx-card")], ["b"]);
+  assert.equal(ctx.lineAt("views/card.js", edited.indexOf("export")).line, 2);
+  assert.equal(map["views/card.js"].includes("props: { a: 1 }"), true);
+  ctx.invalidate("views/card.js");
+  assert.deepEqual([...ctx.componentIndex().propsOf("fx-card")], ["a"]);
+});

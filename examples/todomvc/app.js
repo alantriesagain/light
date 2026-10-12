@@ -31,7 +31,8 @@ View.define("todo-app", {
 }, {
   connected() {
     this.todos = loadTodos();
-    window.addEventListener("hashchange", () => this.updateFilter());
+    window.addEventListener("hashchange", this.updateFilter);
+    this.$own(() => window.removeEventListener("hashchange", this.updateFilter));
     this.updateFilter();
   },
 

@@ -25,3 +25,17 @@ test("leaves accessors, near-misses and ordinary names alone", async () => {
   });
   assert.deepEqual(findings, []);
 });
+
+test("props given as View.define's second argument count, and a render-only component has no literal to crash on", async () => {
+  const src = `import View from "@bootstrapp/light";
+import { html } from "@bootstrapp/light/html";
+View.define("fx-a", { click: false, label: "" }, { close() {} });
+View.define("fx-b", { focus: 0 }, (el) => html\`<b>\${el.focus}</b>\`);
+`;
+  const findings = await runRuleOn(rule, { "views/a.js": src });
+  assert.deepEqual(findings.map((f) => f.message), [
+    'property "click" shadows the DOM\'s click() on <fx-a>; rename it',
+    'property "focus" shadows the DOM\'s focus() on <fx-b>; rename it',
+  ]);
+  assert.equal(findings[0].col, src.split("\n")[2].indexOf("{ click") + 1);
+});

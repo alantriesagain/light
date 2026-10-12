@@ -90,3 +90,15 @@ export default defineComponent({
   );
   assert.deepEqual(names(findings), ["_orphan"]);
 });
+
+test("a field declared in View.define's props argument is declared", async () => {
+  const src = `import View from "@bootstrapp/light";
+import { html } from "@bootstrapp/light/html";
+View.define("fx-io", { _io: T.object({ reactive: false, defaultValue: null }) }, {
+  connected() { this._io = new IntersectionObserver(() => {}); this._stray = 1; },
+  render() { return html\`<i></i>\`; },
+});
+`;
+  const findings = await runRuleOn(rule, { "views/io.js": src });
+  assert.deepEqual(findings.map((f) => f.message.includes("_stray")), [true]);
+});

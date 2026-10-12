@@ -217,7 +217,10 @@
       ],
       "ignore": [
         "website/"
-      ]
+      ],
+      "rules": {
+        "view/no-raw-localstorage": "off"
+      }
     }
   }
 }

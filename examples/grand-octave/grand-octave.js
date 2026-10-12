@@ -1,6 +1,12 @@
 import { html, nothing } from "@bootstrapp/light/html";
 import { signal } from "@bootstrapp/light/signals";
+import T from "@bootstrapp/light/types";
 import View from "@bootstrapp/light";
+
+/**
+ * @import { Signal } from "@bootstrapp/light/signals"
+ * @import { TypeDefinition } from "@bootstrapp/light/types"
+ */
 
 const OCTAVE = [
   { note: "C", freq: 261.63, key: "a", slot: 0 },
@@ -21,9 +27,15 @@ const naturals = OCTAVE.filter((tone) => tone.slot === 0);
 const sharps = OCTAVE.filter((tone) => tone.slot > 0);
 
 View.define("grand-octave", {
+  _down: /** @type {TypeDefinition<Record<string, Signal<boolean>>>} */ (T.object({ reactive: false, defaultValue: null })),
+  _last: /** @type {TypeDefinition<Signal<(typeof OCTAVE)[number] | null>>} */ (T.object({ reactive: false, defaultValue: null })),
+  _voices: /** @type {TypeDefinition<Map<string, { dampen: (at: number) => void }>>} */ (T.object({ reactive: false, defaultValue: null })),
+  _audio: /** @type {TypeDefinition<AudioContext | null>} */ (T.object({ reactive: false, defaultValue: null })),
+  _renders: T.number({ reactive: false, defaultValue: 0 }),
+}, {
   connected() {
-    this._down = new Map(OCTAVE.map((tone) => [tone.note, signal(false)]));
-    this._last = signal(null);
+    this._down = Object.fromEntries(OCTAVE.map((tone) => [tone.note, signal(false)]));
+    this._last = signal(/** @type {(typeof OCTAVE)[number] | null} */ (null));
     this._voices = new Map();
     globalThis.addEventListener("keydown", this._onKey);
     globalThis.addEventListener("keyup", this._onKey);
@@ -52,15 +64,15 @@ View.define("grand-octave", {
 
   /** @param {(typeof OCTAVE)[number]} tone */
   noteOn(tone) {
-    if (this._down.get(tone.note).value) return;
-    this._down.get(tone.note).value = true;
+    if (this._down[tone.note].value) return;
+    this._down[tone.note].value = true;
     this._last.value = tone;
     this.strike(tone);
   },
 
   /** @param {(typeof OCTAVE)[number]} tone */
   noteOff(tone) {
-    this._down.get(tone.note).value = false;
+    this._down[tone.note].value = false;
     this.damp(tone);
   },
 
@@ -106,7 +118,7 @@ View.define("grand-octave", {
    * @param {string} kind
    */
   keyFor(tone, kind) {
-    const down = this._down.get(tone.note);
+    const down = this._down[tone.note];
     return html`
       <button
         class=${() => `${kind} ${down.value ? "down" : ""}`}
@@ -123,7 +135,7 @@ View.define("grand-octave", {
   },
 
   render() {
-    this._renders = (this._renders ?? 0) + 1;
+    this._renders += 1;
     return html`
       <div class="bed">
         <div class="naturals">

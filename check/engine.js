@@ -3,7 +3,9 @@
  * context. Each rule passes its gate, takes its effective severity from the
  * project's `bootstrapp.check.rules` overrides, and reports through a
  * closure that resolves offsets to lines; a crash in a rule is a warning,
- * never the run's.
+ * never the run's. An override naming a rule of an owner this run loaded
+ * nothing from is left alone: it is for another host's pass over the same
+ * project, not a typo.
  */
 
 import { ruleApplies } from "./applies.js";
@@ -23,8 +25,11 @@ export async function runRules({ context: ctx, rules, ruleFilter, overrides = ct
   /** @type {string[]} */
   const configWarnings = [];
   const knownIds = new Set(rules.map((r) => r.id));
+  const owners = new Set(rules.map((r) => r.owner));
   for (const [id, level] of Object.entries(overrides))
-    if (!knownIds.has(id)) configWarnings.push(`bootstrapp.check.rules: unknown rule id "${id}", typo?`);
+    if (!knownIds.has(id)) {
+      if (owners.has(id.split("/")[0])) configWarnings.push(`bootstrapp.check.rules: unknown rule id "${id}", typo?`);
+    }
     else if (!LEVELS.has(level)) configWarnings.push(`bootstrapp.check.rules: invalid level "${level}" for "${id}" (off | warn | error)`);
 
   if (ruleFilter && !knownIds.has(ruleFilter)) configWarnings.push(`unknown rule id "${ruleFilter}"`);

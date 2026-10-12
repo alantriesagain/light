@@ -1,5 +1,5 @@
 import { defineRule } from "../define.js";
-import { collectExtendsNames, collectMixinNames, declaredPropertyNames, findUndeclaredInstanceFields } from "../parse/instance-surface.js";
+import { collectExtendsNames, collectMixinNames, findUndeclaredInstanceFields } from "../parse/instance-surface.js";
 
 export default defineRule({
   severity: "warn",
@@ -10,7 +10,7 @@ export default defineRule({
     for (const view of ctx.views()) {
       const { literal, sf, topLevelKeys } = view;
       if (!view.isComponent || !literal || !sf) continue;
-      const declared = new Set([...topLevelKeys, ...declaredPropertyNames(literal)]);
+      const declared = new Set([...topLevelKeys, ...view.propertyNames.map((p) => p.name)]);
       collectMixinNames(ctx.read, view.file, view.mixins, declared, selfPrefix);
       collectExtendsNames((tag) => ctx.componentIndex().sourceOf(tag), view.extends ?? null, declared);
       for (const { name, offset } of findUndeclaredInstanceFields({ literal, sf, declared, skip: (name) => !name.startsWith("_") }))

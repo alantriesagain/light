@@ -12,7 +12,8 @@ import * as ts from "typescript";
  * @param {string} filename
  * @returns {SourceFile}
  */
-export const sourceFile = (source, filename) => ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true);
+export const sourceFile = (source, filename) =>
+  ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, filename.endsWith(".ts") ? ts.ScriptKind.TS : ts.ScriptKind.JS);
 
 /**
  * The expression of `export default <expr>`, or null.
@@ -40,6 +41,28 @@ export const localInitializer = (sf, name) => {
 };
 
 /**
+ * The expression behind an expression: parentheses removed, an identifier
+ * followed to the top-level const it names in the same module. An identifier
+ * the module does not declare comes back as itself; a self-reference answers
+ * null.
+ * @param {Node | undefined | null} expr
+ * @param {Set<string>} [seen] identifiers already followed
+ * @returns {Expression | null}
+ */
+export const resolveLocal = (expr, seen = new Set()) => {
+  if (!expr) return null;
+  if (ts.isParenthesizedExpression(expr)) return resolveLocal(expr.expression, seen);
+  if (ts.isIdentifier(expr)) {
+    if (seen.has(expr.text)) return null;
+    seen.add(expr.text);
+    const sf = expr.getSourceFile();
+    const local = sf ? localInitializer(sf, expr.text) : null;
+    return local ? resolveLocal(local, seen) : expr;
+  }
+  return /** @type {Expression} */ (expr);
+};
+
+/**
  * The object literal behind an expression: a literal, a call whose last
  * argument holds one (`defineComponent(...)`), a function returning one, a
  * parenthesised form of any of those, or an identifier naming a top-level
@@ -50,22 +73,16 @@ export const localInitializer = (sf, name) => {
  * @returns {ObjectLiteralExpression | null}
  */
 export const unwrapToLiteral = (expr, seen = new Set()) => {
-  if (!expr) return null;
-  if (ts.isObjectLiteralExpression(expr)) return expr;
-  if (ts.isCallExpression(expr)) return unwrapToLiteral(expr.arguments[expr.arguments.length - 1], seen);
-  if (ts.isArrowFunction(expr) || ts.isFunctionExpression(expr)) {
-    const body = expr.body;
+  const resolved = resolveLocal(expr, seen);
+  if (!resolved || ts.isIdentifier(resolved)) return null;
+  if (ts.isObjectLiteralExpression(resolved)) return resolved;
+  if (ts.isCallExpression(resolved)) return unwrapToLiteral(resolved.arguments[resolved.arguments.length - 1], seen);
+  if (ts.isArrowFunction(resolved) || ts.isFunctionExpression(resolved)) {
+    const body = resolved.body;
     if (!ts.isBlock(body)) return unwrapToLiteral(body, seen);
     for (const stmt of body.statements)
       if (ts.isReturnStatement(stmt) && stmt.expression) return unwrapToLiteral(stmt.expression, seen);
     return null;
-  }
-  if (ts.isParenthesizedExpression(expr)) return unwrapToLiteral(expr.expression, seen);
-  if (ts.isIdentifier(expr)) {
-    if (seen.has(expr.text)) return null;
-    seen.add(expr.text);
-    const sf = expr.getSourceFile();
-    return sf ? unwrapToLiteral(localInitializer(sf, expr.text), seen) : null;
   }
   return null;
 };
@@ -153,6 +170,19 @@ export const importBinding = (sf, localName) => {
     for (const element of bindings.elements)
       if (element.name.text === localName) return { spec: n.moduleSpecifier.text, exported: (element.propertyName ?? element.name).text };
   }
+  return null;
+};
+
+/**
+ * The local name of the default import of a module whose specifier `matches`,
+ * or null when the file imports no such module.
+ * @param {SourceFile} sf
+ * @param {(spec: string) => boolean} matches
+ * @returns {string | null}
+ */
+export const defaultImportBinding = (sf, matches) => {
+  for (const n of sf.statements)
+    if (ts.isImportDeclaration(n) && ts.isStringLiteral(n.moduleSpecifier) && n.importClause?.name && matches(n.moduleSpecifier.text)) return n.importClause.name.text;
   return null;
 };
 

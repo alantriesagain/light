@@ -87,6 +87,12 @@ test("severity overrides apply; an unknown id or level warns", async () => {
   assert.ok(result.configWarnings.some((w) => w.includes('invalid level "loud"')));
 });
 
+test("an override for a rule of an owner this run did not load is not a typo", async () => {
+  const context = contextFromFiles({}, { pkgJson: { name: "my-proj", bootstrapp: { check: { rules: { "view/no-raw-localstorage": "off" } } } } });
+  const result = await runRules({ context, rules: [fires] });
+  assert.deepEqual(result.configWarnings, []);
+});
+
 test("a rule filter runs only that rule, even when overridden off, and names an unknown id", async () => {
   const context = contextFromFiles({}, { pkgJson: { name: "my-proj", bootstrapp: { check: { rules: { "fake/always-fires": "off" } } } } });
   const result = await runRules({ context, rules, ruleFilter: "fake/always-fires" });

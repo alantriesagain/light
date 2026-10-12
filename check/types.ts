@@ -41,6 +41,24 @@ export interface ParsedImport { spec: string; offset: number; kind: ImportKind }
 
 export interface PropertyInfo { name: string; offset: number; hasNonNullDefault: boolean }
 
+/**
+ * Where a module defines a component: its default export, or a `View.define`
+ * call. `literal` is the definition object when there is one, `props` the
+ * props given as the call's second argument, `render` the function given in
+ * the definition's place, `direct` whether the literal is the definition
+ * itself rather than a factory's options, `defined` whether a `View.define`
+ * call registers it.
+ */
+export interface Site {
+  tag: string | null;
+  literal: import("typescript").ObjectLiteralExpression | null;
+  props: import("typescript").ObjectLiteralExpression | null;
+  render: import("typescript").Expression | null;
+  offset: number;
+  direct: boolean;
+  defined: boolean;
+}
+
 export interface ParsedComponent {
   extends: string | null;
   tag: string | null;
@@ -53,16 +71,19 @@ export interface ParsedComponent {
   keyOffsets: Record<string, number>;
   propertyNames: PropertyInfo[];
   propsOffset: number | null;
-  literal: import("typescript").ObjectLiteralExpression;
-  sf: import("typescript").SourceFile;
+  /** The definition object; null for a component defined by a render function alone. */
+  literal: import("typescript").ObjectLiteralExpression | null;
+  sf: import("typescript").SourceFile | null;
+  /** Where the definition starts in the file: the `View.define` call, or the default-exported literal. */
+  offset: number;
+  /** Registered by a `View.define` call, as opposed to default-exported for a loader. */
+  defined: boolean;
 }
 
-export interface View extends Omit<ParsedComponent, "literal" | "sf"> {
+export interface View extends ParsedComponent {
   file: string;
   source: string;
   isComponent: boolean;
-  literal: import("typescript").ObjectLiteralExpression | null;
-  sf: import("typescript").SourceFile | null;
 }
 
 export interface Template { content: string; start: number }
@@ -142,8 +163,11 @@ export interface ProjectModel {
   files(): string[];
   read(rel: string): string | null;
   code(rel: string): string | null;
+  /** One per definition, several per file; a component-dir file defining nothing yields one placeholder with `isComponent: false`. */
   views(): View[];
-  view(rel: string): View;
+  viewsIn(rel: string): View[];
+  /** The distinct files `views()` come from, for a rule that reads a file once. */
+  componentFiles(): string[];
   componentIndex(): ComponentIndex;
   templates(rel: string): Template[];
   imports(rel: string): ParsedImport[];

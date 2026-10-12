@@ -13,8 +13,8 @@ export default defineRule({
   why: "the view layer binds both spellings, but kebab-case (use-system-preference) is the canonical reflected form and the readable house style; the collapsed lowercase form is legacy",
   check(ctx) {
     const index = ctx.componentIndex();
-    for (const view of ctx.views())
-      for (const template of ctx.templates(view.file)) {
+    for (const file of ctx.componentFiles())
+      for (const template of ctx.templates(file)) {
         TAG_RE.lastIndex = 0;
         let tagMatch;
         while ((tagMatch = TAG_RE.exec(template.content)) !== null) {
@@ -33,7 +33,7 @@ export default defineRule({
             const kebab = kebabOf(prop);
             if (kebab !== name)
               ctx.report({
-                file: view.file,
+                file,
                 offset: template.start + tagMatch.index,
                 message: `attribute "${name}" on <${tag}>: prefer the kebab form "${kebab}" (canonical reflected spelling of ${prop})`,
               });

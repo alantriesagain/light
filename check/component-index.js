@@ -7,7 +7,7 @@
  */
 
 import path from "node:path";
-import { parseComponentSource } from "./parse/component.js";
+import { definitionOf, parseComponentSources } from "./parse/component.js";
 import { toRel } from "./walk.js";
 
 /** @import { ComponentIndex, ComponentMap, ParsedComponent, PropertyInfo, View } from "./types.ts" */
@@ -66,13 +66,14 @@ export function createComponentIndex({ projectDir, maps, views, listFiles, readF
 
   /**
    * @param {Entry} entry
+   * @param {string} tag
    * @returns {ParsedComponent | null}
    */
-  const parsedOf = (entry) => {
+  const parsedOf = (entry, tag) => {
     if (!entry.abs) return null;
     const source = readFile(entry.abs);
     try {
-      return source ? parseComponentSource(source, entry.abs) : null;
+      return source ? definitionOf(parseComponentSources(source, entry.abs), tag) : null;
     } catch {
       return null;
     }
@@ -95,7 +96,7 @@ export function createComponentIndex({ projectDir, maps, views, listFiles, readF
       /** @type {string[]} */
       const out = [];
       const file = entry?.view ? path.join(projectDir, entry.view.file) : entry?.abs ?? null;
-      const mixins = entry?.view ? entry.view.mixins : entry ? parsedOf(entry)?.mixins ?? [] : [];
+      const mixins = entry?.view ? entry.view.mixins : entry ? parsedOf(entry, tag)?.mixins ?? [] : [];
       if (file)
         for (const { spec } of mixins) {
           if (!spec.startsWith(".")) continue;
@@ -109,7 +110,7 @@ export function createComponentIndex({ projectDir, maps, views, listFiles, readF
       if (propsCache.has(tag)) return /** @type {Set<string> | null} */ (propsCache.get(tag));
       const entry = build().get(tag);
       /** @type {PropertyInfo[] | null} */
-      const names = entry?.view ? entry.view.propertyNames : entry ? parsedOf(entry)?.propertyNames ?? null : null;
+      const names = entry?.view ? entry.view.propertyNames : entry ? parsedOf(entry, tag)?.propertyNames ?? null : null;
       const props = names ? new Set(names.map((p) => p.name)) : null;
       propsCache.set(tag, props);
       return props;

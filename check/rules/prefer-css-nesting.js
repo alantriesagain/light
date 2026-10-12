@@ -26,7 +26,7 @@ export default defineRule({
   check(ctx) {
     const files = new Set(ctx.files());
     for (const view of ctx.views()) {
-      if (!view.isComponent || !view.styleTrue || !view.tag) continue;
+      if (!view.isComponent || !view.styleTrue || !view.tag || !/\.(js|ts)$/.test(view.file)) continue;
       const cssFile = view.file.replace(/\.(js|ts)$/, ".css");
       if (!files.has(cssFile)) continue;
       const css = stripCssComments(ctx.read(cssFile) || "");

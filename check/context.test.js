@@ -180,7 +180,7 @@ test("invalidate() refreshes every cached view of a file, and the file set when 
   map["index.js"] = "\nexport const nothing = 1;";
   ctx.invalidate("views/card.js");
   ctx.invalidate("index.js");
-  assert.deepEqual(ctx.view("views/card.js").propertyNames.map((p) => p.name), ["b"]);
+  assert.deepEqual(ctx.viewsIn("views/card.js")[0].propertyNames.map((p) => p.name), ["b"]);
   assert.deepEqual([...ctx.componentIndex().propsOf("fx-card")], ["b"]);
   assert.equal(ctx.code("index.js"), map["index.js"]);
   assert.equal(ctx.lineAt("index.js", 1).line, 2);
@@ -220,4 +220,62 @@ test("views() falls back to views/ only when no components map resolves a direct
   const hosted = contextFromFiles(files, { pkgJson, host: { componentDirs: () => ["display/"] } });
   assert.deepEqual(hosted.componentDirs, ["views/", "display/"]);
   assert.deepEqual(hosted.views().map((v) => v.tag), ["fx-button", "fx-card"]);
+});
+
+const LIGHT = 'import View from "@bootstrapp/light";\nimport { html } from "@bootstrapp/light/html";\n';
+
+test("views() lists one view per definition, several per file, and a placeholder for a file defining nothing", () => {
+  const ctx = contextFromFiles({
+    "views/pair.js": `${LIGHT}View.define("fx-a", { a: 1 }, (el) => html\`<i>\${el.a}</i>\`);\nView.define("fx-b", { props: { b: 2 }, connected() {} });\n`,
+    "views/util.js": "export const cap = (s) => s;",
+  });
+  assert.deepEqual(ctx.views().map((v) => [v.file, v.tag, v.isComponent]), [["views/pair.js", "fx-a", true], ["views/pair.js", "fx-b", true], ["views/util.js", null, false]]);
+  assert.deepEqual(ctx.viewsIn("views/pair.js").map((v) => v.propertyNames.map((p) => p.name)), [["a"], ["b"]]);
+  assert.deepEqual(ctx.componentFiles(), ["views/pair.js", "views/util.js"]);
+});
+
+test("a View.define call counts wherever it stands; a default-exported literal only in a component directory", () => {
+  const ctx = contextFromFiles({
+    "views/card.js": 'export default { tag: "fx-card" };',
+    "lib/page.js": `${LIGHT}export const mount = () => View.define("fx-page", {}, (el) => html\`<p></p>\`);\n`,
+    "lib/literal.js": 'export default { tag: "fx-literal" };',
+    "lib/other.js": 'customElements.define("x-y", class extends HTMLElement {});',
+  });
+  assert.deepEqual(ctx.views().map((v) => v.tag), ["fx-page", "fx-card"]);
+  assert.equal(ctx.componentIndex().has("fx-page"), true);
+  assert.equal(ctx.componentIndex().has("fx-literal"), false);
+});
+
+test("an html page's module scripts are its JavaScript, at the page's own lines", () => {
+  const page = `<!doctype html>
+<script type="importmap">{ "imports": { "@bootstrapp/light": "../view/index.js" } }</script>
+<div class="hero">x</div>
+<script type="module">
+import View from "@bootstrapp/light";
+import { html } from "@bootstrapp/light/html";
+View.define("fx-hero", { title: "" }, (el) => html\`<h1 part="fx-hero-title">\${el.title}</h1>\`);
+</script>
+`;
+  const ctx = contextFromFiles({ "index.html": page, "views/a.js": "" });
+  const [hero] = ctx.viewsIn("index.html");
+  assert.equal(hero.tag, "fx-hero");
+  assert.equal(ctx.lineAt("index.html", hero.keyOffsets.render).line, 7);
+  assert.deepEqual(ctx.views().map((v) => v.tag), ["fx-hero", null]);
+  assert.deepEqual(ctx.imports("index.html").map((i) => i.spec), ["@bootstrapp/light", "@bootstrapp/light/html"]);
+  assert.ok(!(ctx.code("index.html") || "").includes("importmap"));
+  assert.ok(ctx.templates("index.html")[0].content.includes("fx-hero-title"));
+  assert.deepEqual(ctx.classAttrs("index.html").map((a) => a.value), ["hero"]);
+  assert.equal(ctx.componentIndex().has("fx-hero"), true);
+});
+
+test("invalidate() of a define file outside the component directories refreshes the index", () => {
+  const map = {
+    "package.json": JSON.stringify({ name: "fixture", bootstrapp: { components: { fx: "views/" } } }),
+    "lib/page.js": `${LIGHT}View.define("fx-page", { a: 1 }, (el) => html\`<p></p>\`);\n`,
+  };
+  const ctx = createContext({ projectDir: "/fixture", fileMap: map });
+  assert.deepEqual([...ctx.componentIndex().propsOf("fx-page")], ["a"]);
+  map["lib/page.js"] = `${LIGHT}View.define("fx-page", { b: 1 }, (el) => html\`<p></p>\`);\n`;
+  ctx.invalidate("lib/page.js");
+  assert.deepEqual([...ctx.componentIndex().propsOf("fx-page")], ["b"]);
 });

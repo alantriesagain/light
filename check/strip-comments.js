@@ -4,8 +4,11 @@
  * the same position in the source.
  */
 
-/** @param {string} match */
-const blank = (match) => match.replace(/[^\n]/g, " ");
+/**
+ * The text with every character but a newline replaced by a space.
+ * @param {string} text
+ */
+export const blank = (text) => text.replace(/[^\n]/g, " ");
 
 /**
  * Blank block comments (JSDoc `@example` blocks included) and whole-line

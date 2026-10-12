@@ -14,15 +14,18 @@ import path from "node:path";
 import { toRel, walkFiles } from "./walk.js";
 import { stripComments } from "./strip-comments.js";
 import { parseImports } from "./parse/imports.js";
-import { parseComponentSource } from "./parse/component.js";
+import { parseComponentSources } from "./parse/component.js";
+import { moduleScripts } from "./parse/html.js";
 import { classAttrs as classAttrsIn, htmlTemplates } from "./parse/templates.js";
 import { createComponentIndex } from "./component-index.js";
 
-/** @import { HostOptions, PackageJson, ProjectContext, View } from "./types.ts" */
+/** @import { HostOptions, PackageJson, ParsedComponent, ProjectContext, View } from "./types.ts" */
 
 export const DEFAULT_IGNORED_DIRS = ["node_modules", ".git", "dist", "build", "coverage"];
 export const TEXT_EXTENSIONS = [".js", ".mjs", ".ts", ".css", ".json", ".html", ".md"];
 const COMPONENT_DEPTH = 4;
+const DEFINES = /\.define\(/;
+const isScript = (/** @type {string} */ f) => /\.(js|ts)$/.test(f) && !f.endsWith(".test.js");
 
 /**
  * @param {{ projectDir: string, fileMap?: Record<string, string> | null, pkg?: PackageJson | null, host?: HostOptions }} opts
@@ -35,7 +38,7 @@ export function createContext({ projectDir, fileMap = null, pkg: givenPkg = null
   const codeCache = new Map();
   /** @type {Map<string, number[]>} */
   const lineIndexCache = new Map();
-  /** @type {Map<string, View>} */
+  /** @type {Map<string, View[]>} */
   const viewCache = new Map();
   /** @type {string[] | null} */
   let filesCache = null;
@@ -56,9 +59,14 @@ export function createContext({ projectDir, fileMap = null, pkg: givenPkg = null
     return content;
   };
 
+  const script = (/** @type {string} */ rel) => {
+    const raw = read(rel);
+    return raw != null && rel.endsWith(".html") ? moduleScripts(raw) : raw;
+  };
+
   const code = (/** @type {string} */ rel) => {
     if (codeCache.has(rel)) return /** @type {string | null} */ (codeCache.get(rel));
-    const source = read(rel);
+    const source = script(rel);
     const stripped = source == null ? null : stripComments(source);
     codeCache.set(rel, stripped);
     return stripped;
@@ -136,44 +144,37 @@ export function createContext({ projectDir, fileMap = null, pkg: givenPkg = null
     return { line: lo + 1, col: offset - starts[lo] + 1 };
   };
 
-  /** @returns {View} */
-  const parseView = (/** @type {string} */ rel) => {
-    if (viewCache.has(rel)) return /** @type {View} */ (viewCache.get(rel));
-    const source = read(rel);
-    let parsed = null;
+  /** @returns {View[]} */
+  const viewsIn = (/** @type {string} */ rel) => {
+    const cached = viewCache.get(rel);
+    if (cached) return cached;
+    const source = script(rel) || "";
+    /** @type {ParsedComponent[]} */
+    let parsed = [];
     if (source)
       try {
-        parsed = parseComponentSource(source, rel);
+        parsed = parseComponentSources(source, rel);
       } catch {
-        parsed = null;
+        parsed = [];
       }
-    const view = {
-      file: rel,
-      source: source || "",
-      isComponent: !!parsed?.tag,
-      tag: parsed?.tag || null,
-      extends: parsed?.extends || null,
-      styleTrue: parsed?.styleTrue || false,
-      styleKnown: parsed?.styleKnown ?? true,
-      mixins: parsed?.mixins || [],
-      topLevelKeys: parsed?.topLevelKeys || [],
-      keyOffsets: parsed?.keyOffsets || {},
-      propertyNames: parsed?.propertyNames || [],
-      propsOffset: parsed?.propsOffset ?? null,
-      literal: parsed?.literal ?? null,
-      sf: parsed?.sf ?? null,
-    };
-    viewCache.set(rel, view);
-    return view;
+    /** @type {View[]} */
+    const views = parsed.length
+      ? parsed.map((p) => ({ file: rel, source, isComponent: !!p.tag, ...p }))
+      : [{ file: rel, source, isComponent: false, tag: null, extends: null, styleTrue: false, styleKnown: true, mixins: [], topLevelKeys: [], keyOffsets: {}, propertyNames: [], propsOffset: null, literal: null, sf: null, offset: 0, defined: false }];
+    viewCache.set(rel, views);
+    return views;
   };
 
   const views = () =>
-    files()
-      .filter((f) => /\.(js|ts)$/.test(f) && !f.endsWith(".test.js") && componentDirs().some((d) => f.startsWith(d)))
-      .map(parseView);
+    files().flatMap((f) => {
+      if (isScript(f) && componentDirs().some((d) => f.startsWith(d))) return viewsIn(f);
+      if ((isScript(f) || f.endsWith(".html")) && DEFINES.test(script(f) ?? "")) return viewsIn(f).filter((v) => v.defined);
+      return [];
+    });
+  const componentFiles = () => [...new Set(views().map((v) => v.file))];
 
   const templates = (/** @type {string} */ rel) => htmlTemplates(code(rel) || "");
-  const imports = (/** @type {string} */ rel) => parseImports(read(rel) || "");
+  const imports = (/** @type {string} */ rel) => parseImports(script(rel) || "");
   const classAttrs = (/** @type {string} */ rel) => classAttrsIn(read(rel) || "");
 
   const relOf = (/** @type {string} */ abs) => {
@@ -230,8 +231,7 @@ export function createContext({ projectDir, fileMap = null, pkg: givenPkg = null
     readCache.delete(rel);
     codeCache.delete(rel);
     lineIndexCache.delete(rel);
-    viewCache.delete(rel);
-    if (componentDirs().some((d) => rel.startsWith(d))) index.clear();
+    if (viewCache.delete(rel) || componentDirs().some((d) => rel.startsWith(d)) || DEFINES.test(script(rel) ?? "")) index.clear();
     const known = filesCache?.includes(rel) ?? false;
     const present = fileMap ? rel in fileMap : existsSync(path.join(projectDir, rel));
     if (rel === "package.json" || known !== present) {
@@ -259,7 +259,8 @@ export function createContext({ projectDir, fileMap = null, pkg: givenPkg = null
     code,
     lineAt,
     views,
-    view: parseView,
+    viewsIn,
+    componentFiles,
     componentIndex,
     templates,
     imports,

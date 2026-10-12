@@ -42,3 +42,13 @@ test("silent on unknown tags and attributes with no matching prop", async () => 
   });
   assert.equal(findings.length, 0);
 });
+
+test("a using file with two definitions reports each binding once", async () => {
+  const src = `import View from "@bootstrapp/light";
+import { html } from "@bootstrapp/light/html";
+View.define("fx-a", {}, (el) => html\`<fx-target usesystem></fx-target>\`);
+View.define("fx-b", {}, (el) => html\`<i></i>\`);
+`;
+  const findings = await runRuleOn(rule, { "views/pair.js": src, "views/target.js": 'export default { tag: "fx-target", props: { useSystem: false } };' });
+  assert.equal(findings.length, 1);
+});

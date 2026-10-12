@@ -91,3 +91,13 @@ test("silent outside component files", async () => {
   });
   assert.equal(findings.length, 0);
 });
+
+test("two definitions in one file are read once: a shared prop reports each match once, and $emit?. once", async () => {
+  const src = `import View from "@bootstrapp/light";
+import { html } from "@bootstrapp/light/html";
+View.define("fx-a", { items: [] }, { render() { return html\`\${this.items?.length}\`; } });
+View.define("fx-b", { items: [] }, { ping() { this.$emit?.("x"); return this.items ?? []; } });
+`;
+  const findings = await runRuleOn(rule, { "views/pair.js": src });
+  assert.deepEqual(findings.map((f) => f.line), [3, 4, 4]);
+});

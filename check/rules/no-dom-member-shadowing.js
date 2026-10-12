@@ -1,5 +1,4 @@
 import { defineRule } from "../define.js";
-import { declaredPropertyNames } from "../parse/instance-surface.js";
 
 const DOM_METHODS = new Set([
   "addEventListener", "after", "animate", "append", "appendChild", "ariaNotify", "attachInternals",
@@ -25,15 +24,14 @@ export default defineRule({
   why: "`View.define` installs properties as accessors and methods as values on the element's prototype, so either one silently replaces the DOM's. `lc-link` declared `click` and every link in every app lost `HTMLElement.click()`: callers got the component's own value, and during the window before it was assigned, nothing at all",
   check(ctx) {
     for (const view of ctx.views()) {
-      const { literal } = view;
-      if (!view.isComponent || !literal) continue;
+      if (!view.isComponent) continue;
       /** @type {(name: string, kind: "property" | "method") => void} */
       const report = (name, kind) => ctx.report({
         file: view.file,
         offset: view.keyOffsets[kind === "property" ? "props" : name],
         message: `${kind} "${name}" shadows the DOM's ${name}() on <${view.tag}>; rename it`,
       });
-      for (const name of declaredPropertyNames(literal))
+      for (const { name } of view.propertyNames)
         if (DOM_METHODS.has(name)) report(name, "property");
       for (const name of view.topLevelKeys)
         if (DOM_METHODS.has(name)) report(name, "method");

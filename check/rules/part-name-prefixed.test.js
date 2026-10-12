@@ -42,3 +42,14 @@ test("a component that renders nothing of its own has nothing to check", async (
   const findings = await runRuleOn(rule, { "views/button.js": source });
   assert.equal(findings.length, 0);
 });
+
+test("two definitions in one file: each other's parts are fine, an unprefixed one is reported once", async () => {
+  const src = `import View from "@bootstrapp/light";
+import { html } from "@bootstrapp/light/html";
+View.define("fx-a", {}, (el) => html\`<div part="fx-a-body"><span part="fx-b-chip"></span></div>\`);
+View.define("fx-b", {}, (el) => html\`<div part="fx-b-body"><i part="chip"></i></div>\`);
+`;
+  const findings = await runRuleOn(rule, { "views/pair.js": src });
+  assert.equal(findings.length, 1);
+  assert.match(findings[0].message, /part="chip"/);
+});

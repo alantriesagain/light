@@ -106,3 +106,13 @@ test("an ancestor block with a nested rule that skips the view's tag fires", asy
   });
   assert.equal(findings.length, 1);
 });
+
+test("a css shared by two style: true definitions is scoped by either tag", async () => {
+  const two = `import View from "@bootstrapp/light";
+View.define("fx-a", {}, { style: true, render() { return null; } });
+View.define("fx-b", {}, { style: true, render() { return null; } });
+`;
+  const css = ":where(.fx-a, fx-a) { color: red; }\n:where(.fx-b, fx-b) { color: blue; }\n.leak { color: green; }\n";
+  const findings = await runRuleOn(rule, { "views/pair.js": two, "views/pair.css": css });
+  assert.deepEqual(findings.map((f) => f.message.includes('"\.leak"')), [true]);
+});

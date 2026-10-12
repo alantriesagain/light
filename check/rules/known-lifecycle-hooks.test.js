@@ -28,3 +28,12 @@ test("silent on real hooks and arbitrary methods", async () => {
   });
   assert.equal(findings.length, 0);
 });
+
+test("fires on a hook name inside View.define's definition argument", async () => {
+  const src = `import View from "@bootstrapp/light";
+View.define("fx-thing", { n: 0 }, { mounted() {}, render() { return null; } });
+`;
+  const findings = await runRuleOn(rule, { "views/a.js": src });
+  assert.equal(findings.length, 1);
+  assert.match(findings[0].message, /use "connected"/);
+});

@@ -8,7 +8,8 @@
 
 import path from "node:path";
 import * as ts from "typescript";
-import { defaultExportExpression, exportedInitializer, mixinBindings, nameOf, sourceFile, unwrapToLiteral } from "./ast.js";
+import { exportedInitializer, mixinBindings, nameOf, sourceFile, unwrapToLiteral } from "./ast.js";
+import { definitionOf, parseComponentSources } from "./component.js";
 
 const ASSIGN_OPS = new Set([
   ts.SyntaxKind.EqualsToken,
@@ -126,21 +127,9 @@ export const collectExtendsNames = (sourceOf, tag, into, seen = new Set()) => {
   seen.add(tag);
   const source = sourceOf(tag);
   if (!source) return;
-  const sf = sourceFile(source, `${tag}.js`);
-  const literal = unwrapToLiteral(defaultExportExpression(sf));
-  if (!literal) return;
-  /** @type {string | null} */
-  let base = null;
-  for (const m of literal.properties) {
-    const key = nameOf(m.name);
-    if (!key) continue;
-    if (key === "extends") {
-      const init = /** @type {any} */ (m).initializer;
-      if (init && ts.isStringLiteralLike(init)) base = init.text;
-      continue;
-    }
-    if (key !== "props" && key !== "mixins") into.add(key);
-  }
-  for (const name of declaredPropertyNames(literal)) into.add(name);
-  collectExtendsNames(sourceOf, base, into, seen);
+  const parsed = definitionOf(parseComponentSources(source, `${tag}.js`), tag);
+  if (!parsed) return;
+  for (const key of parsed.topLevelKeys) if (key !== "props" && key !== "mixins") into.add(key);
+  for (const { name } of parsed.propertyNames) into.add(name);
+  collectExtendsNames(sourceOf, parsed.extends, into, seen);
 };

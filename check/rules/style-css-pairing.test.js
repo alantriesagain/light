@@ -45,3 +45,15 @@ export default editorFor({ tag: "x-editor" });
   });
   assert.equal(findings.length, 0);
 });
+
+test("a file with two definitions and a css beside it reports the unloaded css once, and an html page never", async () => {
+  const two = `import View from "@bootstrapp/light";
+View.define("fx-a", {}, { render() { return null; } });
+View.define("fx-b", {}, { render() { return null; } });
+`;
+  const findings = await runRuleOn(rule, { "views/pair.js": two, "views/pair.css": ".x {}" });
+  assert.equal(findings.length, 1);
+  assert.match(findings[0].message, /never loaded/);
+  const page = `<script type="module">\nimport View from "@bootstrapp/light";\nView.define("fx-page", {}, { render() { return null; } });\n</script>\n`;
+  assert.deepEqual(await runRuleOn(rule, { "index.html": page, "index.css": ".x {}" }), []);
+});

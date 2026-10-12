@@ -1,71 +1,96 @@
-/** The shape of a component definition file, read from its default export. */
+/** The shape of every component definition a module holds, read from its definition sites. */
 
 import * as ts from "typescript";
-import { defaultExportExpression, hasNonNullDefault, mixinBindings, nameOf, sourceFile, unwrapToLiteral } from "./ast.js";
+import { hasNonNullDefault, mixinBindings, nameOf, sourceFile } from "./ast.js";
+import { definitionSites } from "./sites.js";
 
-/** @import { ParsedComponent } from "../types.ts" */
-
-const DEFINERS = new Set(["defineComponent", "defineMixin", "View.define"]);
+/** @import { ParsedComponent, PropertyInfo } from "../types.ts" */
 
 /**
- * Whether the default export's literal is the definition itself.
- *
- * `unwrapToLiteral` takes a call's last argument, which is the definition for
- * `defineComponent({...})` and the options for a component factory that builds
- * one (`editorFor({ tag, kind })`). In the second case the definition's own
- * keys sit in the factory's body, so a key missing from the literal says
- * nothing about whether the component declares it.
- *
- * @param {import("typescript").Expression | null} expr
+ * @param {ts.ObjectLiteralExpression} props
+ * @param {ts.SourceFile} sf
+ * @returns {PropertyInfo[]}
  */
-const isDirectDefinition = (expr) => {
-  if (!expr || !ts.isCallExpression(expr)) return true;
-  const callee = expr.expression;
-  const name = ts.isIdentifier(callee) ? callee.text
-    : ts.isPropertyAccessExpression(callee) ? `${callee.expression.getText()}.${callee.name.text}` : "";
-  return DEFINERS.has(name);
+const readProps = (props, sf) => {
+  /** @type {PropertyInfo[]} */
+  const out = [];
+  for (const p of props.properties) {
+    const name = nameOf(p.name);
+    if (name) out.push({ name, offset: p.getStart(sf), hasNonNullDefault: hasNonNullDefault(p) });
+  }
+  return out;
 };
 
 /**
  * @param {string} source
  * @param {string} filename
- * @returns {ParsedComponent | null} null when the file has no object-literal default export
+ * @returns {ParsedComponent[]} one per definition site, in source order; empty when the module defines nothing
  */
-export const parseComponentSource = (source, filename) => {
+export const parseComponentSources = (source, filename) => {
   const sf = sourceFile(source, filename);
-  const exported = defaultExportExpression(sf);
-  const literal = unwrapToLiteral(exported);
-  if (!literal) return null;
-  const direct = isDirectDefinition(exported);
-
-  let tag = null;
-  let extendsTag = null;
-  let styleTrue = false;
-  let styleKnown = direct;
-  const topLevelKeys = [];
-  const propertyNames = [];
-  let propsOffset = null;
-  /** @type {Record<string, number>} */
-  const keyOffsets = {};
-  for (const m of literal.properties) {
-    const key = nameOf(m.name);
-    if (!key) continue;
-    topLevelKeys.push(key);
-    keyOffsets[key] = m.getStart(sf);
-    if (!ts.isPropertyAssignment(m)) continue;
-    if (key === "tag" && ts.isStringLiteral(m.initializer)) tag = m.initializer.text;
-    if (key === "extends" && ts.isStringLiteralLike(m.initializer)) extendsTag = m.initializer.text;
-    if (key === "style") {
-      styleTrue = m.initializer.kind === ts.SyntaxKind.TrueKeyword;
-      styleKnown = styleTrue || m.initializer.kind === ts.SyntaxKind.FalseKeyword;
-    }
-    if (key === "props" && ts.isObjectLiteralExpression(m.initializer)) {
-      propsOffset = m.initializer.getStart(sf);
-      for (const p of m.initializer.properties) {
-        const pk = nameOf(p.name);
-        if (pk) propertyNames.push({ name: pk, offset: p.getStart(sf), hasNonNullDefault: hasNonNullDefault(p) });
+  return definitionSites(sf).map((site) => {
+    const { literal } = site;
+    let tag = site.tag;
+    let extendsTag = null;
+    let styleTrue = false;
+    let styleKnown = site.direct;
+    /** @type {string[]} */
+    const topLevelKeys = [];
+    /** @type {PropertyInfo[]} */
+    let propertyNames = [];
+    /** @type {number | null} */
+    let propsOffset = null;
+    /** @type {Record<string, number>} */
+    const keyOffsets = {};
+    for (const m of literal?.properties ?? []) {
+      const key = nameOf(m.name);
+      if (!key) continue;
+      topLevelKeys.push(key);
+      keyOffsets[key] = m.getStart(sf);
+      if (!ts.isPropertyAssignment(m)) continue;
+      if (key === "tag" && ts.isStringLiteral(m.initializer)) tag ??= m.initializer.text;
+      if (key === "extends" && ts.isStringLiteralLike(m.initializer)) extendsTag = m.initializer.text;
+      if (key === "style") {
+        styleTrue = m.initializer.kind === ts.SyntaxKind.TrueKeyword;
+        styleKnown = styleTrue || m.initializer.kind === ts.SyntaxKind.FalseKeyword;
+      }
+      if (key === "props" && !site.props && ts.isObjectLiteralExpression(m.initializer)) {
+        propsOffset = m.initializer.getStart(sf);
+        propertyNames = readProps(m.initializer, sf);
       }
     }
-  }
-  return { tag, extends: extendsTag, styleTrue, styleKnown, mixins: mixinBindings(sf, literal), topLevelKeys, keyOffsets, propertyNames, propsOffset, literal, sf };
+    if (site.props) {
+      propsOffset = site.props.getStart(sf);
+      keyOffsets.props = propsOffset;
+      propertyNames = readProps(site.props, sf);
+    }
+    if (site.render) {
+      topLevelKeys.push("render");
+      keyOffsets.render = site.render.getStart(sf);
+    }
+    return {
+      tag,
+      extends: extendsTag,
+      styleTrue,
+      styleKnown,
+      mixins: literal ? mixinBindings(sf, literal) : [],
+      topLevelKeys,
+      keyOffsets,
+      propertyNames,
+      propsOffset,
+      literal,
+      sf,
+      offset: site.offset,
+      defined: site.defined,
+    };
+  });
 };
+
+/**
+ * The definition a tag names among a module's: the one declaring it, else the
+ * module's only one.
+ * @param {ParsedComponent[]} parsed
+ * @param {string | null} tag
+ * @returns {ParsedComponent | null}
+ */
+export const definitionOf = (parsed, tag) => parsed.find((p) => p.tag === tag) ?? (parsed.length === 1 ? parsed[0] : null);

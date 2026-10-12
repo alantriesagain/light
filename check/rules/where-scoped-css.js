@@ -34,8 +34,8 @@ const nestedSelectorsNameTag = (body, ownTag) => {
   return nested.length > 0 && nested.every((s) => ownTag.test(s.selector));
 };
 
-/** @param {string} tag */
-const namesTag = (tag) => new RegExp(`(^|[^\\w-])${tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`);
+/** @param {string[]} tags */
+const namesTag = (tags) => new RegExp(`(^|[^\\w-])(?:${tags.map((tag) => tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(?![\\w-])`);
 
 export default defineRule({
   severity: "warn",
@@ -43,23 +43,25 @@ export default defineRule({
   why: "component css loads into the light DOM, so an unscoped selector styles the whole app. Applies regardless of the project's styling flavor: any style: true css file is document-level. The scope names the view's own tag: a :where() naming another tag (a stale prefix left by a rename or a move between units) styles nothing of this component and leaks onto whatever carries that other tag",
   check(ctx) {
     const files = new Set(ctx.files());
-    for (const view of ctx.views()) {
-      if (!view.isComponent || !view.styleTrue || !view.tag) continue;
-      const cssFile = view.file.replace(/\.(js|ts)$/, ".css");
+    for (const file of ctx.componentFiles()) {
+      if (!/\.(js|ts)$/.test(file)) continue;
+      const tags = ctx.viewsIn(file).flatMap((view) => (view.isComponent && view.styleTrue && view.tag ? [view.tag] : []));
+      if (!tags.length) continue;
+      const cssFile = file.replace(/\.(js|ts)$/, ".css");
       if (!files.has(cssFile)) continue;
       const css = stripCssComments(ctx.read(cssFile) || "");
-      const ownTag = namesTag(view.tag);
+      const ownTag = namesTag(tags);
       for (const { selector, offset, body } of topLevelSelectors(css)) {
         if (selector.startsWith("@") || selector.startsWith(":root") || selector.startsWith("::view-transition")) continue;
-        if (selector.includes(":where(") ? ownTag.test(selector) : selector.includes(view.tag)) continue;
+        if (selector.includes(":where(") ? ownTag.test(selector) : tags.some((tag) => selector.includes(tag))) continue;
         if (selector.startsWith(":where(") && body.includes("{") && nestedSelectorsNameTag(body, ownTag)) continue;
-        const fix = `scope as :where(.${view.tag}, ${view.tag}) ...`;
+        const fix = `scope as :where(.${tags[0]}, ${tags[0]}) ...`;
         const head = selector.split(",")[0].trim();
         ctx.report({
           file: cssFile,
           offset,
           message: selector.includes(":where(")
-            ? `top-level selector "${head}" is scoped to another tag, not <${view.tag}>; ${fix}`
+            ? `top-level selector "${head}" is scoped to another tag, not <${tags[0]}>; ${fix}`
             : `top-level selector "${head}" leaks into the light DOM; ${fix}`,
         });
       }
